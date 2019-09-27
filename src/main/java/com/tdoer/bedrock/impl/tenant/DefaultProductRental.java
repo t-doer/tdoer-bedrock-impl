@@ -50,6 +50,16 @@ public class DefaultProductRental implements ProductRental {
     }
 
     @Override
+    public Long getTenantId() {
+        return definition.getTenantId();
+    }
+
+    @Override
+    public String getProductId() {
+        return definition.getProductId();
+    }
+
+    @Override
     public Date getStartDate() {
         return definition.getStartDate();
     }

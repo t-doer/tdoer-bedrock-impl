@@ -122,7 +122,7 @@ public class ContextConfigLoader {
     public DefaultContextApplicationInstallation[] loadApplicationInstallations(ContextPath contextPath, String productId, String clientId, Long tenantId){
 
         List<ContextApplicationDefinition> list = contextProvider.getContextApplications(contextPath, productId, clientId, tenantId);
-        if(list != null || list.size() ==0){
+        if(list == null || list.size() ==0){
             return EMPTY_CONTEXT_APPLICATIONS;
         }
 

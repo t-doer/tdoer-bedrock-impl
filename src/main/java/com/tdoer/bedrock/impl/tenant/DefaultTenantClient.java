@@ -57,6 +57,16 @@ public class DefaultTenantClient implements TenantClient {
     }
 
     @Override
+    public Long getTenantId() {
+        return definition.getTenantId();
+    }
+
+    @Override
+    public String getClientId() {
+        return definition.getClientId();
+    }
+
+    @Override
     public Tenant getTenant() {
         return rentalCenter.getTenant(definition.getTenantId());
     }

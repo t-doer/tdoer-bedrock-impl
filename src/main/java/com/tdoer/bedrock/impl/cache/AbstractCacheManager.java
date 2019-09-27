@@ -139,28 +139,38 @@ public abstract class AbstractCacheManager<Key, Source> implements CacheManager<
 
                     ret = cacheEnt.getSource();
                     if(ret != null){
-                        if(ret instanceof Modifiable && ((Modifiable)ret).isModified()){
+						if(ret instanceof  Modifiable){
+							if(((Modifiable)ret).isModified()){
+								// modified, reload it
+								if(logger.isDebugEnabled()){
+									logger.debug("{}: Cached source was modified, of request '{}': {}", this, key, ret);
+								}
 
-                            if(logger.isDebugEnabled()){
-                                logger.debug("{}: Cached source was modified, of request '{}': {}", this, key, ret);
-                            }
+								// reload it
+								ret = reloadSource(key, ret);
+								loaded = true;
 
-                            // reload it
-                            ret = reloadSource(key, ret);
-                            loaded = true;
+								if(logger.isDebugEnabled()){
+									logger.debug("{}: Reloaded source for request '{}': {}", this, key, ret);
+								}
+							}else{
+								// not modified, refresh time
+								// refresh time
+								cacheEnt.refreshCacheTime();
 
-                            if(logger.isDebugEnabled()){
-                                logger.debug("{}: Reloaded source for request '{}': {}", this, key, ret);
-                            }
+								if(logger.isDebugEnabled()){
+									logger.debug("{}: Cached source was not modified, refreshed cache time for request '{}': {}", this, key, cacheEnt);
+								}
+							}
+						}else{
+							// cache expired, reload it
+							ret = reloadSource(key, ret);
+							loaded = true;
 
-                        }else{
-                            // refresh time
-                            cacheEnt.refreshCacheTime();
-
-                            if(logger.isDebugEnabled()){
-                                logger.debug("{}: Cached source was not modified, refreshed cache time for request '{}': {}", this, key, cacheEnt);
-                            }
-                        }
+							if(logger.isDebugEnabled()){
+								logger.debug("{}: Reloaded source for request '{}': {}", this, key, ret);
+							}
+						}
                     }else{
                         // load it
                         ret = loadSource(key);

@@ -19,7 +19,7 @@ import com.tdoer.bedrock.context.ContextPath;
 import org.springframework.util.Assert;
 
 /**
- * ApplicationDomain is used to search application resources (pages or actions)
+ * ServiceDomain is used to search service methods
  *
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
@@ -69,17 +69,19 @@ public class ServiceDomain extends ExtensionDomain<ServiceDomain>{
 
 
 	/**
-	 * Suppose current product domain is [serviceId, productId, clientId, tenantId, contextPath]
-     * is [user, cc, cc-engineer-app, 1, 1.1-20.1-30.1], next lookup sequence will be:
+	 * Suppose current service domain is [serviceId: productId, clientId,
+	 * tenantId, contextPath]
+     * is [user-service: cc, cc-engineer-app, 1, 1.1-20.1-30.1], next lookup
+	 * sequence will be:
 	 * <ol>
-	 *     <li>[user: cc, cc-engineer-app, 1, 1.1-20.1-30.1]</li>
-	 *     <li>[user: cc, cc-engineer-app, 1, 1.1-20.1-30.0]</li>
-	 *     <li>[user: cc, cc-engineer-app, 1, 1.1-20.0-30.0]</li>
-	 *     <li>[user: cc, cc-engineer-app, 1, 1.0-20.0-30.0]</li>
-	 *     <li>[user: cc, cc-engineer-app, 0, 1.0-20.0-30.0]</li>
-     *     <li>[user: cc, cc-engineer-app, 0, null]</li>
-     *     <li>[user: cc, null, 0, null]</li>
-     *     <li>[user: null, null, 0, null]</li>
+	 *     <li>[user-service: cc, cc-engineer-app, 1, 1.1-20.1-30.1]</li>
+	 *     <li>[user-service: cc, cc-engineer-app, 1, 1.1-20.1-30.0]</li>
+	 *     <li>[user-service: cc, cc-engineer-app, 1, 1.1-20.0-30.0]</li>
+	 *     <li>[user-service: cc, cc-engineer-app, 1, 1.0-20.0-30.0]</li>
+	 *     <li>[user-service: cc, cc-engineer-app, 0, 1.0-20.0-30.0]</li>
+     *     <li>[user-service: cc, cc-engineer-app, 0, null]</li>
+     *     <li>[user-service: cc, null, 0, null]</li>
+     *     <li>[user-service: null, null, 0, null]</li>
      *     <li>null</li>
 	 * </ol>
 	 *

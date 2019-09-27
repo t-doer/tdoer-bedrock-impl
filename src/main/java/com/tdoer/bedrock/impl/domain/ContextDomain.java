@@ -19,7 +19,8 @@ import com.tdoer.bedrock.context.ContextPath;
 import org.springframework.util.Assert;
 
 /**
- * ApplicationDomain is used to search application resources (pages or actions)
+ * ContextDomain is used to search context's configurations, such like
+ * context roles, application installations, and public authorities.
  *
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
@@ -63,7 +64,8 @@ public class ContextDomain extends ExtensionDomain<ContextDomain> {
 
 
 	/**
-	 * Suppose current product domain is [contextPath: productId, clientId, tenantId]
+	 * Suppose current context domain is [context: productId, clientId,
+	 * tenantId]
      * is [1.1-20.1-30.1: cc, cc-engineer-app, 1], next lookup sequence will be:
 	 * <ol>
 	 *     <li>[1.1-20.1-30.1: cc, cc-engineer-app, 1]</li>

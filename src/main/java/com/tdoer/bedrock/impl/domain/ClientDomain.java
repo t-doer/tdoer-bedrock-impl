@@ -46,7 +46,7 @@ public class ClientDomain extends ExtensionDomain<ClientDomain> {
     }
 
     /**
-     * Suppose current product domain is [clientId: tenantId]
+     * Suppose current client domain is [clientId: tenantId]
      * is [cc-engineer-app: 1], next lookup sequence will be:
      * <ol>
      *     <li>[cc-engineer-app: 1]</li>
