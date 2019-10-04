@@ -57,7 +57,7 @@ public class DefaultContextConfig implements ContextConfig {
      * @param list
      */
     @Override
-    public void listCurentUserRoles(List<ContextRole> list) {
+    public void listCurrentUserRoles(List<ContextRole> list) {
         User user = AuthenticationUtil.getUser();
         listUserRoles(user.getId(), list);
     }
@@ -174,7 +174,7 @@ public class DefaultContextConfig implements ContextConfig {
 
         // check user role's authorities
         List<ContextRole> userRoles = new ArrayList<>();
-        listCurentUserRoles(userRoles);
+        listCurrentUserRoles(userRoles);
         for (ContextRole role : userRoles) {
             if (role.permitServiceMethod(httpMethod, path)) {
                 logger.info("HTTP Request ({}, {}) is permitted by Context Role ({})", httpMethod, path, role);
