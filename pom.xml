@@ -13,7 +13,7 @@
 
     <groupId>com.tdoer</groupId>
     <artifactId>tdoer-bedrock-impl</artifactId>
-    <version>1.0.1-RELEASE</version>
+    <version>1.0.2-SNAPSHOT</version>
     <name>T-Doer Bedrock Implementation</name>
     <description>T-Doer Bedrock SaaS Framework Implementation</description>
     <licenses>
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.tdoer</groupId>
             <artifactId>tdoer-bedrock</artifactId>
-            <version>1.0.1-RELEASE</version>
+            <version>1.0.2-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

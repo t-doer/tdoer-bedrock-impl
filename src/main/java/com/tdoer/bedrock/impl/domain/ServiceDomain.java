@@ -69,19 +69,18 @@ public class ServiceDomain extends ExtensionDomain<ServiceDomain>{
 
 
 	/**
-	 * Suppose current service domain is [serviceId: productId, clientId,
-	 * tenantId, contextPath]
-     * is [user-service: cc, cc-engineer-app, 1, 1.1-20.1-30.1], next lookup
-	 * sequence will be:
+	 * Suppose current service domain is [serviceId: applicationId, productId, clientId, tenantId, contextPath]
+     * is [user-service: user-manager, cc, cc-engineer-app, 1, 1.1-20.1-30.1], next lookup sequence will be:
 	 * <ol>
-	 *     <li>[user-service: cc, cc-engineer-app, 1, 1.1-20.1-30.1]</li>
-	 *     <li>[user-service: cc, cc-engineer-app, 1, 1.1-20.1-30.0]</li>
-	 *     <li>[user-service: cc, cc-engineer-app, 1, 1.1-20.0-30.0]</li>
-	 *     <li>[user-service: cc, cc-engineer-app, 1, 1.0-20.0-30.0]</li>
-	 *     <li>[user-service: cc, cc-engineer-app, 0, 1.0-20.0-30.0]</li>
-     *     <li>[user-service: cc, cc-engineer-app, 0, null]</li>
-     *     <li>[user-service: cc, null, 0, null]</li>
-     *     <li>[user-service: null, null, 0, null]</li>
+	 *     <li>[user-service: user-manager, cc, cc-engineer-app, 1, 1.1-20.1-30.1]</li>
+	 *     <li>[user-service: user-manager, cc, cc-engineer-app, 1, 1.1-20.1-30.0]</li>
+	 *     <li>[user-service: user-manager, cc, cc-engineer-app, 1, 1.1-20.0-30.0]</li>
+	 *     <li>[user-service: user-manager, cc, cc-engineer-app, 1, 1.0-20.0-30.0]</li>
+	 *     <li>[user-service: user-manager, cc, cc-engineer-app, 0, 1.0-20.0-30.0]</li>
+     *     <li>[user-service: user-manager, cc, cc-engineer-app, 0, void]</li>
+     *     <li>[user-service: user-manager, cc, null, 0, null]</li>
+     *     <li>[user-service: user-manager, null, null, 0, null]</li>
+	 *     <li>[user-service: null, null, null, 0, null]</li>
      *     <li>null</li>
 	 * </ol>
 	 *
