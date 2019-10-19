@@ -16,35 +16,23 @@
 package com.tdoer.bedrock.impl.definition.context;
 
 import java.io.Serializable;
-
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ContextRoleAuthorityDefinition implements Serializable {
-
-    private Long roleId;
+public class PublicResourceDefinition implements Serializable {
+    private Long clientId;
 
     private Long resourceId;
 
     private String resourceType;
 
-    private String applicationId;
-
-    public Long getRoleId() {
-        return roleId;
+    public Long getClientId() {
+        return clientId;
     }
 
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
-    }
-
-    public String getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+    public void setClientId(Long clientId) {
+        this.clientId = clientId;
     }
 
     public Long getResourceId() {

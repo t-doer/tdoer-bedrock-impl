@@ -21,25 +21,25 @@ import java.io.Serializable;
  * @create 2017-09-19
  */
 public class ServiceDefinition implements Serializable {
-    private String id;
+    private Long id;
 
     private String name;
+
+    private String code;
+
+    private String type;
 
     private String description;
 
     private String provider;
 
-    private String author;
-
-    private String maintainers;
-
     private String version;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -67,20 +67,20 @@ public class ServiceDefinition implements Serializable {
         this.provider = provider;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getCode() {
+        return code;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public String getMaintainers() {
-        return maintainers;
+    public String getType() {
+        return type;
     }
 
-    public void setMaintainers(String maintainers) {
-        this.maintainers = maintainers;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getVersion() {

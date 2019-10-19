@@ -15,8 +15,9 @@
  */
 package com.tdoer.bedrock.impl.service;
 
-import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.definition.service.ServiceMethodDefinition;
+import com.tdoer.bedrock.resource.ResourceCategory;
+import com.tdoer.bedrock.resource.ResourceType;
 import com.tdoer.bedrock.service.ServiceMethod;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
@@ -32,13 +33,10 @@ public class DefaultServiceMethod implements ServiceMethod {
 
     private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    private ContextPath contextPath;
-
-    public DefaultServiceMethod(ServiceMethodDefinition definition, ContextPath contextPath){
+    public DefaultServiceMethod(ServiceMethodDefinition definition){
         Assert.notNull(definition, "ServiceMethodDefinition cannot be null");
 
         this.definition = definition;
-        this.contextPath = contextPath;
     }
 
     /**
@@ -47,7 +45,7 @@ public class DefaultServiceMethod implements ServiceMethod {
      * @return
      */
     @Override
-    public String getServiceId() {
+    public Long getServiceId() {
         return definition.getServiceId();
     }
 
@@ -91,44 +89,19 @@ public class DefaultServiceMethod implements ServiceMethod {
         return definition.getId();
     }
 
-    /**
-     * Product Id, to which the service method belongs
-     *
-     * @return Product Id, it may be {@code Null}
-     */
     @Override
-    public String getProductId() {
-        return definition.getProductId();
+    public ResourceCategory getCategory() {
+        return ResourceCategory.SERVICE;
     }
 
-    /**
-     * Tenant Id, to which the service method belongs to
-     *
-     * @return Tenant Id, it may be {@code Null}
-     */
     @Override
-    public Long getTenantId() {
-        return definition.getTenantId();
+    public ResourceType getType() {
+        return ResourceType.SERVICE_METHOD;
     }
 
-    /**
-     * Client Id, to which the service method belongs to
-     *
-     * @return Client Id, it may be {@code Null}
-     */
     @Override
-    public String getClientId() {
-        return definition.getClientId();
-    }
-
-    /**
-     * Context path, to which the service method belongs to
-     *
-     * @return Context path, it may be {@code Null}
-     */
-    @Override
-    public ContextPath getContextPath() {
-        return contextPath;
+    public boolean isCustomized() {
+        return "Y".equalsIgnoreCase(definition.getCustomized());
     }
 
     @Override

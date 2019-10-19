@@ -25,7 +25,7 @@ public class ServiceMethodDefinition implements Serializable {
 
     private Long id;
 
-    private String serviceId;
+    private Long serviceId;
 
     private String name;
 
@@ -33,13 +33,7 @@ public class ServiceMethodDefinition implements Serializable {
 
     private String uri;
 
-    private String productId;
-
-    private String clientId;
-
-    private Long tenantId;
-
-    private String contextPath;
+    private String customized;
 
     public Long getId() {
         return id;
@@ -49,11 +43,11 @@ public class ServiceMethodDefinition implements Serializable {
         this.id = id;
     }
 
-    public String getServiceId() {
+    public Long getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(String serviceId) {
+    public void setServiceId(Long serviceId) {
         this.serviceId = serviceId;
     }
 
@@ -81,35 +75,11 @@ public class ServiceMethodDefinition implements Serializable {
         this.uri = uri;
     }
 
-    public String getProductId() {
-        return productId;
+    public String getCustomized() {
+        return customized;
     }
 
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
-
-    public Long getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
-    }
-
-    public String getContextPath() {
-        return contextPath;
-    }
-
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
+    public void setCustomized(String customized) {
+        this.customized = customized;
     }
 }

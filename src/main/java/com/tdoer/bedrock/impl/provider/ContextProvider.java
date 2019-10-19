@@ -32,9 +32,9 @@ public interface ContextProvider {
 
     List<ContextRoleDefinition> getContextRoles(ContextPath contextPath, String productId, String clientId, Long tenantId);
 
-    List<PublicAuthorityDefinition> getPublicAuthorities(ContextPath contextPath, String productId, String clientId, Long tenantId);
+    List<PublicResourceDefinition> getPublicAuthorities(ContextPath contextPath, String productId, String clientId, Long tenantId);
 
-    List<ContextRoleAuthorityDefinition> getContextRoleAuthorities(ContextPath contextPath, Long roleId);
+    List<ContextRoleResourceDefinition> getContextRoleAuthorities(ContextPath contextPath, Long roleId);
 
     ContextInstanceDefinition getContextInstance(ContextPath contextPath);
 

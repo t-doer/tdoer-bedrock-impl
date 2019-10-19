@@ -22,35 +22,25 @@ import java.io.Serializable;
  */
 public class ClientApplicationDefinition implements Serializable {
 
-    private String productId;
+    private Long clientId;
 
-    private String clientId;
-
-    private String applicationId;
+    private Long applicationId;
 
     private Long tenantId;
 
-    public String getProductId() {
-        return productId;
-    }
-
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
-
-    public String getClientId() {
+    public Long getClientId() {
         return clientId;
     }
 
-    public void setClientId(String clientId) {
+    public void setClientId(Long clientId) {
         this.clientId = clientId;
     }
 
-    public String getApplicationId() {
+    public Long getApplicationId() {
         return applicationId;
     }
 
-    public void setApplicationId(String applicationId) {
+    public void setApplicationId(Long applicationId) {
         this.applicationId = applicationId;
     }
 

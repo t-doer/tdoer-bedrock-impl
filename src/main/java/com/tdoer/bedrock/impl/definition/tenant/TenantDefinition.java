@@ -23,6 +23,8 @@ import java.io.Serializable;
 public class TenantDefinition implements Serializable {
     private Long id;
 
+    private String guid;
+
     private String name;
 
     private String code;
@@ -33,6 +35,14 @@ public class TenantDefinition implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(String guid) {
+        this.guid = guid;
     }
 
     public String getName() {

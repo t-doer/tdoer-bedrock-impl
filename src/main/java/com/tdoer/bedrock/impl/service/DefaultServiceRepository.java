@@ -69,7 +69,7 @@ public class DefaultServiceRepository implements ServiceRepository {
                 }
             }
             domain = domain.nextLookup();
-        }while(domain != null);
+        }while(domain != null);K
 
     }
 

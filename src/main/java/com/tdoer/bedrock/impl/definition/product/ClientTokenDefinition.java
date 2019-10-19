@@ -22,9 +22,13 @@ import java.io.Serializable;
  * @create 2017-09-19
  */
 public class ClientTokenDefinition implements Serializable {
-    private String clientId;
+    private Long clientId;
 
     private Long tenantId;
+
+    private String grantTypes;
+
+    private String autoApprovals;
 
     private String webRedirectURI;
 
@@ -34,13 +38,11 @@ public class ClientTokenDefinition implements Serializable {
 
     private String sessionPolicty;
 
-    private String defaultLanguage;
-
-    public String getClientId() {
+    public Long getClientId() {
         return clientId;
     }
 
-    public void setClientId(String clientId) {
+    public void setClientId(Long clientId) {
         this.clientId = clientId;
     }
 
@@ -50,6 +52,22 @@ public class ClientTokenDefinition implements Serializable {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
+    }
+
+    public String getGrantTypes() {
+        return grantTypes;
+    }
+
+    public void setGrantTypes(String grantTypes) {
+        this.grantTypes = grantTypes;
+    }
+
+    public String getAutoApprovals() {
+        return autoApprovals;
+    }
+
+    public void setAutoApprovals(String autoApprovals) {
+        this.autoApprovals = autoApprovals;
     }
 
     public String getWebRedirectURI() {
@@ -82,13 +100,5 @@ public class ClientTokenDefinition implements Serializable {
 
     public void setSessionPolicty(String sessionPolicty) {
         this.sessionPolicty = sessionPolicty;
-    }
-
-    public String getDefaultLanguage() {
-        return defaultLanguage;
-    }
-
-    public void setDefaultLanguage(String defaultLanguage) {
-        this.defaultLanguage = defaultLanguage;
     }
 }

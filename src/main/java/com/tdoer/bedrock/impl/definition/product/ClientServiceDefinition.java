@@ -22,35 +22,25 @@ import java.io.Serializable;
  */
 public class ClientServiceDefinition implements Serializable {
 
-    private String productId;
+    private Long clientId;
 
-    private String clientId;
-
-    private String serviceId;
+    private Long serviceId;
 
     private Long tenantId;
 
-    public String getProductId() {
-        return productId;
-    }
-
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
-
-    public String getClientId() {
+    public Long getClientId() {
         return clientId;
     }
 
-    public void setClientId(String clientId) {
+    public void setClientId(Long clientId) {
         this.clientId = clientId;
     }
 
-    public String getServiceId() {
+    public Long getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(String serviceId) {
+    public void setServiceId(Long serviceId) {
         this.serviceId = serviceId;
     }
 

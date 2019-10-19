@@ -26,11 +26,13 @@ public class TenantProductDefinition implements Serializable {
 
     private Long tenantId;
 
-    private String productId;
+    private Long productId;
 
     private Date startDate;
 
     private Date endDate;
+
+    private String defaultLanguage;
 
     public Long getTenantId() {
         return tenantId;
@@ -40,11 +42,11 @@ public class TenantProductDefinition implements Serializable {
         this.tenantId = tenantId;
     }
 
-    public String getProductId() {
+    public Long getProductId() {
         return productId;
     }
 
-    public void setProductId(String productId) {
+    public void setProductId(Long productId) {
         this.productId = productId;
     }
 
@@ -62,5 +64,13 @@ public class TenantProductDefinition implements Serializable {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public String getDefaultLanguage() {
+        return defaultLanguage;
+    }
+
+    public void setDefaultLanguage(String defaultLanguage) {
+        this.defaultLanguage = defaultLanguage;
     }
 }

@@ -30,10 +30,6 @@ public class ContextRoleDefinition implements Serializable {
 
     private String code;
 
-    private String productId;
-
-    private String clientId;
-
     private Long tenantId;
 
     public Long getId() {
@@ -76,19 +72,4 @@ public class ContextRoleDefinition implements Serializable {
         this.tenantId = tenantId;
     }
 
-    public String getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
-
-    public String getProductId() {
-        return productId;
-    }
-
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
 }

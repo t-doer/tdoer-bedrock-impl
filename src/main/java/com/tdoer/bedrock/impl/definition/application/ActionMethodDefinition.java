@@ -22,19 +22,10 @@ import java.io.Serializable;
  * @create 2017-09-19
  */
 public class ActionMethodDefinition implements Serializable {
-    private Long id;
 
     private Long actionId;
 
     private Long methodId;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Long getActionId() {
         return actionId;

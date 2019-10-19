@@ -24,9 +24,11 @@ import java.io.Serializable;
 public class TenantClientDefinition implements Serializable {
     Long tenantId;
 
-    String clientId;
+    Long clientId;
 
     String hosts;
+
+    String secret;
 
     public Long getTenantId() {
         return tenantId;
@@ -36,11 +38,11 @@ public class TenantClientDefinition implements Serializable {
         this.tenantId = tenantId;
     }
 
-    public String getClientId() {
+    public Long getClientId() {
         return clientId;
     }
 
-    public void setClientId(String clientId) {
+    public void setClientId(Long clientId) {
         this.clientId = clientId;
     }
 
@@ -50,5 +52,13 @@ public class TenantClientDefinition implements Serializable {
 
     public void setHosts(String hosts) {
         this.hosts = hosts;
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
     }
 }

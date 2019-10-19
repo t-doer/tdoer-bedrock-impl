@@ -22,9 +22,7 @@ import java.io.Serializable;
  */
 public class ClientContextDefinition implements Serializable {
 
-    private String productId;
-
-    private String clientId;
+    private Long clientId;
 
     private String contextPath;
 
@@ -32,23 +30,15 @@ public class ClientContextDefinition implements Serializable {
 
     private String entryNavItem;
 
-    private String entryApplicationId;
+    private String entryAppCode;
 
     private String entryLanguage;
 
-    public String getProductId() {
-        return productId;
-    }
-
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
-
-    public String getClientId() {
+    public Long getClientId() {
         return clientId;
     }
 
-    public void setClientId(String clientId) {
+    public void setClientId(Long clientId) {
         this.clientId = clientId;
     }
 
@@ -76,12 +66,12 @@ public class ClientContextDefinition implements Serializable {
         this.entryNavItem = entryNavItem;
     }
 
-    public String getEntryApplicationId() {
-        return entryApplicationId;
+    public String getEntryAppCode() {
+        return entryAppCode;
     }
 
-    public void setEntryApplicationId(String entryApplicationId) {
-        this.entryApplicationId = entryApplicationId;
+    public void setEntryAppCode(String entryAppCode) {
+        this.entryAppCode = entryAppCode;
     }
 
     public String getEntryLanguage() {

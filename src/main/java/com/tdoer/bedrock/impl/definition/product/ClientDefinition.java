@@ -23,39 +23,35 @@ import java.io.Serializable;
  */
 public class ClientDefinition implements Serializable {
 
-    private String id;
+    private Long id;
 
-    private String productId;
+    private Long productId;
 
     private String name;
 
+    private String code;
+
     private String category;
-
-    private String secret;
-
-    private String grantTypes;
 
     private String scopes;
 
-    private String authorities;
+    private String roles;
 
     private String trusted;
 
-    private String autoApprovals;
-
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getProductId() {
+    public Long getProductId() {
         return productId;
     }
 
-    public void setProductId(String productId) {
+    public void setProductId(Long productId) {
         this.productId = productId;
     }
 
@@ -67,28 +63,20 @@ public class ClientDefinition implements Serializable {
         this.name = name;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public String getCategory() {
         return category;
     }
 
     public void setCategory(String category) {
         this.category = category;
-    }
-
-    public String getSecret() {
-        return secret;
-    }
-
-    public void setSecret(String secret) {
-        this.secret = secret;
-    }
-
-    public String getGrantTypes() {
-        return grantTypes;
-    }
-
-    public void setGrantTypes(String grantTypes) {
-        this.grantTypes = grantTypes;
     }
 
     public String getScopes() {
@@ -99,12 +87,12 @@ public class ClientDefinition implements Serializable {
         this.scopes = scopes;
     }
 
-    public String getAuthorities() {
-        return authorities;
+    public String getRoles() {
+        return roles;
     }
 
-    public void setAuthorities(String authorities) {
-        this.authorities = authorities;
+    public void setRoles(String roles) {
+        this.roles = roles;
     }
 
     public String getTrusted() {
@@ -113,13 +101,5 @@ public class ClientDefinition implements Serializable {
 
     public void setTrusted(String trusted) {
         this.trusted = trusted;
-    }
-
-    public String getAutoApprovals() {
-        return autoApprovals;
-    }
-
-    public void setAutoApprovals(String autoApprovals) {
-        this.autoApprovals = autoApprovals;
     }
 }

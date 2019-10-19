@@ -22,7 +22,7 @@ import java.io.Serializable;
  */
 public class ContextTypeDefinition implements Serializable {
 
-    private Integer type;
+    private Long id;
 
     private String name;
 
@@ -30,14 +30,18 @@ public class ContextTypeDefinition implements Serializable {
 
     private String category;
 
-    private Integer parentType;
+    private Long parentType;
 
-    public Integer getType() {
-        return type;
+    private String contextPath;
+
+    private Long tenantId;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -64,11 +68,27 @@ public class ContextTypeDefinition implements Serializable {
         this.category = category;
     }
 
-    public Integer getParentType() {
+    public Long getParentType() {
         return parentType;
     }
 
-    public void setParentType(Integer parentType) {
+    public void setParentType(Long parentType) {
         this.parentType = parentType;
+    }
+
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
     }
 }

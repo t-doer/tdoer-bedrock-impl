@@ -27,15 +27,11 @@ public class PageDefinition implements Serializable {
 
     private String code;
 
-    private String applicationId;
+    private String uri;
 
-    private String productId;
+    private Long applicationId;
 
-    private String clientId;
-
-    private Long tenantId;
-
-    private String contextPath;
+    private String customized;
 
     public Long getId() {
         return id;
@@ -61,43 +57,27 @@ public class PageDefinition implements Serializable {
         this.code = code;
     }
 
-    public String getProductId() {
-        return productId;
+    public String getUri() {
+        return uri;
     }
 
-    public void setProductId(String productId) {
-        this.productId = productId;
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
-    public String getApplicationId() {
+    public Long getApplicationId() {
         return applicationId;
     }
 
-    public void setApplicationId(String applicationId) {
+    public void setApplicationId(Long applicationId) {
         this.applicationId = applicationId;
     }
 
-    public Long getTenantId() {
-        return tenantId;
+    public String getCustomized() {
+        return customized;
     }
 
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
-
-    public String getContextPath() {
-        return contextPath;
-    }
-
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
+    public void setCustomized(String customized) {
+        this.customized = customized;
     }
 }

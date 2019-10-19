@@ -22,56 +22,61 @@ import java.io.Serializable;
  * @create 2017-09-19
  */
 public class ContextInstanceDefinition implements Serializable {
-
-    /**
-     * Context type, for example, 1 - TENANT, 2 - USER
-     */
-    private Integer contextType;
-
     /**
      * Tenant Id, Organization Id or User Id
      */
-    private Long instanceId;
+    private Long id;
+
+    private String guid;
 
     /**
      * Tenant Name, Organizaiton Name or User Name
      */
-    private String instanceName;
+    private String name;
 
     /**
      * Tenant Code, Organization Code or User Login Account
      */
     private String code;
 
+    private Long tenantId;
+
+    /**
+     * Context type, for example, 1 - TENANT, 2 - USER
+     */
+    private Integer contextType;
+
+    private String contextPath;
+
+    private Long parentId;
+
     /**
      * Context instance's detail information object's ID, say, tenant's Id, store's Id, userI's Id etc.
      */
     private Long detailObjectId;
 
-    private ContextInstanceDefinition parent;
-
-    public Integer getContextType() {
-        return contextType;
+    public Long getId() {
+        return id;
     }
 
-    public void setContextType(Integer contextType) {
-        this.contextType = contextType;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public Long getInstanceId() {
-        return instanceId;
+    public String getGuid() {
+        return guid;
     }
 
-    public void setInstanceId(Long instanceId) {
-        this.instanceId = instanceId;
+    public void setGuid(String guid) {
+        this.guid = guid;
     }
 
-    public String getInstanceName() {
-        return instanceName;
+    public String getName() {
+        return name;
     }
 
-    public void setInstanceName(String instanceName) {
-        this.instanceName = instanceName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getCode() {
@@ -82,22 +87,43 @@ public class ContextInstanceDefinition implements Serializable {
         this.code = code;
     }
 
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Integer getContextType() {
+        return contextType;
+    }
+
+    public void setContextType(Integer contextType) {
+        this.contextType = contextType;
+    }
+
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
     public Long getDetailObjectId() {
         return detailObjectId;
     }
 
     public void setDetailObjectId(Long detailObjectId) {
         this.detailObjectId = detailObjectId;
-    }
-
-    public ContextInstanceDefinition getParent() {
-        return parent;
-    }
-
-    /**
-     * Parent organization Id, if user, root organization node's ID
-     */
-    public void setParent(ContextInstanceDefinition parent) {
-        this.parent = parent;
     }
 }

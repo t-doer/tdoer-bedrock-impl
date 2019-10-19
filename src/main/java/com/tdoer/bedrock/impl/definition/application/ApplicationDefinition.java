@@ -21,25 +21,23 @@ import java.io.Serializable;
  * @create 2017-09-19
  */
 public class ApplicationDefinition implements Serializable {
-    private String id;
+    private Long id;
 
     private String name;
+
+    private String code;
 
     private String description;
 
     private String provider;
 
-    private String author;
-
-    private String maintainers;
-
     private String version;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -49,6 +47,14 @@ public class ApplicationDefinition implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getDescription() {
@@ -65,22 +71,6 @@ public class ApplicationDefinition implements Serializable {
 
     public void setProvider(String provider) {
         this.provider = provider;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public String getMaintainers() {
-        return maintainers;
-    }
-
-    public void setMaintainers(String maintainers) {
-        this.maintainers = maintainers;
     }
 
     public String getVersion() {

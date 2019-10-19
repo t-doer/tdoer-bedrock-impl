@@ -17,9 +17,12 @@ package com.tdoer.bedrock.impl.service;
 
 import com.tdoer.bedrock.CloudEnvironment;
 import com.tdoer.bedrock.CloudEnvironmentHolder;
+import com.tdoer.bedrock.application.Application;
 import com.tdoer.bedrock.impl.definition.service.ServiceDefinition;
+import com.tdoer.bedrock.product.Client;
 import com.tdoer.bedrock.service.Service;
 import com.tdoer.bedrock.service.ServiceMethod;
+import com.tdoer.bedrock.service.ServiceType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +47,7 @@ public class DefaultService implements Service {
      * @return Service Id
      */
     @Override
-    public String getId() {
+    public Long getId() {
         return definition.getId();
     }
 
@@ -79,26 +82,6 @@ public class DefaultService implements Service {
     }
 
     /**
-     * Service author's name
-     *
-     * @return Service author's name, may be {@code Null}
-     */
-    @Override
-    public String getAuthor() {
-        return definition.getAuthor();
-    }
-
-    /**
-     * Service maintainers, user names delimited by comma
-     *
-     * @return Service maintainers, may be {@code Null}
-     */
-    @Override
-    public String getMaintainers() {
-        return definition.getMaintainers();
-    }
-
-    /**
      * Service version
      *
      * @return Service version, maybe be {@code Null}
@@ -106,6 +89,51 @@ public class DefaultService implements Service {
     @Override
     public String getVersion() {
         return definition.getVersion();
+    }
+
+    @Override
+    public String getCode() {
+        return definition.getCode();
+    }
+
+    @Override
+    public ServiceType getType() {
+        return ServiceType.resolve(definition.getType());
+    }
+
+    @Override
+    public void listRefererApplications(List<Application> list) {
+
+    }
+
+    @Override
+    public void listRefererServices(List<Service> list) {
+
+    }
+
+    @Override
+    public void listRefereeServices(List<Service> list) {
+
+    }
+
+    @Override
+    public boolean permitAccessFromService(Service service) {
+        return false;
+    }
+
+    @Override
+    public boolean permitAccessFromApplication(Application application) {
+        return false;
+    }
+
+    @Override
+    public boolean permitAccessFromClient(Client client) {
+        return false;
+    }
+
+    @Override
+    public boolean matchRequest(String httpMethod, String requestURI) {
+        return false;
     }
 
     /**
@@ -120,7 +148,7 @@ public class DefaultService implements Service {
     public void listCurrentMethods(List<ServiceMethod> list) {
         CloudEnvironment env = CloudEnvironmentHolder.getEnvironment();
         // Note, use this application's serviceId, instead of env's
-        serviceRespository.listServiceMethods(getId(), env.getProductId(), env.getClientId(), env.getTenantId(), env.getContextPath(), list);
+//        serviceRespository.listServiceMethods(getId(), env.getProductId(), env.getClientId(), env.getTenantId(), env.getContextPath(), list);
     }
 
     /**

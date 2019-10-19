@@ -20,9 +20,9 @@ import com.tdoer.bedrock.context.ContextPathParser;
 import com.tdoer.bedrock.context.PublicAuthority;
 import com.tdoer.bedrock.impl.application.DefaultApplicationRepository;
 import com.tdoer.bedrock.impl.definition.context.ContextApplicationDefinition;
-import com.tdoer.bedrock.impl.definition.context.ContextRoleAuthorityDefinition;
+import com.tdoer.bedrock.impl.definition.context.ContextRoleResourceDefinition;
 import com.tdoer.bedrock.impl.definition.context.ContextRoleDefinition;
-import com.tdoer.bedrock.impl.definition.context.PublicAuthorityDefinition;
+import com.tdoer.bedrock.impl.definition.context.PublicResourceDefinition;
 import com.tdoer.bedrock.impl.provider.ContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,10 +61,10 @@ public class ContextConfigLoader {
     }
 
     public PublicAuthority[] loadPublicAuthorities(ContextPath contextPath, String productId, String clientId, Long tenantId){
-        List<PublicAuthorityDefinition> publicAuthorities = contextProvider.getPublicAuthorities(contextPath, productId, clientId, tenantId);
+        List<PublicResourceDefinition> publicAuthorities = contextProvider.getPublicAuthorities(contextPath, productId, clientId, tenantId);
         if(publicAuthorities != null && publicAuthorities.size() > 0){
             ArrayList<DefaultPublicAuthority> list = new ArrayList<>();
-            for(PublicAuthorityDefinition definition  : publicAuthorities){
+            for(PublicResourceDefinition definition  : publicAuthorities){
                 try{
                     list.add(contextConfigBuilder.buildPublicAuthority(definition));
                 }catch(Throwable t){
@@ -89,10 +89,10 @@ public class ContextConfigLoader {
             ArrayList<DefaultContextRole> roleList = new ArrayList<>();
             for(ContextRoleDefinition roleDefinition : roleDefinitionList){
                 DefaultRoleAuthority[] auths = null;
-                List<ContextRoleAuthorityDefinition> authorityDefinitionList = contextProvider.getContextRoleAuthorities(contextPathParser.parse(roleDefinition.getContextPath()), roleDefinition.getId());
+                List<ContextRoleResourceDefinition> authorityDefinitionList = contextProvider.getContextRoleAuthorities(contextPathParser.parse(roleDefinition.getContextPath()), roleDefinition.getId());
                 if(authorityDefinitionList != null){
                     ArrayList<DefaultRoleAuthority> authorityList = new ArrayList<>();
-                    for(ContextRoleAuthorityDefinition authorityDefinition : authorityDefinitionList){
+                    for(ContextRoleResourceDefinition authorityDefinition : authorityDefinitionList){
                         try{
                             authorityList.add(contextConfigBuilder.buildRoleAuthority(authorityDefinition));
                         }catch(Throwable t){

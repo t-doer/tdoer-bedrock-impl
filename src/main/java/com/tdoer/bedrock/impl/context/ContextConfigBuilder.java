@@ -20,9 +20,9 @@ import com.tdoer.bedrock.context.ContextPathParser;
 import com.tdoer.bedrock.impl.application.DefaultApplication;
 import com.tdoer.bedrock.impl.application.DefaultApplicationRepository;
 import com.tdoer.bedrock.impl.definition.context.ContextApplicationDefinition;
-import com.tdoer.bedrock.impl.definition.context.ContextRoleAuthorityDefinition;
+import com.tdoer.bedrock.impl.definition.context.ContextRoleResourceDefinition;
 import com.tdoer.bedrock.impl.definition.context.ContextRoleDefinition;
-import com.tdoer.bedrock.impl.definition.context.PublicAuthorityDefinition;
+import com.tdoer.bedrock.impl.definition.context.PublicResourceDefinition;
 import com.tdoer.bedrock.resource.Resource;
 import com.tdoer.bedrock.resource.ResourceType;
 import org.springframework.util.StringUtils;
@@ -55,7 +55,7 @@ public class ContextConfigBuilder {
         return new DefaultContextRole(definition, contextPath, authorities);
     }
 
-    public DefaultPublicAuthority buildPublicAuthority(PublicAuthorityDefinition definition){
+    public DefaultPublicAuthority buildPublicAuthority(PublicResourceDefinition definition){
         // todo check definition
 
         ResourceType type = ResourceType.resolve(definition.getResourceType());
@@ -67,7 +67,7 @@ public class ContextConfigBuilder {
         return new DefaultPublicAuthority(resource);
     }
 
-    public DefaultRoleAuthority buildRoleAuthority(ContextRoleAuthorityDefinition definition){
+    public DefaultRoleAuthority buildRoleAuthority(ContextRoleResourceDefinition definition){
         // todo check definition
 
         ResourceType type = ResourceType.resolve(definition.getResourceType());

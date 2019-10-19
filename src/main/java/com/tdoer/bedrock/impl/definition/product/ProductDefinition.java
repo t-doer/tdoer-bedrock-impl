@@ -21,21 +21,23 @@ import java.io.Serializable;
  * @create 2017-09-19
  */
 public class ProductDefinition implements Serializable {
-    private String id;
+    private Long id;
 
     private String name;
+
+    private String code;
 
     private String description;
 
     private String languages;
 
-    private String defaultLanguage;
+    private String version;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -45,6 +47,14 @@ public class ProductDefinition implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getDescription() {
@@ -63,11 +73,11 @@ public class ProductDefinition implements Serializable {
         this.languages = languages;
     }
 
-    public String getDefaultLanguage() {
-        return defaultLanguage;
+    public String getVersion() {
+        return version;
     }
 
-    public void setDefaultLanguage(String defaultLanguage) {
-        this.defaultLanguage = defaultLanguage;
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

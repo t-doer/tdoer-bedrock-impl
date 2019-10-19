@@ -22,53 +22,33 @@ import java.io.Serializable;
  * @create 2017-09-19
  */
 public class ApplicationServiceDefinition implements Serializable {
-    private String applicationId;
+    private Long applicationId;
 
-    private String serviceId;
+    private Long serviceId;
 
-    private String productId;
+    private String customized;
 
-    private String clientId;
-
-    private Long tenantId;
-
-    public String getApplicationId() {
+    public Long getApplicationId() {
         return applicationId;
     }
 
-    public void setApplicationId(String applicationId) {
+    public void setApplicationId(Long applicationId) {
         this.applicationId = applicationId;
     }
 
-    public String getServiceId() {
+    public Long getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(String serviceId) {
+    public void setServiceId(Long serviceId) {
         this.serviceId = serviceId;
     }
 
-    public String getProductId() {
-        return productId;
+    public String getCustomized() {
+        return customized;
     }
 
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
-
-    public Long getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
+    public void setCustomized(String customized) {
+        this.customized = customized;
     }
 }
