@@ -16,7 +16,7 @@
 package com.tdoer.bedrock.impl.service;
 
 import com.tdoer.bedrock.CloudEnvironment;
-import com.tdoer.bedrock.CloudEnvironmentHolder;
+import com.tdoer.bedrock.Platform;
 import com.tdoer.bedrock.application.Application;
 import com.tdoer.bedrock.impl.definition.service.ServiceDefinition;
 import com.tdoer.bedrock.product.Client;
@@ -24,7 +24,6 @@ import com.tdoer.bedrock.service.Service;
 import com.tdoer.bedrock.service.ServiceMethod;
 import com.tdoer.bedrock.service.ServiceType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +43,7 @@ public class DefaultService implements Service {
     /**
      * Service Id
      *
-     * @return Service Id
+     * @return Service Id, must not be <code>null</code>
      */
     @Override
     public Long getId() {
@@ -52,9 +51,29 @@ public class DefaultService implements Service {
     }
 
     /**
+     * Service code
+     *
+     * @return Service code, must not be blank
+     */
+    @Override
+    public String getCode() {
+        return definition.getCode();
+    }
+
+    /**
+     * Service type
+     *
+     * @return Service type, must not be <code>null</code>
+     */
+    @Override
+    public ServiceType getType() {
+        return ServiceType.resolve(definition.getType());
+    }
+
+    /**
      * Service provider's name
      *
-     * @return
+     * @return Service provider, must not be blank
      */
     @Override
     public String getProvider() {
@@ -64,7 +83,7 @@ public class DefaultService implements Service {
     /**
      * Service name
      *
-     * @return Service name
+     * @return Service name, must not be blank
      */
     @Override
     public String getName() {
@@ -74,7 +93,7 @@ public class DefaultService implements Service {
     /**
      * Service description
      *
-     * @return Service description, maybe be {@code Null}
+     * @return Service description, maybe be blank
      */
     @Override
     public String getDescription() {
@@ -84,88 +103,132 @@ public class DefaultService implements Service {
     /**
      * Service version
      *
-     * @return Service version, maybe be {@code Null}
+     * @return Service version, must not be blank
      */
     @Override
     public String getVersion() {
         return definition.getVersion();
     }
 
+    /**
+     * List the service's methods which are available in current cloud environment
+     * {@link CloudEnvironment}.
+     *
+     * @param list List to hold service methods, cannot be <code>null</code>.
+     */
     @Override
-    public String getCode() {
-        return definition.getCode();
+    public void listCurrentMethods(List<ServiceMethod> list) {
+        CloudEnvironment env = Platform.getCurrentEnvironment();
+        serviceRespository.listCurrentServiceMethods(getId(), env.getApplicationId(), env.getProductId(),
+                env.getClientId(),
+                env.getTenantId(),
+                env.getContextPath(), list);
     }
 
+    /**
+     * List the service's all enabled service methods, including common and customized
+     * ones.
+     *
+     * @param list List to hold service methods, cannot be <code>null</code>.
+     */
     @Override
-    public ServiceType getType() {
-        return ServiceType.resolve(definition.getType());
+    public void listAllMethods(List<ServiceMethod> list) {
+
     }
 
+    /**
+     * Get available service method of specific method Id in the service
+     *
+     * @param methodId Method Id
+     * @return Service method if found
+     */
+    @Override
+    public ServiceMethod getMethod(Long methodId) {
+        return null;
+    }
+
+    /**
+     * List the clients which refer to or call the service
+     *
+     * @param list List to hold clients, cannot be <code>null</code>
+     */
+    @Override
+    public void listRefererClients(List<Client> list) {
+
+    }
+
+    /**
+     * List applications which refer to or call the service
+     *
+     * @param list List to hold applications, cannot be <code>null</code>
+     */
     @Override
     public void listRefererApplications(List<Application> list) {
 
     }
 
+    /**
+     * List other services which refer to or call the service
+     *
+     * @param list List to hold service, cannot be <code>null</code>
+     */
     @Override
     public void listRefererServices(List<Service> list) {
 
     }
 
+    /**
+     * List other services to which the service refers
+     *
+     * @param list List to hold service, cannot be <code>null</code>
+     */
     @Override
     public void listRefereeServices(List<Service> list) {
 
     }
 
+    /**
+     * Check if the service permits the access from the referer service?
+     *
+     * @param referer The referer service to check, cannot be <code>null</code>
+     * @return true if the service permits the access
+     */
     @Override
-    public boolean permitAccessFromService(Service service) {
+    public boolean permitAccessFromService(Service referer) {
         return false;
     }
 
+    /**
+     * Check if the service permits the access from the referer application?
+     *
+     * @param application The referer application to check, cannot be <code>null</code>
+     * @return true if the service permits the access
+     */
     @Override
     public boolean permitAccessFromApplication(Application application) {
         return false;
     }
 
+    /**
+     * Check if the service permits the access from the referer client?
+     *
+     * @param client The client to check, cannot be <code>null</code>
+     * @return true if the service permits the access
+     */
     @Override
     public boolean permitAccessFromClient(Client client) {
         return false;
     }
 
+    /**
+     * Check if the service has a method which matchs the HTTP request
+     *
+     * @param httpMethod Http method
+     * @param requestURI Request URI
+     * @return true if there is one matched service method
+     */
     @Override
     public boolean matchRequest(String httpMethod, String requestURI) {
         return false;
-    }
-
-    /**
-     * List available service methods in current environment {@link CloudEnvironment},
-     * that's, list available service method according to current client, tenant and context instance.
-     * <br>
-     * Service methods will be appended to the given list.
-     *
-     * @param list List to hold service methods.
-     */
-    @Override
-    public void listCurrentMethods(List<ServiceMethod> list) {
-        CloudEnvironment env = CloudEnvironmentHolder.getEnvironment();
-        // Note, use this application's serviceId, instead of env's
-//        serviceRespository.listServiceMethods(getId(), env.getProductId(), env.getClientId(), env.getTenantId(), env.getContextPath(), list);
-    }
-
-    /**
-     * Get service method of specific Id available in the service
-     *
-     * @param methodId
-     * @return Service method if found, otherwise {@code null}
-     */
-    @Override
-    public DefaultServiceMethod getMethod(Long methodId) {
-        ArrayList<ServiceMethod> list = new ArrayList<>();
-        listCurrentMethods(list);
-        for(ServiceMethod method : list){
-            if(method.getId().equals(methodId)){
-                return (DefaultServiceMethod)method;
-            }
-        }
-        return null;
     }
 }

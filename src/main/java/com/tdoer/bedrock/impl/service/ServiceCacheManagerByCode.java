@@ -29,11 +29,11 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_SERVIC
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ServiceCacheManager extends AbstractCacheManager<String, DefaultService> {
+public class ServiceCacheManagerByCode extends AbstractCacheManager<String, DefaultService> {
     protected ServiceLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(ServiceCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(ServiceCacheManagerByCode.class);
 
-    public ServiceCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
+    public ServiceCacheManagerByCode(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ServiceLoader cannot be null");
@@ -42,17 +42,17 @@ public class ServiceCacheManager extends AbstractCacheManager<String, DefaultSer
     }
 
     @Override
-    protected DefaultService loadSource(String serviceId) throws ErrorCodeException {
+    protected DefaultService loadSource(String serviceCode) throws ErrorCodeException {
         try{
-            logger.info("Loading service of Id ({}) ...", serviceId);
-            DefaultService ret = loader.loadService(serviceId);
-            logger.info("Loaded service of Id ({}): {}", serviceId, ret);
+            logger.info("Loading service of code ({}) ...", serviceCode);
+            DefaultService ret = loader.loadService(serviceCode);
+            logger.info("Loaded service of code ({}): {}", serviceCode, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load service of Id ({})", serviceId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceId);
+            logger.error("Failed to load service of code ({})", serviceCode, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceCode);
         }
     }
 
@@ -62,17 +62,17 @@ public class ServiceCacheManager extends AbstractCacheManager<String, DefaultSer
     }
 
     @Override
-    protected DefaultService reloadSource(String serviceId, DefaultService oldSource) throws ErrorCodeException {
+    protected DefaultService reloadSource(String serviceCode, DefaultService oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading service of Id ({}) ...", serviceId);
-            DefaultService ret = loader.loadService(serviceId);
-            logger.info("Reloaded service of Id ({}): {}", serviceId, ret);
+            logger.info("Reloading service of code ({}) ...", serviceCode);
+            DefaultService ret = loader.loadService(serviceCode);
+            logger.info("Reloaded service of code ({}): {}", serviceCode, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload service of Id ({})", serviceId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceId);
+            logger.error("Failed to reload service of code ({})", serviceCode, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceCode);
         }
     }
 }

@@ -27,9 +27,16 @@ import java.util.List;
  */
 public interface ServiceProvider {
 
-    ServiceDefinition getServiceDefinition(String serviceId);
+    ServiceDefinition getServiceDefinition(Long serviceId);
 
-    List<ServiceMethodDefinition> getServiceMethodDefinitions(String serviceId, String productId, String clientId, Long tenantId, ContextPath contextPath);
+    ServiceDefinition getServiceDefinition(String serviceCode);
+
+    List<ServiceMethodDefinition> getCustomizedServiceMethodDefinitions(
+            Long serviceId, Long applicationId, Long productId, Long clientId, Long tenantId, String contextPath);
+
+    List<ServiceMethodDefinition> getCommonServiceMethodDefinitions(Long serviceId);
+
+    List<ServiceMethodDefinition> getAllServiceMethodDefinitions(Long serviceId);
 
     ServiceMethodDefinition getServiceMethodDefinition(Long methodId);
 }

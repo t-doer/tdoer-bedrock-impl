@@ -15,11 +15,10 @@
  */
 package com.tdoer.bedrock.impl.service;
 
-import com.tdoer.bedrock.context.ContextPath;
-import com.tdoer.bedrock.context.ContextPathParser;
 import com.tdoer.bedrock.impl.definition.service.ServiceDefinition;
 import com.tdoer.bedrock.impl.definition.service.ServiceMethodDefinition;
-import org.springframework.util.StringUtils;
+import com.tdoer.bedrock.service.ServiceType;
+import org.springframework.util.Assert;
 
 /**
  * @author Htinker Hu (htinker@163.com)
@@ -29,10 +28,8 @@ public class ServiceBuilder {
 
     private DefaultServiceRepository serviceRespository;
 
-    private ContextPathParser contextPathParser;
+    public ServiceBuilder() {
 
-    public ServiceBuilder(ContextPathParser contextPathParser) {
-        this.contextPathParser = contextPathParser;
     }
 
     public void setServiceRepository(DefaultServiceRepository serviceRespository) {
@@ -40,17 +37,23 @@ public class ServiceBuilder {
     }
 
     DefaultService buildService(ServiceDefinition definition){
-        // todo, check definition
+        Assert.notNull(definition.getId(), "Service Id cannot be null");
+        Assert.hasText(definition.getCode(), "Service code cannot be blank");
+        Assert.hasText(definition.getName(), "Service name cannot be blank");
+        Assert.hasText(definition.getProvider(), "Service provider cannot be blank");
+        Assert.hasText(definition.getVersion(), "Service version cannot be blank");
+        Assert.notNull(ServiceType.resolve(definition.getType()), "Service type cannot be null");
+
         return new DefaultService(definition, serviceRespository);
     }
 
     DefaultServiceMethod buildServiceMethod(ServiceMethodDefinition definition){
-        // todo verify defintion
-        ContextPath contextPath = null;
-        if(StringUtils.hasText(definition.getContextPath())){
-            contextPath = contextPathParser.parse(definition.getContextPath());
+        Assert.notNull(definition.getId(), "Method Id cannot be null");
+        Assert.notNull(definition.getServiceId(), "Method's service Id cannot be null");
+        Assert.hasText(definition.getMethod(), "HTTP method cannot be blank" );
+        Assert.hasText(definition.getName(), "Method name cannot be blank");
+        Assert.hasText(definition.getUri(), "Method URI cannot be blank");
 
-        }
-        return new DefaultServiceMethod(definition, contextPath);
+        return new DefaultServiceMethod(definition);
     }
 }

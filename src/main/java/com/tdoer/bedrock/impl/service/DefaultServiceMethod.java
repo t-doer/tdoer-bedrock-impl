@@ -40,9 +40,19 @@ public class DefaultServiceMethod implements ServiceMethod {
     }
 
     /**
-     * The Id of the service who provides the service method
+     * Get the service methond's Id
      *
-     * @return
+     * @return Service method's Id, must not be <code>null</code>
+     */
+    @Override
+    public Long getId() {
+        return definition.getId();
+    }
+
+    /**
+     * Get the Id of the service which provides the service method
+     *
+     * @return Service Id, must not be <code>null</code>
      */
     @Override
     public Long getServiceId() {
@@ -50,9 +60,9 @@ public class DefaultServiceMethod implements ServiceMethod {
     }
 
     /**
-     * Get provider method's name
+     * Get service method's name
      *
-     * @return
+     * @return Service method's name, must not be blank
      */
     @Override
     public String getName() {
@@ -60,9 +70,9 @@ public class DefaultServiceMethod implements ServiceMethod {
     }
 
     /**
-     * Get provider method's HTTP method, for example, POST, GET, DELETE, UPDATE etc..
+     * Get the method's HTTP method, for example, POST, GET, DELETE, UPDATE etc..
      *
-     * @return
+     * @return HTTP method, must not be <code>null</code>
      */
     @Override
     public HttpMethod getHttpMethod() {
@@ -70,9 +80,10 @@ public class DefaultServiceMethod implements ServiceMethod {
     }
 
     /**
-     * Get provider methods'a request URI
+     * Get the methods'a request URI, which following ant path pattern, for example,
+     * "/user/*", "/user/**" etc.
      *
-     * @return
+     * @return Method URI, must not be blank
      */
     @Override
     public String getURI() {
@@ -80,33 +91,26 @@ public class DefaultServiceMethod implements ServiceMethod {
     }
 
     /**
-     * Get the service methond's Id
+     * Whether the service method is a customized one or not. A customized service
+     * method can only be available for some cloud environment's elements.
      *
-     * @return
+     * @return true if the method is a customized one
      */
-    @Override
-    public Long getId() {
-        return definition.getId();
-    }
-
-    @Override
-    public ResourceCategory getCategory() {
-        return ResourceCategory.SERVICE;
-    }
-
-    @Override
-    public ResourceType getType() {
-        return ResourceType.SERVICE_METHOD;
-    }
-
     @Override
     public boolean isCustomized() {
         return "Y".equalsIgnoreCase(definition.getCustomized());
     }
 
+    /**
+     * Check if the service method matches given http method and uri
+     *
+     * @param httpMethod HTTP method, for example, POST, GET etc.
+     * @param requestURI Request URI
+     * @return true if matches
+     */
     @Override
-    public boolean match(String httpMethod, String path) {
-        if(!antPathMatcher.match(definition.getUri(), path)){
+    public boolean match(String httpMethod, String requestURI) {
+        if(!antPathMatcher.match(definition.getUri(), requestURI)){
             return false;
         }
 

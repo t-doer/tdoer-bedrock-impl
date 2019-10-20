@@ -26,9 +26,9 @@ import java.util.Map;
  */
 public enum DomainType {
 
-    APPLICATION, CONTEXT, PRODUCT, APPLICATION_CONTEXT;
+    SERVICE, APPLICATION, CONTEXT, PRODUCT, APPLICATION_CONTEXT;
 
-    private static final Map<String, DomainType> mappings = new HashMap<>(4);
+    private static final Map<String, DomainType> mappings = new HashMap<>(5);
 
     static {
         for (DomainType clientCategory : values()) {

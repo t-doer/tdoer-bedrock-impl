@@ -15,12 +15,12 @@
  */
 package com.tdoer.bedrock.impl.service;
 
+import com.tdoer.bedrock.application.Application;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.impl.domain.ServiceDomain;
-import com.tdoer.bedrock.service.ServiceMethod;
-import com.tdoer.bedrock.service.ServiceRepository;
+import com.tdoer.bedrock.product.Client;
+import com.tdoer.bedrock.service.*;
 import org.springframework.util.Assert;
 
 import java.util.List;
@@ -31,8 +31,10 @@ import java.util.List;
  */
 public class DefaultServiceRepository implements ServiceRepository {
 
-    private ServiceCacheManager serviceCacheManager;
-    
+    private ServiceCacheManagerByCode serviceCacheManagerByCode;
+
+    private ServiceCacheManagerById serviceCacheManagerById;
+
     private ServiceMethodsCacheManager methodsCacheManager;
 
     private ServiceMethodCacheManager methodCacheManager;
@@ -43,38 +45,141 @@ public class DefaultServiceRepository implements ServiceRepository {
         Assert.notNull(cleaner, "DormantObjectCleaner cannot be null");
         
         serviceLoader.setServiceRepository(this);
-        serviceCacheManager = new ServiceCacheManager(cachePolicy, cleaner, serviceLoader);
+        serviceCacheManagerByCode = new ServiceCacheManagerByCode(cachePolicy, cleaner, serviceLoader);
+        serviceCacheManagerById = new ServiceCacheManagerById(cachePolicy, cleaner, serviceLoader);
         methodsCacheManager = new ServiceMethodsCacheManager(cachePolicy, cleaner, serviceLoader);
         methodCacheManager = new ServiceMethodCacheManager(cachePolicy, cleaner, serviceLoader);
 
         // Initialize cache manager
-        serviceCacheManager.initialize();
+        serviceCacheManagerByCode.initialize();
+        serviceCacheManagerById.initialize();
         methodCacheManager.initialize();
         methodCacheManager.initialize();
-    }
-    
-    @Override
-    public DefaultService getService(String serviceId) {
-        return serviceCacheManager.getSource(serviceId);
     }
 
+    /**
+     * Get the service of specific id.
+     *
+     * @param serviceId Service Id, cannot be <code>null</code>
+     * @return {@link Service}
+     * @throws ServiceNotFoundException if the service dose not exist or is disabled.
+     */
     @Override
-    public void listServiceMethods(String serviceId, String productId, String clientId, Long tenantId, ContextPath contextPath, List<ServiceMethod> list) {
-        ServiceDomain domain = new ServiceDomain(serviceId, productId, clientId, tenantId, contextPath);
-        do{
-            DefaultServiceMethod[] methods = methodsCacheManager.getSource(domain);
+    public Service getService(Long serviceId) throws ServiceNotFoundException {
+        return serviceCacheManagerById.getSource(serviceId);
+    }
+
+    /**
+     * Get the service according to its code.
+     *
+     * @param serviceCode Service code, cannot be <code>null</code>
+     * @return {@link Service}
+     * @throws ServiceNotFoundException if the service dose not exist or is disabled.
+     */
+    @Override
+    public Service getService(String serviceCode) throws ServiceNotFoundException {
+        return serviceCacheManagerByCode.getSource(serviceCode);
+    }
+
+    /**
+     * List all available services in the repository.
+     *
+     * @param list List to hold services, cannot be <code>null</code>
+     */
+    @Override
+    public void listAllServices(List<Service> list) {
+
+    }
+
+    /**
+     * List a service's all referer clients.
+     *
+     * @param serviceId Service Id, cannot be <code>null</code>
+     * @param list      List to hold clients, cannot be <code>null</code>
+     */
+    @Override
+    public void listRefererClients(Long serviceId, List<Client> list) {
+
+    }
+
+    /**
+     * List a service's all referer applications
+     *
+     * @param serviceId Service Id, cannot be <code>null</code>
+     * @param list      List to hold applications, cannot be <code>null</code>
+     */
+    @Override
+    public void listRefererApplications(Long serviceId, List<Application> list) {
+
+    }
+
+    /**
+     * List a service's all referer services.
+     *
+     * @param serviceId Service Id, cannot be <code>null</code>
+     * @param list      List to hold services, cannot be <code>null</code>
+     */
+    @Override
+    public void listRefererServices(Long serviceId, List<Service> list) {
+
+    }
+
+    /**
+     * List a service's all referee services.
+     *
+     * @param serviceId Service Id, cannot be <code>null</code>
+     * @param list      List to hold services, cannot be <code>null</code>
+     */
+    @Override
+    public void listRefereeServices(Long serviceId, List<Service> list) {
+
+    }
+
+    /**
+     * Get the service method of specific id.
+     *
+     * @param methodId Method Id, cannot be <code>null</code>
+     * @return {@link ServiceMethod}
+     * @throws ServiceMethodNotFoundException if the service method dose not exist or is disabled.
+     */
+    @Override
+    public ServiceMethod getServiceMethod(Long methodId) throws ServiceMethodNotFoundException {
+        return null;
+    }
+
+    /**
+     * List all service methods of specific service Id which are available for current environment.
+     *
+     * @param serviceId     Service Id, cannot be <code>null</code>
+     * @param applicationId Application Id, cannot be <code>null</code>
+     * @param productId     Product Id, cannot be <code>null</code>
+     * @param clientId      Client Id, cannot be <code>null</code>
+     * @param tenantId      Tenant Id, cannot be <code>null</code>
+     * @param contextPath   Context path, cannot be <code>null</code>
+     * @param list          List to hold service methods, cannot be <code>null</code>
+     */
+    @Override
+    public void listCurrentServiceMethods(Long serviceId, Long applicationId, Long productId, Long clientId, Long tenantId, ContextPath contextPath, List<ServiceMethod> list) {
+        ServiceDomainEnumerator enumerator = new ServiceDomainEnumerator(serviceId, applicationId, productId, clientId
+                , tenantId, contextPath);
+        while(enumerator.hasMoreElements()){
+            DefaultServiceMethod[] methods = methodsCacheManager.getSource(enumerator.nextElement());
             if(methods != null){
                 for(DefaultServiceMethod method : methods){
                     list.add(method);
                 }
             }
-            domain = domain.nextLookup();
-        }while(domain != null);K
-
+        }
     }
 
+    /**
+     * List a service's all available service methods, including common and customized ones
+     *
+     * @param serviceId
+     * @param list      List to hold service methods, cannot be <code>null</code>
+     */
     @Override
-    public DefaultServiceMethod getServiceMethod(Long methodId) {
-        return methodCacheManager.getSource(methodId);
+    public void listAllServiceMethods(Long serviceId, List<ServiceMethod> list) {
+
     }
 }

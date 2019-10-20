@@ -19,7 +19,6 @@ import com.tdoer.bedrock.ProviderFailedException;
 import com.tdoer.bedrock.context.ContextPathParser;
 import com.tdoer.bedrock.impl.definition.service.ServiceDefinition;
 import com.tdoer.bedrock.impl.definition.service.ServiceMethodDefinition;
-import com.tdoer.bedrock.impl.domain.ServiceDomain;
 import com.tdoer.bedrock.impl.provider.ServiceProvider;
 import com.tdoer.bedrock.service.ServiceNotFoundException;
 import com.tdoer.springboot.error.ErrorCodeException;
@@ -37,18 +36,13 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.*;
 public class ServiceLoader {
     private ServiceProvider serviceProvider;
     
-    private ContextPathParser contextPathParser;
-    
     private ServiceBuilder serviceBuilder;
 
-    public ServiceLoader(ServiceProvider serviceProvider, ContextPathParser contextPathParser) {
+    public ServiceLoader(ServiceProvider serviceProvider) {
         Assert.notNull(serviceProvider, "ServiceProvider cannot be null");
-        Assert.notNull(contextPathParser, "ContextPathParser cannot be null");
         this.serviceProvider = serviceProvider;
-        this.contextPathParser = contextPathParser;
-
         // initialize builder
-        this.serviceBuilder = new ServiceBuilder(contextPathParser);
+        this.serviceBuilder = new ServiceBuilder();
     }
 
     public void setServiceRepository(DefaultServiceRepository serviceRepository){
@@ -56,7 +50,22 @@ public class ServiceLoader {
         this.serviceBuilder.setServiceRepository(serviceRepository);
     }
 
-    public DefaultService loadService(String serviceId){
+    public DefaultService loadService(String serviceCode){
+        ServiceDefinition serviceDefinition = null;
+        try{
+            serviceDefinition = serviceProvider.getServiceDefinition(serviceCode);
+        }catch(Throwable t){
+            throw new ProviderFailedException(FAILED_TO_LOAD_SERVICE, t, serviceCode);
+        }
+
+        if(serviceDefinition == null){
+            throw new ServiceNotFoundException(serviceCode);
+        }
+
+        return serviceBuilder.buildService(serviceDefinition);
+    }
+
+    public DefaultService loadService(Long serviceId){
         ServiceDefinition serviceDefinition = null;
         try{
             serviceDefinition = serviceProvider.getServiceDefinition(serviceId);
@@ -65,17 +74,25 @@ public class ServiceLoader {
         }
 
         if(serviceDefinition == null){
-            ServiceNotFoundException anfe = new ServiceNotFoundException(SERVICE_NOT_FOUND, serviceId);
-            anfe.setServiceId(serviceId);
-            throw anfe;
+            throw new ServiceNotFoundException(serviceId);
         }
 
         return serviceBuilder.buildService(serviceDefinition);
     }
 
+
     public DefaultServiceMethod[] loadServiceMethods(ServiceDomain serviceDomain){
         ServiceDomain ad = serviceDomain;
-        List<ServiceMethodDefinition> list = serviceProvider.getServiceMethodDefinitions(ad.getServiceId(), ad.getProductId(), ad.getClientId(),ad.getTenantId(), ad.getContextPath());
+
+        List<ServiceMethodDefinition> list = null;
+        if(serviceDomain.isExtensionDomain()){
+            list = serviceProvider.getCustomizedServiceMethodDefinitions(ad.getServiceId(),
+                    ad.getApplicationId(), ad.getProductId(), ad.getClientId(),ad.getTenantId(),
+                    ad.getContextPath()== null? "void" : ad.getContextPath().getAbsoluteValue());
+        }else{
+            list = serviceProvider.getCommonServiceMethodDefinitions(serviceDomain.getServiceId());
+        }
+
         ArrayList<DefaultServiceMethod> methodList = new ArrayList<>(list.size());
         if(list != null){
             for(ServiceMethodDefinition methodDefinition : list){
