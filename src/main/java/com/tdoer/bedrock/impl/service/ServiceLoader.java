@@ -15,19 +15,15 @@
  */
 package com.tdoer.bedrock.impl.service;
 
-import com.tdoer.bedrock.ProviderFailedException;
-import com.tdoer.bedrock.context.ContextPathParser;
 import com.tdoer.bedrock.impl.definition.service.ServiceDefinition;
 import com.tdoer.bedrock.impl.definition.service.ServiceMethodDefinition;
 import com.tdoer.bedrock.impl.provider.ServiceProvider;
-import com.tdoer.bedrock.service.ServiceNotFoundException;
-import com.tdoer.springboot.error.ErrorCodeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.*;
 
 /**
  * @author Htinker Hu (htinker@163.com)
@@ -37,6 +33,8 @@ public class ServiceLoader {
     private ServiceProvider serviceProvider;
     
     private ServiceBuilder serviceBuilder;
+
+    private static Logger logger = LoggerFactory.getLogger(ServiceLoader.class);
 
     public ServiceLoader(ServiceProvider serviceProvider) {
         Assert.notNull(serviceProvider, "ServiceProvider cannot be null");
@@ -55,14 +53,18 @@ public class ServiceLoader {
         try{
             serviceDefinition = serviceProvider.getServiceDefinition(serviceCode);
         }catch(Throwable t){
-            throw new ProviderFailedException(FAILED_TO_LOAD_SERVICE, t, serviceCode);
+            logger.trace("Failed to load service definition of service code: " + serviceCode, t);
         }
 
-        if(serviceDefinition == null){
-            throw new ServiceNotFoundException(serviceCode);
+        if(serviceDefinition != null){
+            try{
+                return serviceBuilder.buildService(serviceDefinition);
+            }catch(Exception ex){
+                logger.trace("Invalid service definition: " + serviceDefinition, ex);
+            }
         }
 
-        return serviceBuilder.buildService(serviceDefinition);
+        return null;
     }
 
     public DefaultService loadService(Long serviceId){
@@ -70,27 +72,57 @@ public class ServiceLoader {
         try{
             serviceDefinition = serviceProvider.getServiceDefinition(serviceId);
         }catch(Throwable t){
-            throw new ProviderFailedException(FAILED_TO_LOAD_SERVICE, t, serviceId);
+            logger.trace("Failed to load service definition of service Id: " + serviceId, t);
         }
 
-        if(serviceDefinition == null){
-            throw new ServiceNotFoundException(serviceId);
+        if(serviceDefinition != null){
+            try{
+                return serviceBuilder.buildService(serviceDefinition);
+            }catch(Exception ex){
+                logger.trace("Invalid service definition: " + serviceDefinition, ex);
+            }
         }
 
-        return serviceBuilder.buildService(serviceDefinition);
+        return null;
     }
 
+    public DefaultServiceMethod loadServiceMethod(Long methodId){
+        Assert.notNull(methodId, "Service method Id cannot be null");
+
+        ServiceMethodDefinition definition = null;
+        try{
+            definition = serviceProvider.getServiceMethodDefinition(methodId);
+        }catch(Throwable t){
+            logger.trace("Failed to load service method of Id: " + methodId, t);
+        }
+
+        if(definition != null){
+            try{
+                return serviceBuilder.buildServiceMethod(definition);
+            }catch(Exception ex){
+                logger.trace("Invalid service method definition: " + definition, ex);
+            }
+        }
+
+        return null;
+    }
 
     public DefaultServiceMethod[] loadServiceMethods(ServiceDomain serviceDomain){
+        Assert.notNull(serviceDomain, "Service domain cannot be null");
+
         ServiceDomain ad = serviceDomain;
 
         List<ServiceMethodDefinition> list = null;
-        if(serviceDomain.isExtensionDomain()){
-            list = serviceProvider.getCustomizedServiceMethodDefinitions(ad.getServiceId(),
-                    ad.getApplicationId(), ad.getProductId(), ad.getClientId(),ad.getTenantId(),
-                    ad.getContextPath()== null? "void" : ad.getContextPath().getAbsoluteValue());
-        }else{
-            list = serviceProvider.getCommonServiceMethodDefinitions(serviceDomain.getServiceId());
+        try{
+            if(serviceDomain.isExtensionDomain()){
+                list = serviceProvider.getCustomizedServiceMethodDefinitions(ad.getServiceId(),
+                        ad.getApplicationId(), ad.getProductId(), ad.getClientId(),ad.getTenantId(),
+                        ad.getContextPath()== null? "void" : ad.getContextPath().getAbsoluteValue());
+            }else{
+                list = serviceProvider.getCommonServiceMethodDefinitions(serviceDomain.getServiceId());
+            }
+        }catch(Throwable t){
+            logger.trace("Failed load service method definitions of domain: " + serviceDomain, t);
         }
 
         ArrayList<DefaultServiceMethod> methodList = new ArrayList<>(list.size());
@@ -98,8 +130,8 @@ public class ServiceLoader {
             for(ServiceMethodDefinition methodDefinition : list){
                 try{
                     methodList.add(serviceBuilder.buildServiceMethod(methodDefinition));
-                }catch(Throwable t){
-                    // todo
+                }catch(Exception t){
+                    logger.trace("Invalid service method definition: " + methodDefinition, t);
                 }
             }
         }
@@ -109,12 +141,29 @@ public class ServiceLoader {
         return ret;
     }
 
-    public DefaultServiceMethod loadServiceMethod(Long methodId){
-        ServiceMethodDefinition definition = serviceProvider.getServiceMethodDefinition(methodId);
-        if(definition == null){
-            throw new ErrorCodeException(SERVICE_METHOD_NOT_FOUND, methodId);
-        }else{
-            return serviceBuilder.buildServiceMethod(definition);
+    public DefaultServiceMethod[] loadAllServiceMethods(Long serviceId){
+        Assert.notNull(serviceId, "Service Id cannot be null");
+
+        List<ServiceMethodDefinition> list = null;
+        try{
+            list =serviceProvider.getAllServiceMethodDefinitions(serviceId);
+        }catch(Throwable t){
+            logger.trace("Failed load all service method definitions of service Id: " + serviceId, t);
         }
+
+        ArrayList<DefaultServiceMethod> methodList = new ArrayList<>(list.size());
+        if(list != null){
+            for(ServiceMethodDefinition methodDefinition : list){
+                try{
+                    methodList.add(serviceBuilder.buildServiceMethod(methodDefinition));
+                }catch(Exception t){
+                    logger.trace("Invalid service method definition: " + methodDefinition, t);
+                }
+            }
+        }
+
+        DefaultServiceMethod[] ret = new DefaultServiceMethod[methodList.size()];
+        methodList.toArray(ret);
+        return ret;
     }
 }

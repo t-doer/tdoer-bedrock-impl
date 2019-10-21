@@ -23,7 +23,9 @@ import com.tdoer.bedrock.product.Client;
 import com.tdoer.bedrock.service.Service;
 import com.tdoer.bedrock.service.ServiceMethod;
 import com.tdoer.bedrock.service.ServiceType;
+import org.springframework.util.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -118,6 +120,8 @@ public class DefaultService implements Service {
      */
     @Override
     public void listCurrentMethods(List<ServiceMethod> list) {
+        Assert.notNull(list, "List cannot be null");
+
         CloudEnvironment env = Platform.getCurrentEnvironment();
         serviceRespository.listCurrentServiceMethods(getId(), env.getApplicationId(), env.getProductId(),
                 env.getClientId(),
@@ -133,7 +137,9 @@ public class DefaultService implements Service {
      */
     @Override
     public void listAllMethods(List<ServiceMethod> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        serviceRespository.listAllServiceMethods(getId(), list);
     }
 
     /**
@@ -144,6 +150,13 @@ public class DefaultService implements Service {
      */
     @Override
     public ServiceMethod getMethod(Long methodId) {
+        Assert.notNull(methodId, "Method Id cannot be null");
+
+        ServiceMethod method = serviceRespository.getServiceMethod(methodId);
+        if(method != null && getId().equals(methodId)){
+            return method;
+        }
+
         return null;
     }
 
@@ -154,7 +167,9 @@ public class DefaultService implements Service {
      */
     @Override
     public void listRefererClients(List<Client> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        serviceRespository.listRefererClients(getId(), list);
     }
 
     /**
@@ -164,7 +179,9 @@ public class DefaultService implements Service {
      */
     @Override
     public void listRefererApplications(List<Application> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        serviceRespository.listRefererApplications(getId(), list);
     }
 
     /**
@@ -174,7 +191,9 @@ public class DefaultService implements Service {
      */
     @Override
     public void listRefererServices(List<Service> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        serviceRespository.listRefererServices(getId(), list);
     }
 
     /**
@@ -184,18 +203,25 @@ public class DefaultService implements Service {
      */
     @Override
     public void listRefereeServices(List<Service> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        serviceRespository.listRefereeServices(getId(), list);
     }
 
     /**
      * Check if the service permits the access from the referer service?
      *
-     * @param referer The referer service to check, cannot be <code>null</code>
+     * @param service The referer service to check, cannot be <code>null</code>
      * @return true if the service permits the access
      */
     @Override
-    public boolean permitAccessFromService(Service referer) {
-        return false;
+    public boolean permitAccessFromService(Service service) {
+        Assert.notNull(service, "Referer service cannot be null");
+
+        ArrayList<Service> list = new ArrayList<>();
+        listRefererServices(list);
+
+        return list.contains(service);
     }
 
     /**
@@ -206,7 +232,12 @@ public class DefaultService implements Service {
      */
     @Override
     public boolean permitAccessFromApplication(Application application) {
-        return false;
+        Assert.notNull(application, "Referer application cannot be null");
+
+        ArrayList<Application> list = new ArrayList<>();
+        listRefererApplications(list);
+
+        return list.contains(application);
     }
 
     /**
@@ -217,7 +248,12 @@ public class DefaultService implements Service {
      */
     @Override
     public boolean permitAccessFromClient(Client client) {
-        return false;
+        Assert.notNull(client, "Referer client cannot be null");
+
+        ArrayList<Client> list = new ArrayList<>();
+        listRefererClients(list);
+
+        return list.contains(client);
     }
 
     /**
@@ -229,6 +265,45 @@ public class DefaultService implements Service {
      */
     @Override
     public boolean matchRequest(String httpMethod, String requestURI) {
+        Assert.hasText(httpMethod, "HTTP method cannot be blank");
+        Assert.hasText(requestURI, "Request URI cannot be blank");
+
+        ArrayList<ServiceMethod> list = new ArrayList<>();
+        listCurrentMethods(list);
+        for(ServiceMethod method : list){
+            if(method.match(httpMethod, requestURI)){
+                return true;
+            }
+        }
+
         return false;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null){
+            return false;
+        }
+        if(obj == this){
+            return true;
+        }
+        if(obj instanceof Service){
+            return this.getId().equals(((Service) obj).getId());
+        }
+
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Service[");
+        sb.append(getId()).append(", ");
+        sb.append(getCode()).append(", ");
+        sb.append(getName()).append(", ");
+        sb.append(getType()).append(", ");
+        sb.append(getVersion());
+        sb.append("]");
+        return sb.toString();
     }
 }

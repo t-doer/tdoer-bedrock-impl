@@ -38,13 +38,17 @@ public class DefaultServiceRepository implements ServiceRepository {
     private ServiceMethodsCacheManager methodsCacheManager;
 
     private ServiceMethodCacheManager methodCacheManager;
-    
+
+    private ServiceLoader serviceLoader;
+
     public DefaultServiceRepository(ServiceLoader serviceLoader, CachePolicy cachePolicy, DormantCacheCleaner cleaner){
         Assert.notNull(serviceLoader, "ServiceLoader cannot be null");
         Assert.notNull(cachePolicy, "CachePolicy cannot be null");
         Assert.notNull(cleaner, "DormantObjectCleaner cannot be null");
         
         serviceLoader.setServiceRepository(this);
+        this.serviceLoader = serviceLoader;
+
         serviceCacheManagerByCode = new ServiceCacheManagerByCode(cachePolicy, cleaner, serviceLoader);
         serviceCacheManagerById = new ServiceCacheManagerById(cachePolicy, cleaner, serviceLoader);
         methodsCacheManager = new ServiceMethodsCacheManager(cachePolicy, cleaner, serviceLoader);
@@ -139,12 +143,17 @@ public class DefaultServiceRepository implements ServiceRepository {
      * Get the service method of specific id.
      *
      * @param methodId Method Id, cannot be <code>null</code>
-     * @return {@link ServiceMethod}
+     * @return {@link ServiceMethod} if found
      * @throws ServiceMethodNotFoundException if the service method dose not exist or is disabled.
      */
     @Override
     public ServiceMethod getServiceMethod(Long methodId) throws ServiceMethodNotFoundException {
-        return null;
+        ServiceMethod method = methodCacheManager.getSource(methodId);
+        if(method != null){
+            return method;
+        }else{
+            throw new ServiceMethodNotFoundException(methodId);
+        }
     }
 
     /**
@@ -180,6 +189,11 @@ public class DefaultServiceRepository implements ServiceRepository {
      */
     @Override
     public void listAllServiceMethods(Long serviceId, List<ServiceMethod> list) {
-
+        DefaultServiceMethod[] methods = serviceLoader.loadAllServiceMethods(serviceId);
+        if(methods != null){
+            for(DefaultServiceMethod method : methods){
+                list.add(method);
+            }
+        }
     }
 }

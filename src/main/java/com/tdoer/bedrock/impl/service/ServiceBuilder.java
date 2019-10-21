@@ -36,7 +36,7 @@ public class ServiceBuilder {
         this.serviceRespository = serviceRespository;
     }
 
-    DefaultService buildService(ServiceDefinition definition){
+    public DefaultService buildService(ServiceDefinition definition) {
         Assert.notNull(definition.getId(), "Service Id cannot be null");
         Assert.hasText(definition.getCode(), "Service code cannot be blank");
         Assert.hasText(definition.getName(), "Service name cannot be blank");
@@ -47,7 +47,7 @@ public class ServiceBuilder {
         return new DefaultService(definition, serviceRespository);
     }
 
-    DefaultServiceMethod buildServiceMethod(ServiceMethodDefinition definition){
+    public DefaultServiceMethod buildServiceMethod(ServiceMethodDefinition definition){
         Assert.notNull(definition.getId(), "Method Id cannot be null");
         Assert.notNull(definition.getServiceId(), "Method's service Id cannot be null");
         Assert.hasText(definition.getMethod(), "HTTP method cannot be blank" );

@@ -120,4 +120,31 @@ public class DefaultServiceMethod implements ServiceMethod {
 
         return false;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null){
+            return false;
+        }
+        if(obj == this){
+            return true;
+        }
+        if(obj instanceof ServiceMethod){
+            return this.getId().equals(((ServiceMethod) obj).getId());
+        }
+
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ServiceMethod[");
+        sb.append(getId()).append(", ");
+        sb.append(getServiceId()).append(", ");
+        sb.append(getName()).append(", ");
+        sb.append(getURI());
+        sb.append("]");
+        return sb.toString();
+    }
 }
