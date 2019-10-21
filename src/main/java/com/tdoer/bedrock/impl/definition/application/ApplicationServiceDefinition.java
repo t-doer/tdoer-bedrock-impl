@@ -26,8 +26,6 @@ public class ApplicationServiceDefinition implements Serializable {
 
     private Long serviceId;
 
-    private String customized;
-
     public Long getApplicationId() {
         return applicationId;
     }
@@ -42,13 +40,5 @@ public class ApplicationServiceDefinition implements Serializable {
 
     public void setServiceId(Long serviceId) {
         this.serviceId = serviceId;
-    }
-
-    public String getCustomized() {
-        return customized;
-    }
-
-    public void setCustomized(String customized) {
-        this.customized = customized;
     }
 }
