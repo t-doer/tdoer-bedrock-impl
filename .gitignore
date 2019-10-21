@@ -1,2 +1,6 @@
 /.idea/
 /tdoer-bedrock-impl.iml
+.project
+.settings
+.classpath
+/target
