@@ -22,7 +22,6 @@ import com.tdoer.bedrock.impl.definition.application.ActionDefinition;
 import com.tdoer.bedrock.impl.definition.application.ApplicationDefinition;
 import com.tdoer.bedrock.impl.definition.application.ApplicationServiceDefinition;
 import com.tdoer.bedrock.impl.definition.application.PageDefinition;
-import com.tdoer.bedrock.impl.domain.ApplicationDomain;
 import com.tdoer.bedrock.impl.provider.ApplicationProvider;
 import com.tdoer.bedrock.impl.service.DefaultService;
 import com.tdoer.bedrock.impl.service.DefaultServiceMethod;
@@ -65,17 +64,34 @@ public class ApplicationLoader {
         this.applicationBuilder.setApplicationRepository(applicationRepository);
     }
 
-    public DefaultApplication loadApplication(String applicationId){
+    public DefaultApplication loadApplicationByCode(String applicationCode){
         ApplicationDefinition applicationDefinition = null;
         try{
-            applicationDefinition = applicationProvider.getApplicationDefinition(applicationId);
+            applicationDefinition = applicationProvider.getApplicationDefinitionByCode(applicationCode);
         }catch(Throwable t){
-            throw new ProviderFailedException(FAILED_TO_LOAD_APPLICATION, t, applicationId);
+            throw new ProviderFailedException(FAILED_TO_LOAD_APPLICATION, t, applicationCode);
         }
 
         if(applicationDefinition == null){
-            ApplicationNotFoundException anfe = new ApplicationNotFoundException(APPLICATION_NOT_FOUND, applicationId);
-            anfe.setApplicationId(applicationId);
+            ApplicationNotFoundException anfe = new ApplicationNotFoundException(APPLICATION_NOT_FOUND, applicationCode);
+            anfe.setApplicationId(applicationCode);
+            throw anfe;
+        }
+
+        return applicationBuilder.buildApplication(applicationDefinition);
+    }
+
+    public DefaultApplication loadApplicationById(String applicationCode){
+        ApplicationDefinition applicationDefinition = null;
+        try{
+            applicationDefinition = applicationProvider.getApplicationDefinition(applicationCode);
+        }catch(Throwable t){
+            throw new ProviderFailedException(FAILED_TO_LOAD_APPLICATION, t, applicationCode);
+        }
+
+        if(applicationDefinition == null){
+            ApplicationNotFoundException anfe = new ApplicationNotFoundException(APPLICATION_NOT_FOUND, applicationCode);
+            anfe.setApplicationId(applicationCode);
             throw anfe;
         }
 

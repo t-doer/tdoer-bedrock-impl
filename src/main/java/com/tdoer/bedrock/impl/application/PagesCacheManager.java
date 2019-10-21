@@ -18,7 +18,6 @@ package com.tdoer.bedrock.impl.application;
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.impl.domain.ApplicationDomain;
 import com.tdoer.springboot.error.ErrorCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -24,24 +24,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_APPLICATION;
+
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ApplicationCacheManager extends AbstractCacheManager<String, DefaultApplication> {
+public class ApplicationByIdCacheManager extends AbstractCacheManager<Long, DefaultApplication> {
     protected ApplicationLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(ApplicationCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(ApplicationByIdCacheManager.class);
 
-    public ApplicationCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader){
+    public ApplicationByIdCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader){
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ApplicationLoader cannot be null");
         this.loader = loader;
-        logger.info("ApplicationCacheManagerByID is initialized");
+        logger.info("ApplicationByIdCacheManager is initialized");
     }
 
     @Override
-    protected DefaultApplication loadSource(String applicationId) throws ErrorCodeException {
+    protected DefaultApplication loadSource(Long applicationId) throws ErrorCodeException {
         try{
             logger.info("Loading application of Id ({}) ...", applicationId);
             DefaultApplication ret = loader.loadApplication(applicationId);
@@ -57,12 +58,11 @@ public class ApplicationCacheManager extends AbstractCacheManager<String, Defaul
 
     @Override
     protected void destroySource(DefaultApplication defaultApplication) {
-        logger.info("ApplicationCacheManagerByID is destroyed");
         // do nothing here
     }
 
     @Override
-    protected DefaultApplication reloadSource(String applicationId, DefaultApplication oldSource) throws ErrorCodeException {
+    protected DefaultApplication reloadSource(Long applicationId, DefaultApplication oldSource) throws ErrorCodeException {
         try{
             logger.info("Reloading application of Id ({}) ...", applicationId);
             DefaultApplication ret = loader.loadApplication(applicationId);

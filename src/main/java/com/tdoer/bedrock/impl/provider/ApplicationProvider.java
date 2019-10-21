@@ -16,10 +16,7 @@
 package com.tdoer.bedrock.impl.provider;
 
 import com.tdoer.bedrock.context.ContextPath;
-import com.tdoer.bedrock.impl.definition.application.ActionDefinition;
-import com.tdoer.bedrock.impl.definition.application.ApplicationDefinition;
-import com.tdoer.bedrock.impl.definition.application.ApplicationServiceDefinition;
-import com.tdoer.bedrock.impl.definition.application.PageDefinition;
+import com.tdoer.bedrock.impl.definition.application.*;
 
 import java.util.List;
 
@@ -28,35 +25,51 @@ import java.util.List;
  * @create 2017-09-19
  */
 public interface ApplicationProvider {
-
-
+    
     /**
      * Get available application definition of specific application Id
      *
      * @param applicationId Application Id
      * @return
      */
-    ApplicationDefinition getApplicationDefinition(String applicationId);
+    ApplicationDefinition getApplicationDefinitionById(Long applicationId);
 
-    List<PageDefinition> getPageDefinitions(String applicationId, String productId, String clientId, Long tenantId, ContextPath contextPath);
+    ApplicationDefinition getApplicationDefinitionByCode(String applicationCode);
 
-    List<ActionDefinition> getActionDefinitions(String applicationId, String productId, String clientId, Long tenantId, ContextPath contextPath);
+    List<PageDefinition> getAllPageDefinitions(Long applicationId);
 
-    List<ApplicationServiceDefinition> getApplicationServiceDefinitions(String applicationId, String productId, String clientId, Long tenantId, ContextPath contextPath);
+    List<Long> getCustomizedPageIds(Long applicationId, Long productId, Long clientId, Long tenantId,
+                                               ContextPath contextPath);
+
+    List<PageDefinition> getCommonPageIds(Long applicationId);
+
+    List<ActionDefinition> getAllActionDefinitions(Long pageId);
+
+    List<Long> getCustomizedActionIds(Long applicationId, Long productId, Long clientId, Long tenantId,
+                                                   ContextPath contextPath);
+
+    List<Long> getCommonActionIds(Long pageId);
+
+
+    List<Long> getCustomizedRefereeServiceIds(Long applicationId, Long productId, Long clientId, Long tenantId,
+                                             ContextPath contextPath);
+
+    List<Long> getCommonRefereeServiceIds(Long applicationId);
+
     /**
-     * Get available provider methods of specific page Id
+     * Get all methods of specific page Id
      *
      * @param pageId
      * @return
      */
-    List<Long> getServiceMethodIdsOfPage(String applicationId, Long pageId);
+    List<PageMethodDefinition> getPageMethodDefinitions(Long pageId);
 
     /**
-     * Get available provider methods of specific action Id
+     * Get all methods of specific action Id
      *
      * @param actionId
      * @return
      */
-    List<Long> getServiceMethodIdsOfAction(String applicationId, Long pageId, Long actionId);
+    List<ActionMethodDefinition> getActionMethodDefinitions(Long actionId);
 
 }

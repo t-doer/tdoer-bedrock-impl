@@ -25,7 +25,7 @@ import java.util.Enumeration;
  * <p>Service extension domain enumerator.</p>
  * <p>
  * Suppose current cloud environment is [serviceId: applicationId, productId, clientId, tenantId, contextPath]
- * is [1: 1, 1, 1, 1, 1.1-2.1], service domain enumeration will enumerate the service extension domains:
+ * is [1: 1, 1, 1, 1, 1.1-2.1], service domain enumerator will enumerate the service extension domains:
  * <ol>
  *     <li>[1: 1, 1, 1, 1, 1.1-2.1]</li>
  *     <li>[1: 1, 1, 1, 1, 1.1-2.0]</li>

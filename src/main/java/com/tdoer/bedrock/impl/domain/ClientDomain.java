@@ -15,6 +15,7 @@
  */
 package com.tdoer.bedrock.impl.domain;
 
+import com.tdoer.bedrock.impl.application.ApplicationDomain;
 import org.springframework.util.Assert;
 
 /**

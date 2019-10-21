@@ -19,8 +19,6 @@ import com.tdoer.bedrock.application.*;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.impl.domain.ApplicationDomain;
-import com.tdoer.bedrock.impl.service.DefaultService;
 import com.tdoer.bedrock.service.Service;
 import com.tdoer.bedrock.service.ServiceMethod;
 import org.springframework.util.Assert;
@@ -32,7 +30,7 @@ import java.util.List;
  */
 public class DefaultApplicationRepository implements ApplicationRepository {
 
-    protected ApplicationCacheManager applicationCacheManager;
+    protected ApplicationByCodeCacheManager applicationCacheManager;
 
     protected PagesCacheManager pagesCacheManager;
 
@@ -46,7 +44,7 @@ public class DefaultApplicationRepository implements ApplicationRepository {
         Assert.notNull(cleaner, "DormantObjectCleaner cannot be null");
 
         applicationLoader.setApplicationRepository(this);
-        applicationCacheManager = new ApplicationCacheManager(cachePolicy, cleaner, applicationLoader);
+        applicationCacheManager = new ApplicationByCodeCacheManager(cachePolicy, cleaner, applicationLoader);
         pagesCacheManager = new PagesCacheManager(cachePolicy, cleaner, applicationLoader);
         actionsCacheManager = new ActionsCacheManager(cachePolicy, cleaner, applicationLoader);
         servicesCacheManager = new ServicesCacheManager(cachePolicy, cleaner, applicationLoader);
@@ -83,24 +81,15 @@ public class DefaultApplicationRepository implements ApplicationRepository {
     }
 
     /**
-     * List all available applications in the repository.
-     *
-     * @param list List to hold applications, cannot be <code>null</code>
-     */
-    @Override
-    public void listApplications(List<Application> list) {
-
-    }
-
-    /**
      * Get page of specific Id
      *
-     * @param pageId Page Id, cannot be null
+     * @param applicationId Application Id, cannot be null
+     * @param pageId        Page Id, cannot be null
      * @return Page if found
      * @throws PageNotFoundException if the page dose not exist or is disabled
      */
     @Override
-    public Page getPage(Long pageId) throws PageNotFoundException {
+    public Page getPage(Long applicationId, Long pageId) throws PageNotFoundException {
         return null;
     }
 
@@ -144,14 +133,16 @@ public class DefaultApplicationRepository implements ApplicationRepository {
     }
 
     /**
-     * Get action of specific Id
+     * Get action of specific Id in a specific application's page
      *
+     * @param pageId
      * @param actionId Action Id, cannot be <code>null</code>
      * @return Action if found
      * @throws ActionNotFoundException if the action dose not exist or is disabled
+     * @
      */
     @Override
-    public Action getAction(Long actionId) throws ActionNotFoundException {
+    public Action getAction(Long pageId, Long actionId) throws ActionNotFoundException {
         return null;
     }
 

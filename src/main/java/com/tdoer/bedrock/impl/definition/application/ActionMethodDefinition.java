@@ -25,6 +25,8 @@ public class ActionMethodDefinition implements Serializable {
 
     private Long applicationId;
 
+    private Long pageId;
+
     private Long actionId;
 
     private Long serviceId;
@@ -62,5 +64,13 @@ public class ActionMethodDefinition implements Serializable {
 
     public void setServiceId(Long serviceId) {
         this.serviceId = serviceId;
+    }
+
+    public Long getPageId() {
+        return pageId;
+    }
+
+    public void setPageId(Long pageId) {
+        this.pageId = pageId;
     }
 }
