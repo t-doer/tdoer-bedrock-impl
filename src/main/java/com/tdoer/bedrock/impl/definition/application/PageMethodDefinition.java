@@ -22,7 +22,11 @@ import java.io.Serializable;
  * @create 2017-09-19
  */
 public class PageMethodDefinition implements Serializable {
+    private Long applicationId;
+
     private Long pageId;
+
+    private Long serviceId;
 
     private Long methodId;
 
@@ -40,5 +44,21 @@ public class PageMethodDefinition implements Serializable {
 
     public void setMethodId(Long methodId) {
         this.methodId = methodId;
+    }
+
+    public Long getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(Long applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public Long getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Long serviceId) {
+        this.serviceId = serviceId;
     }
 }

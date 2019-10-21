@@ -23,7 +23,11 @@ import java.io.Serializable;
  */
 public class ActionMethodDefinition implements Serializable {
 
+    private Long applicationId;
+
     private Long actionId;
+
+    private Long serviceId;
 
     private Long methodId;
 
@@ -41,5 +45,22 @@ public class ActionMethodDefinition implements Serializable {
 
     public void setMethodId(Long methodId) {
         this.methodId = methodId;
+    }
+
+
+    public Long getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(Long applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public Long getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Long serviceId) {
+        this.serviceId = serviceId;
     }
 }
