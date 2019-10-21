@@ -23,56 +23,56 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
-import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_SERVICE_METHOD;
+import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_SERVICE;
 
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ServiceMethodCacheManager extends AbstractCacheManager<Long, DefaultServiceMethod> {
+public class ServiceByCodeCacheManager extends AbstractCacheManager<String, DefaultService> {
     protected ServiceLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(ServiceMethodCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(ServiceByCodeCacheManager.class);
 
-    public ServiceMethodCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
+    public ServiceByCodeCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ServiceLoader cannot be null");
         this.loader = loader;
-        logger.info("ServiceMethodCacheManager is initialized");
+        logger.info("ServiceByCodeCacheManager is initialized");
     }
 
     @Override
-    protected DefaultServiceMethod loadSource(Long methodId) throws ErrorCodeException {
+    protected DefaultService loadSource(String serviceCode) throws ErrorCodeException {
         try{
-            logger.info("Loading method of Id ({}) ...", methodId);
-            DefaultServiceMethod ret = loader.loadServiceMethod(methodId);
-            logger.info("Loaded method of Id ({}): {}", methodId, ret);
+            logger.info("Loading service of code ({}) ...", serviceCode);
+            DefaultService ret = loader.loadService(serviceCode);
+            logger.info("Loaded service of code ({}): {}", serviceCode, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load method of Id ({})", methodId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE_METHOD, t, methodId);
+            logger.error("Failed to load service of code ({})", serviceCode, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceCode);
         }
     }
 
     @Override
-    protected void destroySource(DefaultServiceMethod defaultService) {
+    protected void destroySource(DefaultService defaultService) {
         // do nothing here
     }
 
     @Override
-    protected DefaultServiceMethod reloadSource(Long methodId, DefaultServiceMethod oldSource) throws ErrorCodeException {
+    protected DefaultService reloadSource(String serviceCode, DefaultService oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading method of Id ({}) ...", methodId);
-            DefaultServiceMethod ret = loader.loadServiceMethod(methodId);
-            logger.info("Reloaded method of Id ({}): {}", methodId, ret);
+            logger.info("Reloading service of code ({}) ...", serviceCode);
+            DefaultService ret = loader.loadService(serviceCode);
+            logger.info("Reloaded service of code ({}): {}", serviceCode, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload method of Id ({})", methodId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE_METHOD, t, methodId);
+            logger.error("Failed to reload service of code ({})", serviceCode, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceCode);
         }
     }
 }

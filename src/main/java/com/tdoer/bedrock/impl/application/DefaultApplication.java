@@ -43,101 +43,178 @@ public class DefaultApplication implements Application {
         this.repository = repository;
     }
 
-    @Override
-    public String getId() {
-        return applicationDefinition.getId();
-    }
-
-    @Override
-    public String getName() {
-        return applicationDefinition.getName();
-    }
-
-    @Override
-    public String getAuthor() {
-        return applicationDefinition.getAuthor();
-    }
-
-    @Override
-    public String getMaintainers() {
-        return applicationDefinition.getMaintainers();
-    }
-
-    @Override
-    public String getVersion() {
-        return applicationDefinition.getVersion();
-    }
-
-    @Override
-    public String getDescription() {
-        return applicationDefinition.getDescription();
-    }
-
     /**
-     * List available pages in current environment {@link CloudEnvironment},
-     * that's, list available page according to current client, tenant and context instance.
-     * <br>
-     * Pages will be appended to the given list.
+     * Application Id
      *
-     * @param list List to hold pages.
+     * @return Application Id
      */
     @Override
-    public void listCurrentPages(List<Page> list) {
-        CloudEnvironment env = CloudEnvironmentHolder.getEnvironment();
-        // Note, use this application's serviceId, instead of env's
-        repository.listPages(getId(), env.getProductId(), env.getClientId(), env.getTenantId(), env.getContextPath(), list);
-    }
-
-    /**
-     * Get page of specific page Id
-     *
-     * @param pageId
-     * @return Page if found, otherwise {@code null}
-     */
-    @Override
-    public DefaultPage getPage(Long pageId) {
-        ArrayList<Page> list = new ArrayList<>();
-        listCurrentPages(list);
-        for(Page pg : list){
-            if(pg.getPageId().equals(pageId)){
-                return (DefaultPage)pg;
-            }
-        }
+    public Long getId() {
         return null;
     }
 
     /**
-     * List available services in current environment {@link CloudEnvironment},
-     * that's, list available services according to current client, tenant and context instance.
-     * <br>
-     * Services will be appended to the given list.
+     * Application code
+     *
+     * @return Application code, must not be blank
+     */
+    @Override
+    public String getCode() {
+        return null;
+    }
+
+    /**
+     * Application name
+     *
+     * @return Application name, must not be blank
+     */
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    /**
+     * Application description
+     *
+     * @return Application description, maybe be {@code Null}
+     */
+    @Override
+    public String getDescription() {
+        return null;
+    }
+
+    /**
+     * Application provider's name, it can be an organization or a person
+     *
+     * @return Provide's name, it must not be blank
+     */
+    @Override
+    public String getProvider() {
+        return null;
+    }
+
+    /**
+     * Application version
+     *
+     * @return Application version, must not be blank
+     */
+    @Override
+    public String getVersion() {
+        return null;
+    }
+
+    /**
+     * Get page of specific Id available in the application
+     *
+     * @param pageId Page Id, it cannot be <code>null</code>
+     * @return Page if found, otherwise {@code null}
+     */
+    @Override
+    public Page getPage(Long pageId) {
+        return null;
+    }
+
+    /**
+     * Get page of specific code available in the application
+     *
+     * @param pageCode
+     * @return Page if found, otherwise {@code null}
+     */
+    @Override
+    public Page getPage(String pageCode) {
+        return null;
+    }
+
+    /**
+     * List available pages of the application in current cloud environment
+     * {@link CloudEnvironment}.
+     *
+     * @param list List to hold pages, cannot be <code>null</code>
+     */
+    @Override
+    public void listCurrentPages(List<Page> list) {
+
+    }
+
+    /**
+     * List the application's all enabled pages, including common and customized ones.
+     *
+     * @param list List to hold pages, cannot be <code>null</code>
+     */
+    @Override
+    public void listAllPages(List<Page> list) {
+
+    }
+
+    /**
+     * List services the application needs to call in current cloud environment
+     * {@link CloudEnvironment}.
      *
      * @param list List to hold services.
      */
     @Override
-    public void listCurrentServices(List<Service> list) {
+    public void listCurrentRefereeServices(List<Service> list) {
 
+    }
+
+    /**
+     * Check whether the application can access the service or not. If the service
+     * is installed for the tenant's client, it's accessible.
+     *
+     * @param service The service to check
+     * @return true if the service is accessible, otherwise false
+     */
+    @Override
+    public boolean isServiceAccessible(Service service) {
+        return false;
     }
 
     /**
      * Get action of specific Id available in the application
      *
-     * @param actionId
-     * @return
+     * @param actionId Action Id, cannot be <code>null</code>
+     * @return {@link Action} if it exists in the application, otherwise return <code>null</code>
      */
     @Override
-    public DefaultAction getAction(Long actionId) {
-        ArrayList<Page> list = new ArrayList<>();
-        listCurrentPages(list);
-        for(Page pg : list){
-            ArrayList<Action> actions = new ArrayList<>();
-            pg.listCurrentActions(actions);
-            for(Action action : actions){
-                if(action.getActionId().equals(actionId)){
-                    return (DefaultAction) action;
-                }
-            }
-        }
+    public Action getAction(Long actionId) {
         return null;
+    }
+
+    /**
+     * Get action of specific code available in the application
+     *
+     * @param actionCode Action code, cannot be <code>null</code>
+     * @return {@link Action} if it exists in the application, otherwise return <code>null</code>
+     */
+    @Override
+    public Action getAction(String actionCode) {
+        return null;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null){
+            return false;
+        }
+        if(obj == this){
+            return true;
+        }
+        if(obj instanceof Service){
+            return this.getId().equals(((Application) obj).getId());
+        }
+
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Application[");
+        sb.append(getId()).append(", ");
+        sb.append(getCode()).append(", ");
+        sb.append(getName()).append(", ");
+        sb.append(getVersion());
+        sb.append("]");
+        return sb.toString();
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.tdoer.bedrock.impl.context;
 
+import com.tdoer.bedrock.context.ContextConfig;
 import com.tdoer.bedrock.context.ContextInstance;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.context.ContextType;
@@ -47,73 +48,116 @@ public class DefaultContextInstance implements ContextInstance {
         this.contextConfig = contextConfig;
     }
 
-    public void setParent(DefaultContextInstance parent){
-        this.parent = parent;
-    }
-
+    /**
+     * Context instance Id
+     *
+     * @return Instance Id, must not be <code>null</code>
+     */
     @Override
-    public Long getInstanceId() {
-        return contextPath.getInstanceId();
-    }
-
-    @Override
-    public String getInstanceName() {
-        return instanceName;
-    }
-
-    @Override
-    public ContextType getContextType() {
-        return contextType;
-    }
-
-    @Override
-    public ContextPath getContextPath() {
-        return contextPath;
-    }
-
-    @Override
-    public DefaultContextInstance getParent() {
-        return parent;
-    }
-
-    @Override
-    public DefaultContextConfig getContextConfig() {
-        return contextConfig;
-    }
-
-    @Override
-    public String getCode() {
-        return code;
-    }
-
-    @Override
-    public Long getDetailObjectId() {
-        return detailObjectId;
+    public Long getId() {
+        return null;
     }
 
     /**
-     * The top parent is always the tenant
+     * Context instance guid, globally unique
+     *
+     * @return Instance GUID, must not be blank
+     */
+    @Override
+    public String getGuid() {
+        return null;
+    }
+
+    /**
+     * Context instance name, unique in a tenant
+     *
+     * @return Instance name, must not be blank
+     */
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    /**
+     * Instance code, unique in a tenant
+     *
+     * @return Instance code, must not be blank
+     */
+    @Override
+    public String getCode() {
+        return null;
+    }
+
+    /**
+     * Get instance's detail information object's ID, say, class's Id, user's Id etc.
+     *
+     * @return associated detail object Id, may be <code>null</code>
+     */
+    @Override
+    public Long getDetailObjectId() {
+        return null;
+    }
+
+    /**
+     * Is the instance a tenant, the root context instance?
+     *
+     * @return true if the instance is a tenant
+     */
+    @Override
+    public boolean isTenant() {
+        return false;
+    }
+
+    /**
+     * Parent context instance. If the instance is a tenant, its parent context instance
+     * is <code>null</code>
+     *
+     * @return The context instance's parent instance, may be <code>null</code>
+     */
+    @Override
+    public ContextInstance getParent() {
+        return null;
+    }
+
+    /**
+     * The top parent of the instance, that's the tenant.
      *
      * @return
      */
     @Override
-    public DefaultContextInstance getTopParent() {
-        DefaultContextInstance c = this;
-        while(c.getParent() != null) {
-            c = c.getParent();
-        }
-        return c;
+    public ContextInstance getTopParent() {
+        return null;
     }
 
+    /**
+     * Context path to the context instance, say, '1.1-20.2-30.3', it's always
+     * globally unique.
+     *
+     * @return Context path, must not be <code>null</code>
+     */
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("DefaultContextInstance[");
-        sb.append(contextPath).append(", ");
-        sb.append(code).append(", ");
-        sb.append(instanceName).append(", ");
-        sb.append(detailObjectId);
-        sb.append("]");
-        return sb.toString();
+    public ContextPath getContextPath() {
+        return null;
+    }
+
+    /**
+     * Context type of the context instance. An instance must below to only one
+     * context type.
+     *
+     * @return Context type, must not be <code>null</code>
+     */
+    @Override
+    public ContextType getContextType() {
+        return null;
+    }
+
+    /**
+     * The instance's configurations, for example, available applications, context roles etc.
+     *
+     * @return Context configuration, must not be <code>null</code>
+     */
+    @Override
+    public ContextConfig getContextConfig() {
+        return null;
     }
 }

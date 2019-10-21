@@ -152,60 +152,55 @@ public class DefaultService implements Service {
     public ServiceMethod getMethod(Long methodId) {
         Assert.notNull(methodId, "Method Id cannot be null");
 
-        ServiceMethod method = serviceRespository.getServiceMethod(methodId);
-        if(method != null && getId().equals(methodId)){
-            return method;
-        }
-
-        return null;
+        return serviceRespository.getServiceMethod(getId(), methodId);
     }
 
     /**
-     * List the clients which refer to or call the service
+     * List the Ids of clients which refer to or call the service
      *
-     * @param list List to hold clients, cannot be <code>null</code>
+     * @param list List to hold client Ids, cannot be <code>null</code>
      */
     @Override
-    public void listRefererClients(List<Client> list) {
+    public void listRefererClientIds(List<Long> list) {
         Assert.notNull(list, "List cannot be null");
 
-        serviceRespository.listRefererClients(getId(), list);
+        serviceRespository.listRefererClientIds(getId(), list);
     }
 
     /**
-     * List applications which refer to or call the service
+     * List the Ids of applications which refer to or call the service
      *
-     * @param list List to hold applications, cannot be <code>null</code>
+     * @param list List to hold application Ids, cannot be <code>null</code>
      */
     @Override
-    public void listRefererApplications(List<Application> list) {
+    public void listRefererApplicationIds(List<Long> list) {
         Assert.notNull(list, "List cannot be null");
 
-        serviceRespository.listRefererApplications(getId(), list);
+        serviceRespository.listRefererApplicationIds(getId(), list);
     }
 
     /**
-     * List other services which refer to or call the service
+     * List the Ids of other services which refer to or call the service
      *
-     * @param list List to hold service, cannot be <code>null</code>
+     * @param list List to hold service Ids, cannot be <code>null</code>
      */
     @Override
-    public void listRefererServices(List<Service> list) {
+    public void listRefererServiceIds(List<Long> list) {
         Assert.notNull(list, "List cannot be null");
 
-        serviceRespository.listRefererServices(getId(), list);
+        serviceRespository.listRefererServiceIds(getId(), list);
     }
 
     /**
-     * List other services to which the service refers
+     * List the Ids of other services to which the service refers
      *
-     * @param list List to hold service, cannot be <code>null</code>
+     * @param list List to hold service Ids, cannot be <code>null</code>
      */
     @Override
-    public void listRefereeServices(List<Service> list) {
+    public void listRefereeServiceIds(List<Long> list) {
         Assert.notNull(list, "List cannot be null");
 
-        serviceRespository.listRefereeServices(getId(), list);
+        serviceRespository.listRefereeServiceIds(getId(), list);
     }
 
     /**
@@ -218,10 +213,10 @@ public class DefaultService implements Service {
     public boolean permitAccessFromService(Service service) {
         Assert.notNull(service, "Referer service cannot be null");
 
-        ArrayList<Service> list = new ArrayList<>();
-        listRefererServices(list);
+        ArrayList<Long> list = new ArrayList<>();
+        listRefererServiceIds(list);
 
-        return list.contains(service);
+        return list.contains(service.getId());
     }
 
     /**
@@ -234,10 +229,10 @@ public class DefaultService implements Service {
     public boolean permitAccessFromApplication(Application application) {
         Assert.notNull(application, "Referer application cannot be null");
 
-        ArrayList<Application> list = new ArrayList<>();
-        listRefererApplications(list);
+        ArrayList<Long> list = new ArrayList<>();
+        listRefererApplicationIds(list);
 
-        return list.contains(application);
+        return list.contains(application.getId());
     }
 
     /**
@@ -250,8 +245,8 @@ public class DefaultService implements Service {
     public boolean permitAccessFromClient(Client client) {
         Assert.notNull(client, "Referer client cannot be null");
 
-        ArrayList<Client> list = new ArrayList<>();
-        listRefererClients(list);
+        ArrayList<Long> list = new ArrayList<>();
+        listRefererClientIds(list);
 
         return list.contains(client);
     }

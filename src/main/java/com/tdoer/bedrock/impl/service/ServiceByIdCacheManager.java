@@ -29,16 +29,16 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_SERVIC
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ServiceCacheManagerById extends AbstractCacheManager<Long, DefaultService> {
+public class ServiceByIdCacheManager extends AbstractCacheManager<Long, DefaultService> {
     protected ServiceLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(ServiceCacheManagerById.class);
+    protected Logger logger = LoggerFactory.getLogger(ServiceByIdCacheManager.class);
 
-    public ServiceCacheManagerById(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
+    public ServiceByIdCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ServiceLoader cannot be null");
         this.loader = loader;
-        logger.info("ServiceCacheManager is initialized");
+        logger.info("ServiceByIdCacheManager is initialized");
     }
 
     @Override

@@ -17,6 +17,7 @@ package com.tdoer.bedrock.impl.context;
 
 import com.tdoer.bedrock.context.ContextInstance;
 import com.tdoer.bedrock.context.ContextInstanceCenter;
+import com.tdoer.bedrock.context.ContextInstanceNotFoundException;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
@@ -47,7 +48,16 @@ public class DefaultContextInstanceCenter implements ContextInstanceCenter {
         cacheManager.initialize();
     }
 
-    public ContextInstance getContextInstance(ContextPath contextPath) {
+    /**
+     * Get context instance of specific context path in specific tenant
+     *
+     * @param tenantId    Tenant Id, cannot be <code>null</code>
+     * @param contextPath Context path, cannot be <code>null</code>
+     * @return Context instance if it exists and is enabled
+     * @throws ContextInstanceNotFoundException if it is not found
+     */
+    @Override
+    public ContextInstance getContextInstance(Long tenantId, ContextPath contextPath) throws ContextInstanceNotFoundException {
         if(contextPath.getType().equals(rootContextType.getRoot().getType())){
             // root context type, the context instance must be a tenant
             return rentalCenter.getTenant(contextPath.getInstanceId());

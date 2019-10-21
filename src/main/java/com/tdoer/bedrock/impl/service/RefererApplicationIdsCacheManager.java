@@ -29,50 +29,50 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_SERVIC
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ServiceCacheManagerByCode extends AbstractCacheManager<String, DefaultService> {
+public class RefererApplicationIdsCacheManager extends AbstractCacheManager<Long, Long[]> {
     protected ServiceLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(ServiceCacheManagerByCode.class);
+    protected Logger logger = LoggerFactory.getLogger(RefererApplicationIdsCacheManager.class);
 
-    public ServiceCacheManagerByCode(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
+    public RefererApplicationIdsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ServiceLoader cannot be null");
         this.loader = loader;
-        logger.info("ServiceCacheManager is initialized");
+        logger.info("RefererApplicationIdsCacheManager is initialized");
     }
 
     @Override
-    protected DefaultService loadSource(String serviceCode) throws ErrorCodeException {
+    protected Long[] loadSource(Long serviceId) throws ErrorCodeException {
         try{
-            logger.info("Loading service of code ({}) ...", serviceCode);
-            DefaultService ret = loader.loadService(serviceCode);
-            logger.info("Loaded service of code ({}): {}", serviceCode, ret);
+            logger.info("Loading referer application Ids of service Id ({}) ...", serviceId);
+            Long[] ret = loader.loadRefererApplicationIds(serviceId);
+            logger.info("Loaded {} referer application Ids of service Id ({}): {}", ret.length, serviceId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load service of code ({})", serviceCode, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceCode);
+            logger.error("Failed to load referer application Ids of service Id ({})", serviceId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceId);
         }
     }
 
     @Override
-    protected void destroySource(DefaultService defaultService) {
+    protected void destroySource(Long[] applicationIds) {
         // do nothing here
     }
 
     @Override
-    protected DefaultService reloadSource(String serviceCode, DefaultService oldSource) throws ErrorCodeException {
+    protected Long[] reloadSource(Long serviceId, Long[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading service of code ({}) ...", serviceCode);
-            DefaultService ret = loader.loadService(serviceCode);
-            logger.info("Reloaded service of code ({}): {}", serviceCode, ret);
+            logger.info("Reloading referer application Ids of service Id ({}) ...", serviceId);
+            Long[] ret = loader.loadRefererApplicationIds(serviceId);
+            logger.info("Reloaded {} referer application Ids of service Id ({}): {}", ret.length, serviceId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload service of code ({})", serviceCode, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceCode);
+            logger.error("Failed to reload referer application Ids of service Id ({})", serviceId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceId);
         }
     }
 }

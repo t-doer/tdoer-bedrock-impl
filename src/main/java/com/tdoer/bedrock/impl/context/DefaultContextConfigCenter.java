@@ -16,10 +16,7 @@
 package com.tdoer.bedrock.impl.context;
 
 import com.tdoer.bedrock.application.ApplicationInstallation;
-import com.tdoer.bedrock.context.ContextConfigCenter;
-import com.tdoer.bedrock.context.ContextPath;
-import com.tdoer.bedrock.context.ContextRole;
-import com.tdoer.bedrock.context.PublicAuthority;
+import com.tdoer.bedrock.context.*;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
 import com.tdoer.bedrock.impl.domain.ContextDomain;
@@ -57,87 +54,82 @@ public class DefaultContextConfigCenter implements ContextConfigCenter {
         publicAuthoritiesCacheManager.initialize();
     }
 
+    /**
+     * List user roles of specific user Id in specific tenant's specific context instance
+     *
+     * @param tenantId    Tenant Id, cannot be <code>null</code>
+     * @param contextPath Context path of context instance, cannot be <code>null</code>
+     * @param userId      User Id, cannot be <code>null</code>
+     * @param list        List to hold context roles, cannot be <code>null</code>
+     */
     @Override
-    public void listUserRoles(ContextPath contextPath, Long userId, List<ContextRole> list){
-        // TODO no cache for now
-        DefaultContextRole[] contextRoles = contextConfigLoader.loadUserRoles(contextPath, userId);
-        for(DefaultContextRole role : contextRoles){
-            list.add(role);
-        }
+    public void listUserRoles(Long tenantId, ContextPath contextPath, Long userId, List<ContextRole> list) {
+
     }
 
+    /**
+     * List public authorities in specific tenant's specific context instance
+     *
+     * @param tenantId    Tenant Id, cannot be <code>null</code>
+     * @param contextPath Context path of context instance, cannot be <code>null</code>
+     * @param list        List to hold public authorities, cannot be <code>null</code>
+     */
     @Override
-    public void listPublicAuthorities(ContextPath contextPath, String productId, String clientId, Long tenantId, List<PublicAuthority> list) {
-        ContextDomain domain = new ContextDomain(contextPath, productId, clientId, tenantId);
-        PublicAuthority[] candidates = null;
-        do{
-            candidates = publicAuthoritiesCacheManager.getSource(domain);
-            if(candidates != null && candidates.length>0){
-                for(PublicAuthority it : candidates){
-                    list.add(it);
-                }
-            }
+    public void listPublicAuthorities(Long tenantId, ContextPath contextPath, List<PublicAuthority> list) {
 
-            domain = domain.nextLookup();
-
-        } while(domain != null);
     }
 
+    /**
+     * List context roles in specific tenant's specific context instance
+     *
+     * @param tenantId    Tenant Id, cannot be <code>null</code>
+     * @param contextPath Context path of context instance, cannot be <code>null</code>
+     * @param list        List to hold context roles, cannot be <code>null</code>
+     */
     @Override
-    public void listContextRoles(ContextPath contextPath, String productId, String clientId, Long tenantId, List<ContextRole> list) {
-        ContextDomain domain = new ContextDomain(contextPath, productId, clientId, tenantId);
-        DefaultContextRole[] candidates = null;
-        do{
-            candidates = rolesCacheManager.getSource(domain);
-            if(candidates != null && candidates.length>0){
-                for(DefaultContextRole it : candidates){
-                    list.add(it);
-                }
-            }
+    public void listContextRoles(Long tenantId, ContextPath contextPath, List<ContextRole> list) {
 
-            domain = domain.nextLookup();
-
-        } while(domain != null);
     }
 
+    /**
+     * Get context role of specific role Id in specific tenant's specific context instance
+     *
+     * @param tenantId    Tenant Id, cannot be <code>null</code>
+     * @param contextPath Context path of context instance, cannot be <code>null</code>
+     * @param roleId      Role Id, cannot be <code>null</code>
+     * @return Context role or <code>null</code>
+     */
     @Override
-    public ContextRole getContextRole(Long roleId, ContextPath contextPath, String productId, String clientId, Long tenantId) {
-        ArrayList<ContextRole> list = new ArrayList<>();
-        listContextRoles(contextPath, productId, clientId, tenantId, list);
-        for(ContextRole role : list){
-            if(role.getId().equals(roleId)){
-                return role;
-            }
-        }
+    public ContextRole getContextRole(Long tenantId, ContextPath contextPath, Long roleId) {
         return null;
     }
 
+    /**
+     * List application installations which are in specific client and specific tenant's
+     * specific context instance
+     *
+     * @param tenantId    Tenant Id, cannot be <code>null</code>
+     * @param contextPath Context path of context instance, cannot be <code>null</code>
+     * @param clientId    Client Id, cannot be <code>null</code>
+     * @param list        List to hold {@link ContextApplicationInstallation}, cannot be <code>null</code>
+     */
     @Override
-    public void listApplicationInstallation(ContextPath contextPath, String productId, String clientId, Long tenantId, List<ApplicationInstallation> list) {
-        ContextDomain domain = new ContextDomain(contextPath, productId, clientId, tenantId);
-        DefaultContextApplicationInstallation[] candidates = null;
-        do{
-            candidates = applicationsInstallationCacheManager.getSource(domain);
-            if(candidates != null && candidates.length>0){
-                for(DefaultContextApplicationInstallation it : candidates){
-                    list.add(it);
-                }
-            }
+    public void listApplicationInstallation(Long tenantId, ContextPath contextPath, Long clientId, List<ContextApplicationInstallation> list) {
 
-            domain = domain.nextLookup();
-
-        } while(domain != null);
     }
 
+    /**
+     * Get application installation of specific application Id which is in specific client and
+     * specific tenant's specific context instance
+     *
+     * @param tenantId      Tenant Id, cannot be <code>null</code>
+     * @param contextPath   Context path of context instance, cannot be <code>null</code>
+     * @param clientId      Client Id, cannot be <code>null</code>
+     * @param applicationId Application Id, cannot be <code>null</code>
+     * @return Application installation or <code>null</code>
+     */
     @Override
-    public DefaultContextApplicationInstallation getApplicationInstallation(String applicationId, ContextPath contextPath, String productId, String clientId, Long tenantId) {
-        ArrayList<ApplicationInstallation> list =  new ArrayList<>();
-        listApplicationInstallation(contextPath, productId, clientId, tenantId, list);
-        for(ApplicationInstallation ins : list){
-            if(ins.getApplication().getId().equals(applicationId)){
-                return (DefaultContextApplicationInstallation) ins;
-            }
-        }
+    public ContextApplicationInstallation getApplicationInstallation(Long tenantId, ContextPath contextPath, Long clientId, String applicationId) {
         return null;
     }
 }

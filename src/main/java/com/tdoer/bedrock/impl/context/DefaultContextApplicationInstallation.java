@@ -39,29 +39,44 @@ public class DefaultContextApplicationInstallation implements ContextApplication
         this.applicationRepository = applicationRepository;
     }
 
+    /**
+     * The path of the context (context type or context instance) in which the
+     * application is installed
+     *
+     * @return Context path, must not be <code>null</code>
+     */
     @Override
     public ContextPath getContextPath() {
-        return contextPath;
+        return null;
     }
 
+    /**
+     * The Id of the client in which the application is installed
+     *
+     * @return Client Id, must not be <code>null</code>
+     */
     @Override
-    public String getProductId() {
-        return definition.getProductId();
+    public Long getClientId() {
+        return null;
     }
 
-    @Override
-    public String getClientId() {
-        return definition.getClientId();
-    }
-
+    /**
+     * The Id of the tenant in which the application is installed
+     *
+     * @return Tenant Id, must not be <code>null</code>, but may be zero
+     */
     @Override
     public Long getTenantId() {
-        return definition.getTenantId();
+        return null;
     }
 
+    /**
+     * The installed application
+     *
+     * @return the installed application, it must not be <code>null</code>
+     */
     @Override
     public Application getApplication() {
-        return applicationRepository.getApplication(definition.getApplicationId());
+        return null;
     }
-
 }

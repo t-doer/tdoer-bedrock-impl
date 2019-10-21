@@ -31,12 +31,18 @@ public interface ServiceProvider {
 
     ServiceDefinition getServiceDefinition(String serviceCode);
 
-    List<ServiceMethodDefinition> getCustomizedServiceMethodDefinitions(
-            Long serviceId, Long applicationId, Long productId, Long clientId, Long tenantId, String contextPath);
-
-    List<ServiceMethodDefinition> getCommonServiceMethodDefinitions(Long serviceId);
-
     List<ServiceMethodDefinition> getAllServiceMethodDefinitions(Long serviceId);
 
-    ServiceMethodDefinition getServiceMethodDefinition(Long methodId);
+    List<Long> getCustomizedServiceMethodIds(
+            Long serviceId, Long applicationId, Long productId, Long clientId, Long tenantId, String contextPath);
+
+    List<Long> getCommonServiceMethodIds(Long serviceId);
+
+    List<Long> getRefererClientIds(Long serviceId);
+
+    List<Long> getRefererApplicationIds(Long serviceId);
+
+    List<Long> getRefererServiceIds(Long serviceId);
+
+    List<Long> getRefereeServiceIds(Long serviceIds);
 }

@@ -23,6 +23,8 @@ import com.tdoer.bedrock.application.Page;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.definition.application.PageDefinition;
 import com.tdoer.bedrock.impl.service.DefaultServiceMethod;
+import com.tdoer.bedrock.resource.ResourceCategory;
+import com.tdoer.bedrock.resource.ResourceType;
 import com.tdoer.bedrock.service.ServiceMethod;
 import org.springframework.util.Assert;
 
@@ -51,123 +53,114 @@ public class DefaultPage implements Page {
         this.applicationRepository = applicationRepository;
     }
 
-    /**
-     * Resource Id, that's, Page Id
-     *
-     * @return Resource Id
-     */
     @Override
-    public Long getId() {
-        return pageDefinition.getId();
-    }
-
-    /**
-     * Page Id, that's, the resource Id
-     *
-     * @return age Id
-     */
-    @Override
-    public Long getPageId() {
-        return getId();
+    public String toString() {
+        return super.toString();
     }
 
     /**
      * Page name
      *
-     * @return Page name
+     * @return Page name, it must not be blank
      */
     @Override
     public String getName() {
-        return pageDefinition.getName();
+        return null;
     }
 
     /**
      * Page code
      *
-     * @return Page code
+     * @return Page code, it must not be blank
      */
     @Override
     public String getCode() {
-        return pageDefinition.getCode();
-    }
-
-    @Override
-    public void listServiceMethods(List<ServiceMethod> list) {
-        if(serviceMethods != null){
-            for(DefaultServiceMethod method : serviceMethods){
-                list.add(method);
-            }
-        }
-    }
-
-    /**
-     * List actions of the page available in current environment {@link CloudEnvironment},
-     * that's, list available actions of the page available to current client, product, tenant and context instance.
-     * <br>
-     *
-     * @param list
-     */
-    @Override
-    public void listCurrentActions(List<Action> list) {
-        CloudEnvironment env = CloudEnvironmentHolder.getEnvironment();
-        applicationRepository.listActions(getPageId(), getApplicationId(), env.getProductId(), env.getClientId(), env.getTenantId(), env.getContextPath(),list);
-    }
-
-    @Override
-    public String getApplicationId() {
-        return pageDefinition.getApplicationId();
-    }
-
-    @Override
-    public DefaultAction getAction(Long actionId) {
-        ArrayList<Action> list = new ArrayList<>();
-        listCurrentActions(list);
-        for(Action act : list){
-            if(act.getActionId().equals(actionId)){
-                return (DefaultAction)act;
-            }
-        }
-
         return null;
     }
 
     /**
-     * Product Id, to which the resource belongs
+     * Page's URI
      *
-     * @return Product Id, it may be {@code Null}
+     * @return Page's URI, it must not be blank
      */
     @Override
-    public String getProductId() {
-        return pageDefinition.getProductId();
+    public String getURI() {
+        return null;
     }
 
     /**
-     * Tenant Id, to which the resource belongs to
+     * Get action of specific Id available in the application. If the action
+     * exists, but it dose not below to the application, it will return <code>null</code>
      *
-     * @return Tenant Id, it may be {@code Null}
+     * @param actionId Action Id, cannot be <code>null</code>
+     * @return Action if the action exists and is enabled and below to the application,
+     * otherwise return <code>null</code>
      */
     @Override
-    public Long getTenantId() {
-        return pageDefinition.getTenantId();
+    public Action getAction(Long actionId) {
+        return null;
     }
 
     /**
-     * Client Id, to which the resource belongs to
+     * Get action of specific code available in the application. If the action
+     * exists, but it dose not below to the application, it will return <code>null</code>
      *
-     * @return Client Id, it may be {@code Null}
+     * @param actionCode Action code, cannot be <code>null</code>
+     * @return Action if the action exists and is enabled and below to the application,
+     * otherwise return <code>null</code>
      */
     @Override
-    public String getClientId() {
-        return pageDefinition.getClientId();
+    public Action getAction(String actionCode) {
+        return null;
     }
 
     /**
-     * Context path, to which the resource belongs to
+     * List actions of the page available in current environment {@link CloudEnvironment},
      *
-     * @return Context path, it may be {@code Null}
+     * @param list List to hold actions, cannot be <code>null</code>
      */
     @Override
-    public ContextPath getContextPath() {
-        return contextPath;
+    public void listCurrentActions(List<Action> list) {
+
+    }
+
+    /**
+     * List the page's all enabled actions, including common and customized ones.
+     *
+     * @param list List to hold actions, cannot be <code>null</code>
+     */
+    @Override
+    public void listAllActions(List<Action> list) {
+
+    }
+
+    /**
+     * The Id of the Application to which the resource belongs
+     *
+     * @return Application Id, never be null
+     */
+    @Override
+    public Long getApplicationId() {
+        return null;
+    }
+
+    /**
+     * List the service methods which the application resource associates with
+     *
+     * @param list List to hold service methods, cannot be <code>null</code>
+     */
+    @Override
+    public void listServiceMethods(List<ServiceMethod> list) {
+
+    }
+
+    /**
+     * Resource Id
+     *
+     * @return Resource Id
+     */
+    @Override
+    public Long getId() {
+        return null;
     }
 }

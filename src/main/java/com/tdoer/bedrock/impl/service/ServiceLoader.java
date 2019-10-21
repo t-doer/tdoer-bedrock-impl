@@ -86,61 +86,6 @@ public class ServiceLoader {
         return null;
     }
 
-    public DefaultServiceMethod loadServiceMethod(Long methodId){
-        Assert.notNull(methodId, "Service method Id cannot be null");
-
-        ServiceMethodDefinition definition = null;
-        try{
-            definition = serviceProvider.getServiceMethodDefinition(methodId);
-        }catch(Throwable t){
-            logger.trace("Failed to load service method of Id: " + methodId, t);
-        }
-
-        if(definition != null){
-            try{
-                return serviceBuilder.buildServiceMethod(definition);
-            }catch(Exception ex){
-                logger.trace("Invalid service method definition: " + definition, ex);
-            }
-        }
-
-        return null;
-    }
-
-    public DefaultServiceMethod[] loadServiceMethods(ServiceDomain serviceDomain){
-        Assert.notNull(serviceDomain, "Service domain cannot be null");
-
-        ServiceDomain ad = serviceDomain;
-
-        List<ServiceMethodDefinition> list = null;
-        try{
-            if(serviceDomain.isExtensionDomain()){
-                list = serviceProvider.getCustomizedServiceMethodDefinitions(ad.getServiceId(),
-                        ad.getApplicationId(), ad.getProductId(), ad.getClientId(),ad.getTenantId(),
-                        ad.getContextPath()== null? "void" : ad.getContextPath().getAbsoluteValue());
-            }else{
-                list = serviceProvider.getCommonServiceMethodDefinitions(serviceDomain.getServiceId());
-            }
-        }catch(Throwable t){
-            logger.trace("Failed load service method definitions of domain: " + serviceDomain, t);
-        }
-
-        ArrayList<DefaultServiceMethod> methodList = new ArrayList<>(list.size());
-        if(list != null){
-            for(ServiceMethodDefinition methodDefinition : list){
-                try{
-                    methodList.add(serviceBuilder.buildServiceMethod(methodDefinition));
-                }catch(Exception t){
-                    logger.trace("Invalid service method definition: " + methodDefinition, t);
-                }
-            }
-        }
-
-        DefaultServiceMethod[] ret = new DefaultServiceMethod[methodList.size()];
-        methodList.toArray(ret);
-        return ret;
-    }
-
     public DefaultServiceMethod[] loadAllServiceMethods(Long serviceId){
         Assert.notNull(serviceId, "Service Id cannot be null");
 
@@ -148,7 +93,7 @@ public class ServiceLoader {
         try{
             list =serviceProvider.getAllServiceMethodDefinitions(serviceId);
         }catch(Throwable t){
-            logger.trace("Failed load all service method definitions of service Id: " + serviceId, t);
+            logger.trace("Failed to load all service method definitions of service Id: " + serviceId, t);
         }
 
         ArrayList<DefaultServiceMethod> methodList = new ArrayList<>(list.size());
@@ -165,5 +110,107 @@ public class ServiceLoader {
         DefaultServiceMethod[] ret = new DefaultServiceMethod[methodList.size()];
         methodList.toArray(ret);
         return ret;
+    }
+
+    public Long[] loadServiceMethodIds(ServiceDomain serviceDomain){
+        Assert.notNull(serviceDomain, "Service domain cannot be null");
+
+        ServiceDomain ad = serviceDomain;
+
+        List<Long> list = null;
+        try{
+            if(serviceDomain.isExtensionDomain()){
+                list = serviceProvider.getCustomizedServiceMethodIds(ad.getServiceId(),
+                        ad.getApplicationId(), ad.getProductId(), ad.getClientId(),ad.getTenantId(),
+                        ad.getContextPath()== null? "void" : ad.getContextPath().getAbsoluteValue());
+            }else{
+                list = serviceProvider.getCommonServiceMethodIds(serviceDomain.getServiceId());
+            }
+        }catch(Throwable t){
+            logger.trace("Failed to load service method definitions of domain: " + serviceDomain, t);
+        }
+
+        if(list != null){
+            Long[] ids = new Long[list.size()];
+            return list.toArray(ids);
+        }
+
+        return new Long[0];
+    }
+
+    public Long[] loadRefererClientIds(Long serviceId){
+        Assert.notNull(serviceId, "Service Id cannot be null");
+
+        List<Long> list = null;
+        try{
+            list = serviceProvider.getRefererClientIds(serviceId);
+        }catch (Throwable t){
+            logger.trace("Failed to load referer client Ids of service Id: " + serviceId, t);
+        }
+
+        if(list != null){
+            Long[] clientIds = new Long[list.size()];
+            list.toArray(clientIds);
+            return clientIds;
+        }
+
+        return new Long[0];
+    }
+
+    public Long[] loadRefererApplicationIds(Long serviceId){
+        Assert.notNull(serviceId, "Service Id cannot be null");
+
+        List<Long> list = null;
+        try{
+            list = serviceProvider.getRefererApplicationIds(serviceId);
+        }catch (Throwable t){
+            logger.trace("Failed to load referer application Ids of service Id: " + serviceId, t);
+        }
+
+        if(list != null){
+            Long[] appIds = new Long[list.size()];
+            list.toArray(appIds);
+            return appIds;
+        }
+
+        return new Long[0];
+    }
+
+    public Long[] loadRefererServiceIds(Long serviceId){
+        Assert.notNull(serviceId, "Service Id cannot be null");
+
+        List<Long> list = null;
+        try{
+            list = serviceProvider.getRefererServiceIds(serviceId);
+        }catch (Throwable t){
+            logger.trace("Failed to load referer service Ids of service Id: " + serviceId, t);
+        }
+
+        if(list != null){
+            Long[] serviceIds = new Long[list.size()];
+            list.toArray(serviceIds);
+            return serviceIds;
+        }
+
+        return new Long[0];
+    }
+
+    public Long[] loadRefereeServiceIds(Long serviceId){
+        Assert.notNull(serviceId, "Service Id cannot be null");
+
+        List<Long> list = null;
+        try{
+            list = serviceProvider.getRefereeServiceIds(serviceId);
+        }catch (Throwable t){
+            logger.trace("Failed to load referee service Ids of service Id: " + serviceId, t);
+        }
+
+        if(list != null){
+            Long[] serviceIds = new Long[list.size()];
+            list.toArray(serviceIds);
+            return serviceIds;
+        }
+
+        return new Long[0];
     }
 }

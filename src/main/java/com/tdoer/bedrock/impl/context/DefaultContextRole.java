@@ -43,75 +43,98 @@ public class DefaultContextRole implements com.tdoer.bedrock.context.ContextRole
     }
 
     @Override
-    public Long getId() {
-        return definition.getId();
+    public String toString() {
+        return super.toString();
     }
 
+    /**
+     * Role Id
+     *
+     * @return Role Id, must not be <code>null</code>
+     */
     @Override
-    public String getCode() {
-        return definition.getCode();
+    public Long getId() {
+        return null;
     }
 
+    /**
+     * Role name, should be unique in a context type or instance
+     *
+     * @return Role name, must not be blank
+     */
     @Override
     public String getName() {
-        return definition.getName();
+        return null;
     }
 
+    /**
+     * Role code, should be unique in a context type or instance.
+     * Role code is mainly used in program for access checking
+     *
+     * @return Role code, must not be blank
+     */
     @Override
-    public String getProductId() {
-        return definition.getProductId();
+    public String getCode() {
+        return null;
     }
 
-    @Override
-    public String getClientId() {
-        return definition.getClientId();
-    }
-
-    @Override
-    public Long getTenantId() {
-        return definition.getTenantId();
-    }
-
+    /**
+     * The path of context (type or instance) in which the role is defined
+     *
+     * @return Context path, must not be <code>null</code>
+     */
     @Override
     public ContextPath getContextPath() {
-        return contextPath;
+        return null;
     }
 
+    /**
+     * The Id of tenant in which the role is defined. If the role is a system
+     * role, tenant Id will be zero.
+     *
+     * @return Tenant Id, must not be <code>null</code>
+     */
     @Override
-    public boolean permitServiceMethod(String httpMethod, String path) {
-        ApplicationResource resource = null;
-        for(DefaultRoleAuthority authority : authorities){
-            if(authority.getResource() instanceof ApplicationResource){
-                resource = (ApplicationResource) authority.getResource();
-                ArrayList<ServiceMethod> list = new ArrayList<>();
-                resource.listServiceMethods(list);
-                for(ServiceMethod method : list){
-                    if(method.match(httpMethod, path)){
-                        return true;
-                    }
-                }
-            }
-        }
+    public Long getTenantId() {
+        return null;
+    }
+
+    /**
+     * List front-end resources which are authorized to the context role,
+     * such like page, action and navigation etc.
+     *
+     * @param list List to hold role authorities, cannot be <code>null</code>
+     */
+    @Override
+    public void listFrontendResource(List<RoleAuthority> list) {
+
+    }
+
+    /**
+     * List back-end resources, mainly service methods which are authorized to
+     * the context role.
+     *
+     * @param list
+     */
+    @Override
+    public void listServiceMethods(List<RoleAuthority> list) {
+
+    }
+
+    /**
+     * Check if the role permits the request
+     *
+     * @param httpMethod HTTP method, must not be blank
+     * @param URI        Request URI, must not be blank
+     * @return true if the request is permitted
+     */
+    @Override
+    public boolean permitServiceMethodAccess(String httpMethod, String URI) {
         return false;
     }
 
     @Override
-    public void listAuthorities(List<RoleAuthority> list) {
-        if(authorities != null){
-            for(DefaultRoleAuthority authority : authorities){
-                list.add(authority);
-            }
-        }
-    }
-
-    /**
-     * A global unique authority string which will be used by {@link AccessDecisionManager},
-     * the format will be "role://(context path)/(role code)", take app "o2o-engineer-app" and role "admin" for example,
-     * the authority string will be "role://1.1-2.1/admin".
-     */
-    @com.fasterxml.jackson.annotation.JsonIgnore
-    @Override
     public String getAuthority() {
-        return new StringBuilder("role://").append(contextPath).append("/").append(getCode()).toString();
+        return null;
     }
 }

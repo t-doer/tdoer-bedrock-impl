@@ -19,43 +19,41 @@ import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.context.ContextPathParser;
 import com.tdoer.bedrock.context.InvalidContextPathException;
 import org.springframework.util.StringUtils;
-
-import static com.tdoer.bedrock.BedrockErrorCodes.ILLEGAL_CONTEXT_PATH;
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
 public class DefaultContextPathParser implements ContextPathParser {
 
+    /**
+     * Parse context path string, say "1.1-2.1-3.1" into {@link ContextPath}
+     *
+     * @param contextPath Context path string, must not be <code>null</code>
+     * @return {@link ContextPath} if the context path string is of the format
+     * @throws InvalidContextPathException if the context path string is invalid
+     */
     @Override
-    public ContextPath parse(String contextPath){
-        try {
-            String[] arr = StringUtils.delimitedListToStringArray(contextPath, "-");
+    public ContextPath parse(String contextPath) throws InvalidContextPathException {
 
-            ContextPath context = null;
-            ContextPath parent = null;
-            for (String str : arr) {
-                String[] ta = StringUtils.delimitedListToStringArray(str, ".");
+        String[] arr = StringUtils.delimitedListToStringArray(contextPath, "-");
 
-                if(ta.length != 2){
-                    InvalidContextPathException icpe = new InvalidContextPathException(ILLEGAL_CONTEXT_PATH, contextPath);
-                    icpe.setContextPath(contextPath);
-                    throw icpe;
-                }
+        ContextPath context = null;
+        ContextPath parent = null;
+        for (String str : arr) {
+            String[] ta = StringUtils.delimitedListToStringArray(str, ".");
 
-                Integer type = Integer.parseInt(ta[0]);
-                Long xid = Long.parseLong(ta[1]);
-
-                context = new ContextPath(type, xid, parent);
-
-                parent = context;
+            if(ta.length != 2){
+                throw new InvalidContextPathException(contextPath);
             }
 
-            return context;
-        } catch (Exception e) {
-            InvalidContextPathException icpe = new InvalidContextPathException(ILLEGAL_CONTEXT_PATH, e, contextPath);
-            icpe.setContextPath(contextPath);
-            throw icpe;
+            Long type = Long.parseLong(ta[0]);
+            Long xid = Long.parseLong(ta[1]);
+
+            context = new ContextPath(type, xid, parent);
+
+            parent = context;
         }
+
+        return context;
     }
 }

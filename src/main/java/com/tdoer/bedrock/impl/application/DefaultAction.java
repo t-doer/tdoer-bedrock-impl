@@ -19,6 +19,8 @@ import com.tdoer.bedrock.application.Action;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.definition.application.ActionDefinition;
 import com.tdoer.bedrock.impl.service.DefaultServiceMethod;
+import com.tdoer.bedrock.resource.ResourceCategory;
+import com.tdoer.bedrock.resource.ResourceType;
 import com.tdoer.bedrock.service.ServiceMethod;
 import org.springframework.util.Assert;
 
@@ -44,6 +46,71 @@ public class DefaultAction implements Action {
         this.contextPath = contextPath; // can be null
     }
 
+    @Override
+    public ResourceType getType() {
+        return null;
+    }
+
+    @Override
+    public ResourceCategory getCategory() {
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
+    /**
+     * Action name
+     *
+     * @return Acton name,it must not be blank
+     */
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    /**
+     * Action code
+     *
+     * @return Action code, it must not be blank
+     */
+    @Override
+    public String getCode() {
+        return null;
+    }
+
+    /**
+     * Get the Id of the page to which the action belongs
+     *
+     * @return Page Id, it must not be <code>null</code>
+     */
+    @Override
+    public Long getPageId() {
+        return null;
+    }
+
+    /**
+     * The Id of the Application to which the resource belongs
+     *
+     * @return Application Id, never be null
+     */
+    @Override
+    public Long getApplicationId() {
+        return null;
+    }
+
+    /**
+     * List the service methods which the application resource associates with
+     *
+     * @param list List to hold service methods, cannot be <code>null</code>
+     */
+    @Override
+    public void listServiceMethods(List<ServiceMethod> list) {
+
+    }
+
     /**
      * Resource Id
      *
@@ -51,106 +118,6 @@ public class DefaultAction implements Action {
      */
     @Override
     public Long getId() {
-        return actionDefinition.getId();
+        return null;
     }
-
-    /**
-     * Action Id, that's, the resource Id
-     *
-     * @return
-     */
-    @Override
-    public Long getActionId() {
-        return actionDefinition.getId();
-    }
-
-    /**
-     * Get the name, or a brief description, of the resource
-     *
-     * @return
-     */
-    @Override
-    public String getName() {
-        return actionDefinition.getName();
-    }
-
-    /**
-     * Resource code
-     *
-     * @return
-     */
-    @Override
-    public String getCode() {
-        return actionDefinition.getCode();
-    }
-
-    @Override
-    public void listServiceMethods(List<ServiceMethod> list) {
-        if(serviceMethods != null){
-            for(DefaultServiceMethod method : serviceMethods){
-                list.add(method);
-            }
-        }
-    }
-
-    /**
-     * Get the page's Id to which the action belongs
-     *
-     * @return
-     */
-    @Override
-    public Long getPageId() {
-        return actionDefinition.getPageId();
-    }
-
-    /**
-     * The application's Id to which the resource belongs
-     *
-     * @return
-     */
-    @Override
-    public String getApplicationId() {
-        return actionDefinition.getApplicationId();
-    }
-
-    /**
-     * Product Id, to which the resource belongs
-     *
-     * @return Product Id, it may be {@code Null}
-     */
-    @Override
-    public String getProductId() {
-        return actionDefinition.getProductId();
-    }
-
-    /**
-     * Client Id, to which the resource belongs to
-     *
-     * @return Client Id, it may be {@code Null}
-     */
-    @Override
-    public String getClientId() {
-        return actionDefinition.getClientId();
-    }
-
-    /**
-     * Tenant Id, to which the resource belongs to
-     *
-     * @return Tenant Id, it may be {@code Null}
-     */
-    @Override
-    public Long getTenantId() {
-        return actionDefinition.getTenantId();
-    }
-
-    /**
-     * Context path, to which the resource belongs to
-     *
-     * @return Context path, it may be {@code Null}
-     */
-    @Override
-    public ContextPath getContextPath() {
-        return contextPath;
-    }
-
 }

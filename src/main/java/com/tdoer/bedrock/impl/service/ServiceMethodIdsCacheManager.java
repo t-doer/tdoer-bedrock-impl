@@ -29,11 +29,11 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_SERVIC
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ServiceMethodsCacheManager extends AbstractCacheManager<Long, DefaultServiceMethod[]> {
+public class ServiceMethodIdsCacheManager extends AbstractCacheManager<ServiceDomain, Long[]> {
     protected ServiceLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(ServiceMethodsCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(ServiceMethodIdsCacheManager.class);
 
-    public ServiceMethodsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader) {
+    public ServiceMethodIdsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader) {
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ServiceLoader cannot be null");
@@ -42,37 +42,37 @@ public class ServiceMethodsCacheManager extends AbstractCacheManager<Long, Defau
     }
 
     @Override
-    protected DefaultServiceMethod[] loadSource(Long serviceId) throws ErrorCodeException {
+    protected Long[] loadSource(ServiceDomain serviceDomain) throws ErrorCodeException {
         try{
-            logger.info("Loading all service methods of the service Id {} ...", serviceId);
-            DefaultServiceMethod[] ret = loader.loadAllServiceMethods(serviceId);
-            logger.info("Loaded {} service methods of the service Id {}.", ret.length, serviceId);
+            logger.info("Loading service method Ids of the service domain {} ...", serviceDomain);
+            Long[] ret = loader.loadServiceMethodIds(serviceDomain);
+            logger.info("Loaded {} service method Ids of the service domain {}.", ret.length, serviceDomain);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load service methods of the service Id {}", serviceId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE_METHODS, t, serviceId);
+            logger.error("Failed to load service method Ids of the service domain {}", serviceDomain, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE_METHODS, t, serviceDomain);
         }
     }
 
     @Override
-    protected void destroySource(DefaultServiceMethod[] defaultPages) {
+    protected void destroySource(Long[] defaultPages) {
         // do nothing here
     }
 
     @Override
-    protected DefaultServiceMethod[] reloadSource(Long serviceId, DefaultServiceMethod[] oldSource) throws ErrorCodeException {
+    protected Long[] reloadSource(ServiceDomain serviceDomain, Long[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading service methods of the service Id {} ...", serviceId);
-            DefaultServiceMethod[] ret = loader.loadAllServiceMethods(serviceId);
-            logger.info("Reloaded {} service methods of the service Id {}.", ret.length, serviceId);
+            logger.info("Reloading service method Ids of the service domain {} ...", serviceDomain);
+            Long[] ret = loader.loadServiceMethodIds(serviceDomain);
+            logger.info("Reloaded {} service method Ids of the service domain {}.", ret.length, serviceDomain);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload service methods of the service Id {}", serviceId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE_METHODS, t, serviceId);
+            logger.error("Failed to reload service method Ids of the service domain {}", serviceDomain, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE_METHODS, t, serviceDomain);
         }
     }
 }

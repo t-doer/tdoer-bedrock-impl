@@ -31,13 +31,21 @@ import java.util.List;
  */
 public class DefaultServiceRepository implements ServiceRepository {
 
-    private ServiceCacheManagerByCode serviceCacheManagerByCode;
+    private ServiceByCodeCacheManager serviceByCodeCacheManager;
 
-    private ServiceCacheManagerById serviceCacheManagerById;
+    private ServiceByIdCacheManager serviceByIdCacheManager;
 
     private ServiceMethodsCacheManager methodsCacheManager;
 
-    private ServiceMethodCacheManager methodCacheManager;
+    private ServiceMethodIdsCacheManager methodIdsCacheManager;
+
+    private RefererClientIdsCacheManager refererClientIdsCacheManager;
+
+    private RefererApplicationIdsCacheManager refererApplicationIdsCacheManager;
+
+    private RefererServiceIdsCacheManager refererServiceIdsCacheManager;
+
+    private RefereeServiceIdsCacheManager refereeServiceIdsCacheManager;
 
     private ServiceLoader serviceLoader;
 
@@ -49,16 +57,24 @@ public class DefaultServiceRepository implements ServiceRepository {
         serviceLoader.setServiceRepository(this);
         this.serviceLoader = serviceLoader;
 
-        serviceCacheManagerByCode = new ServiceCacheManagerByCode(cachePolicy, cleaner, serviceLoader);
-        serviceCacheManagerById = new ServiceCacheManagerById(cachePolicy, cleaner, serviceLoader);
+        serviceByCodeCacheManager = new ServiceByCodeCacheManager(cachePolicy, cleaner, serviceLoader);
+        serviceByIdCacheManager = new ServiceByIdCacheManager(cachePolicy, cleaner, serviceLoader);
         methodsCacheManager = new ServiceMethodsCacheManager(cachePolicy, cleaner, serviceLoader);
-        methodCacheManager = new ServiceMethodCacheManager(cachePolicy, cleaner, serviceLoader);
+        methodIdsCacheManager = new ServiceMethodIdsCacheManager(cachePolicy, cleaner, serviceLoader);
+        refererClientIdsCacheManager = new RefererClientIdsCacheManager(cachePolicy, cleaner,serviceLoader);
+        refererApplicationIdsCacheManager = new RefererApplicationIdsCacheManager(cachePolicy, cleaner, serviceLoader);
+        refererServiceIdsCacheManager = new RefererServiceIdsCacheManager(cachePolicy, cleaner, serviceLoader);
+        refereeServiceIdsCacheManager = new RefereeServiceIdsCacheManager(cachePolicy, cleaner, serviceLoader);
 
         // Initialize cache manager
-        serviceCacheManagerByCode.initialize();
-        serviceCacheManagerById.initialize();
-        methodCacheManager.initialize();
-        methodCacheManager.initialize();
+        serviceByCodeCacheManager.initialize();
+        serviceByIdCacheManager.initialize();
+        methodsCacheManager.initialize();
+        methodIdsCacheManager.initialize();
+        refererClientIdsCacheManager.initialize();
+        refererApplicationIdsCacheManager.initialize();
+        refererServiceIdsCacheManager.initialize();
+        refereeServiceIdsCacheManager.initialize();
     }
 
     /**
@@ -70,7 +86,14 @@ public class DefaultServiceRepository implements ServiceRepository {
      */
     @Override
     public Service getService(Long serviceId) throws ServiceNotFoundException {
-        return serviceCacheManagerById.getSource(serviceId);
+        Assert.notNull(serviceId, "Service Id cannot be null");
+
+        Service service = serviceByIdCacheManager.getSource(serviceId);
+        if(service != null){
+            return service;
+        }else{
+            throw new ServiceNotFoundException(serviceId);
+        }
     }
 
     /**
@@ -82,75 +105,106 @@ public class DefaultServiceRepository implements ServiceRepository {
      */
     @Override
     public Service getService(String serviceCode) throws ServiceNotFoundException {
-        return serviceCacheManagerByCode.getSource(serviceCode);
+        Assert.hasText(serviceCode, "Service code cannot be blank");
+
+        Service service = serviceByCodeCacheManager.getSource(serviceCode);
+        if(service != null){
+            return service;
+        }else{
+            throw new ServiceNotFoundException(serviceCode);
+        }
     }
 
     /**
-     * List all available services in the repository.
-     *
-     * @param list List to hold services, cannot be <code>null</code>
-     */
-    @Override
-    public void listAllServices(List<Service> list) {
-
-    }
-
-    /**
-     * List a service's all referer clients.
+     * List a service's all referer client Ids.
      *
      * @param serviceId Service Id, cannot be <code>null</code>
-     * @param list      List to hold clients, cannot be <code>null</code>
+     * @param list      List to hold client Ids, cannot be <code>null</code>
      */
     @Override
-    public void listRefererClients(Long serviceId, List<Client> list) {
-
+    public void listRefererClientIds(Long serviceId, List<Long> list) {
+        Long[] ret = refererClientIdsCacheManager.getSource(serviceId);
+        if(ret != null){
+            for(Long id : ret){
+                list.add(id);
+            }
+        }
     }
 
     /**
-     * List a service's all referer applications
+     * List a service's all referer application Ids
      *
      * @param serviceId Service Id, cannot be <code>null</code>
-     * @param list      List to hold applications, cannot be <code>null</code>
+     * @param list      List to hold application Ids, cannot be <code>null</code>
      */
     @Override
-    public void listRefererApplications(Long serviceId, List<Application> list) {
-
+    public void listRefererApplicationIds(Long serviceId, List<Long> list) {
+        Long[] ret = refererApplicationIdsCacheManager.getSource(serviceId);
+        if(ret != null){
+            for(Long id : ret){
+                list.add(id);
+            }
+        }
     }
 
     /**
      * List a service's all referer services.
      *
      * @param serviceId Service Id, cannot be <code>null</code>
-     * @param list      List to hold services, cannot be <code>null</code>
+     * @param list      List to hold service Ids, cannot be <code>null</code>
      */
     @Override
-    public void listRefererServices(Long serviceId, List<Service> list) {
-
+    public void listRefererServiceIds(Long serviceId, List<Long> list) {
+        Long[] ret = refererServiceIdsCacheManager.getSource(serviceId);
+        if(ret != null){
+            for(Long id : ret){
+                list.add(id);
+            }
+        }
     }
 
     /**
-     * List a service's all referee services.
+     * List a service's all referee service Ids.
      *
      * @param serviceId Service Id, cannot be <code>null</code>
-     * @param list      List to hold services, cannot be <code>null</code>
+     * @param list      List to hold service Ids, cannot be <code>null</code>
      */
     @Override
-    public void listRefereeServices(Long serviceId, List<Service> list) {
-
+    public void listRefereeServiceIds(Long serviceId, List<Long> list) {
+        Long[] ret = refereeServiceIdsCacheManager.getSource(serviceId);
+        if(ret != null){
+            for(Long id : ret){
+                list.add(id);
+            }
+        }
     }
 
     /**
      * Get the service method of specific id.
      *
+     * @param serviceId Service Id, cannot be <code>null</code>
      * @param methodId Method Id, cannot be <code>null</code>
      * @return {@link ServiceMethod} if found
      * @throws ServiceMethodNotFoundException if the service method dose not exist or is disabled.
      */
     @Override
-    public ServiceMethod getServiceMethod(Long methodId) throws ServiceMethodNotFoundException {
-        ServiceMethod method = methodCacheManager.getSource(methodId);
-        if(method != null){
-            return method;
+    public ServiceMethod getServiceMethod(Long serviceId, Long methodId) throws ServiceMethodNotFoundException {
+        Assert.notNull(serviceId, "Service Id cannot be null");
+        Assert.notNull(methodId, "Service method Id cannot be null");
+
+        ServiceMethod ret = null;
+        DefaultServiceMethod[] methods = methodsCacheManager.getSource(serviceId);
+        if(methods != null){
+            for(DefaultServiceMethod method : methods){
+                if(methodId.equals(method.getId())){
+                    ret = method;
+                    break;
+                }
+            }
+        }
+
+        if(ret != null){
+            return ret;
         }else{
             throw new ServiceMethodNotFoundException(methodId);
         }
@@ -172,10 +226,10 @@ public class DefaultServiceRepository implements ServiceRepository {
         ServiceDomainEnumerator enumerator = new ServiceDomainEnumerator(serviceId, applicationId, productId, clientId
                 , tenantId, contextPath);
         while(enumerator.hasMoreElements()){
-            DefaultServiceMethod[] methods = methodsCacheManager.getSource(enumerator.nextElement());
-            if(methods != null){
-                for(DefaultServiceMethod method : methods){
-                    list.add(method);
+            Long[] methodIds = methodIdsCacheManager.getSource(enumerator.nextElement());
+            if(methodIds != null){
+                for(Long methodId : methodIds){
+                    list.add(getServiceMethod(serviceId, methodId));
                 }
             }
         }
@@ -189,7 +243,7 @@ public class DefaultServiceRepository implements ServiceRepository {
      */
     @Override
     public void listAllServiceMethods(Long serviceId, List<ServiceMethod> list) {
-        DefaultServiceMethod[] methods = serviceLoader.loadAllServiceMethods(serviceId);
+        DefaultServiceMethod[] methods = methodsCacheManager.getSource(serviceId);
         if(methods != null){
             for(DefaultServiceMethod method : methods){
                 list.add(method);
