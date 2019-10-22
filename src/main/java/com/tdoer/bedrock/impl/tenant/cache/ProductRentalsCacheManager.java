@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.tenant;
+package com.tdoer.bedrock.impl.tenant.cache;
 
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
+import com.tdoer.bedrock.impl.tenant.DefaultProductRental;
+import com.tdoer.bedrock.impl.tenant.TenantLoader;
 import com.tdoer.springboot.error.ErrorCodeException;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_PRODUCT_IDS_OF_TENANT;
@@ -25,46 +27,46 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_PRODUC
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ProductIdsCacheManager extends AbstractCacheManager<Long, String[]> {
+public class ProductRentalsCacheManager extends AbstractCacheManager<Long, DefaultProductRental[]> {
     private TenantLoader tenantLoader;
 
-    public ProductIdsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, TenantLoader tenantLoader) {
+    public ProductRentalsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, TenantLoader tenantLoader) {
         super(cachePolicy, cleaner);
         this.tenantLoader = tenantLoader;
     }
 
     @Override
-    protected String[] loadSource(Long tenantId) throws ErrorCodeException {
+    protected DefaultProductRental[] loadSource(Long tenantId) throws ErrorCodeException {
         try{
-            logger.info("Loading product Ids of tenant ({}) ...", tenantId);
-            String[] ret = tenantLoader.loadProductIds(tenantId);
-            logger.info("Loaded product Ids of tenant ({}): {}", tenantId, ret);
+            logger.info("Loading product rentals of tenant ({}) ...", tenantId);
+            DefaultProductRental[] ret = tenantLoader.loadProductRendtal(tenantId);
+            logger.info("Loaded {} product rentals of tenant ({})", ret.length, tenantId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load product Ids of tenant ({})", tenantId, t);
+            logger.error("Failed to load product rentals of tenant ({})", tenantId, t);
             throw new ErrorCodeException(FAILED_TO_LOAD_PRODUCT_IDS_OF_TENANT, t, tenantId);
         }
     }
 
     @Override
-    protected void destroySource(String[] strings) {
+    protected void destroySource(DefaultProductRental[] strings) {
         // do nothing
     }
 
 
     @Override
-    protected String[] reloadSource(Long tenantId, String[] oldSource) throws ErrorCodeException {
+    protected DefaultProductRental[] reloadSource(Long tenantId, DefaultProductRental[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading product Ids of tenant ({}) ...", tenantId);
-            String[] ret = tenantLoader.loadProductIds(tenantId);
-            logger.info("Reloaded product Ids of tenant ({}): {}", tenantId, ret);
+            logger.info("Reloading product rentals of tenant ({}) ...", tenantId);
+            DefaultProductRental[] ret = tenantLoader.loadProductRendtal(tenantId);
+            logger.info("Reloaded {} product rentals of tenant ({})", ret.length, tenantId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload product Ids of tenant ({})", tenantId, t);
+            logger.error("Failed to reload product rentals of tenant ({})", tenantId, t);
             throw new ErrorCodeException(FAILED_TO_LOAD_PRODUCT_IDS_OF_TENANT, t, tenantId);
         }
     }

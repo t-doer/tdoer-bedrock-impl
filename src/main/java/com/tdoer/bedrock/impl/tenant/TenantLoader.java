@@ -22,13 +22,19 @@ import com.tdoer.bedrock.impl.definition.tenant.TenantDefinition;
 import com.tdoer.bedrock.impl.definition.tenant.TenantProductDefinition;
 import com.tdoer.bedrock.impl.product.DefaultProductRepository;
 import com.tdoer.bedrock.impl.provider.TenantProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
 public class TenantLoader {
+
+    private static Logger logger = LoggerFactory.getLogger(TenantLoader.class);
+
     private TenantProvider tenantProvider;
 
     private TenantBuilder tenantBuilder;
@@ -42,69 +48,117 @@ public class TenantLoader {
         this.tenantBuilder.setRentalCenter(rentalCenter);
     }
 
-    public DefaultTenant loadTenant(String tenantCode){
-        TenantDefinition definition = tenantProvider.getTenantDefinition(tenantCode);
-        if(definition == null){
-            // todo throw exception
+    public DefaultTenant loadTenantByCode(String tenantCode){
+        TenantDefinition definition = null;
+        try{
+            definition = tenantProvider.getTenantDefinitionByCode(tenantCode);
+        }catch (Throwable t){
+            logger.error("Failed to load tenant definition of tenant code: " + tenantCode, t);
         }
-        return tenantBuilder.buildTenant(definition);
+        if(definition == null){
+            try{
+                return tenantBuilder.buildTenant(definition);
+            }catch(Exception ex){
+                logger.error("Invalid tenant definition: " + definition, ex);
+            }
+        }
+        return null;
     }
 
-    public DefaultTenant loadTenant(Long tenantId){
-        TenantDefinition definition = tenantProvider.getTenantDefinition(tenantId);
-        if(definition == null){
-            // todo throw exception
+    public DefaultTenant loadTenantByGuid(String guid){
+        TenantDefinition definition = null;
+        try{
+            definition = tenantProvider.getTenantDefinitionByGuid(guid);
+        }catch (Throwable t){
+            logger.error("Failed to load tenant definition of tenant guid: " + guid, t);
         }
-        return tenantBuilder.buildTenant(definition);
+        if(definition == null){
+            try{
+                return tenantBuilder.buildTenant(definition);
+            }catch(Exception ex){
+                logger.error("Invalid tenant definition: " + definition, ex);
+            }
+        }
+        return null;
     }
 
+    public DefaultTenant loadTenantById(Long tenantId){
+        TenantDefinition definition = null;
+        try{
+            definition = tenantProvider.getTenantDefinitionById(tenantId);
+        }catch (Throwable t){
+            logger.error("Failed to load tenant definition of tenant Id: " + tenantId, t);
+        }
+        if(definition == null){
+            try{
+                return tenantBuilder.buildTenant(definition);
+            }catch(Exception ex){
+                logger.error("Invalid tenant definition: " + definition, ex);
+            }
+        }
+        return null;
+    }
 
     public DefaultTenantClient loadTenantClient(String host){
-        TenantClientDefinition definition = tenantProvider.getTenantClientDefinition(host);
+        TenantClientDefinition definition = null;
+        try{
+            definition = tenantProvider.getTenantClientDefinition(host);
+        }catch (Throwable t){
+            logger.error("Failed to load tenant client definition: " + definition, t);
+        }
         if(definition == null){
-            // todo, throw exception
-            return null;
+            try{
+                return tenantBuilder.buildTenantClient(definition);
+            }catch(Exception ex){
+                logger.error("Invalid tenant client definition: " + definition, ex);
+            }
         }
-
-        return tenantBuilder.buildTenantClient(definition);
+        return null;
     }
 
-    public DefaultTenantClient loadTenantClient(String clientId, Long tenantId){
-        TenantClientDefinition definition = tenantProvider.getTenantClientDefinition(clientId, tenantId);
-        if(definition == null){
-            // todo, throw exception
-            return null;
+    public DefaultTenantClient[] loadTenantClients(Long tenantId){
+        List<TenantClientDefinition> list = null;
+        try{
+          list = tenantProvider.getTenantClientDefinitions(tenantId);
+        } catch (Throwable t){
+            logger.error("Failed to load tenant client definitions of tenant Id: " + tenantId, t);
+        }
+        if(list != null){
+            ArrayList<DefaultTenantClient> defs = new ArrayList<>(list.size());
+            for(TenantClientDefinition definition : list){
+                try{
+                    defs.add(tenantBuilder.buildTenantClient(definition));
+                }catch (Exception ex){
+                    logger.error("Invalid tenant client definition: " + definition, ex);
+                }
+            }
+            DefaultTenantClient[] ret = new DefaultTenantClient[defs.size()];
+            return defs.toArray(ret);
         }
 
-        return tenantBuilder.buildTenantClient(definition);
+        return new DefaultTenantClient[0];
     }
 
-    public DefaultProductRental loadProductRendtal(String productId, Long tenantId) {
-        TenantProductDefinition definition = tenantProvider.getTenantProductDefinition(productId, tenantId);
-        if(definition == null){
-            // todo, throw exception
+    public DefaultProductRental[] loadProductRendtal(Long tenantId) {
+        List<TenantProductDefinition> list = null;
+        try{
+            list = tenantProvider.getTenantProductDefinitions(tenantId);
+        } catch (Throwable t){
+            logger.error("Failed to load product rental definitions of tenant Id: " + tenantId, t);
+        }
+        if(list != null){
+            ArrayList<DefaultProductRental> defs = new ArrayList<>(list.size());
+            for(TenantProductDefinition definition : list){
+                try{
+                    defs.add(tenantBuilder.buildProductRental(definition));
+                }catch (Exception ex){
+                    logger.error("Invalid product rental definition: " + definition, ex);
+                }
+            }
+            DefaultProductRental[] ret = new DefaultProductRental[defs.size()];
+            return defs.toArray(ret);
         }
 
-        return tenantBuilder.buildProductRental(definition);
-    }
-
-    public String[] loadProductIds(Long tenantId){
-        List<String> list = tenantProvider.getProductIds(tenantId);
-        if(list == null || list.size() == 0){
-            // todo, throw exception
-        }
-
-        String[] ret = new String[list.size()];
-        return list.toArray(ret);
-    }
-
-    public String[] loadClientIds(Long tenantId){
-        List<String> list = tenantProvider.getClientIds(tenantId);
-        if(list == null || list.size() == 0){
-            // todo, throw exception
-        }
-
-        String[] ret = new String[list.size()];
-        return list.toArray(ret);
+        return new DefaultProductRental[0];
     }
 }

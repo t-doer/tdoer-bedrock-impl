@@ -18,8 +18,8 @@ package com.tdoer.bedrock.impl.tenant;
 import com.tdoer.bedrock.impl.definition.tenant.TenantClientDefinition;
 import com.tdoer.bedrock.impl.product.DefaultProductRepository;
 import com.tdoer.bedrock.product.Client;
-import com.tdoer.bedrock.tenant.Tenant;
 import com.tdoer.bedrock.tenant.TenantClient;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -36,43 +36,104 @@ public class DefaultTenantClient implements TenantClient {
     private DefaultProductRepository productRepository;
 
     public DefaultTenantClient(TenantClientDefinition definition, DefaultRentalCenter rentalCenter, DefaultProductRepository productRepository) {
+        Assert.notNull(definition, "Tenant client definition cannot be null");
+        Assert.notNull(rentalCenter, "Rental center cannot be null");
+        Assert.notNull(productRepository, "Product repository cannot be null");
+
         this.definition = definition;
         this.rentalCenter = rentalCenter;
         this.productRepository = productRepository;
     }
 
-    public String[] getHosts() {
-        String[] hosts = StringUtils.delimitedListToStringArray(definition.getHosts(), ",");
-        return hosts;
-    }
-
+    /**
+     * Tenant who accesses a product's client
+     *
+     * @return Tenant, cannot be <code>null</code>
+     */
     @Override
-    public void listHosts(List<String> list) {
-        String[] hosts = getHosts();
-        if(hosts != null){
-            for(String host : hosts){
-                list.add(host);
-            }
-        }
+    public DefaultTenant getTenant() {
+        return rentalCenter.getTenantById(getTenantId());
     }
 
+    /**
+     * A product's client
+     *
+     * @return Client, cannot be <code>null</code>
+     */
+    @Override
+    public Client getClient() {
+        return productRepository.getClient(definition.getProductId(), getClientId());
+    }
+
+    /**
+     * Tenant Id
+     *
+     * @return Tenant Id, cannot be <code>null</code>
+     */
     @Override
     public Long getTenantId() {
         return definition.getTenantId();
     }
 
+    /**
+     * Client Id
+     *
+     * @return Tenant Id, cannot be <code>null</code>
+     */
     @Override
-    public String getClientId() {
+    public Long getClientId() {
         return definition.getClientId();
     }
 
+    /**
+     * Client secret
+     *
+     * @return Client secret, cannot be null
+     */
     @Override
-    public Tenant getTenant() {
-        return rentalCenter.getTenant(definition.getTenantId());
+    public String getSecret() {
+        return definition.getSecret();
+    }
+
+    /**
+     * List a client's access domains for the tenant
+     *
+     * @param list List to hold access domains, cannot be <code>null</code>
+     */
+    @Override
+    public void listAccessDomains(List<String> list) {
+        String[] strs = StringUtils.commaDelimitedListToStringArray(definition.getHosts());
+        for(String str : strs){
+            list.add(str);
+        }
     }
 
     @Override
-    public Client getClient() {
-        return productRepository.getClient(definition.getClientId());
+    public boolean equals(Object obj) {
+        if(obj == null){
+            return false;
+        }
+        if(obj == this){
+            return true;
+        }
+        if(obj instanceof TenantClient){
+            TenantClient other = (TenantClient) obj;
+
+            return this.getTenantId().equals(other.getTenantId())
+                    && this.getClientId().equals(other.getClientId());
+        }
+
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("TenantClient[");
+        sb.append(getTenantId()).append(", ");
+        sb.append(getClientId()).append(", ");
+        sb.append(definition.getHosts());
+        sb.append("]");
+        return sb.toString();
     }
 }

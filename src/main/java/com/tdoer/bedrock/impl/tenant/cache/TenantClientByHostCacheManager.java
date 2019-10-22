@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.tenant;
+package com.tdoer.bedrock.impl.tenant.cache;
 
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
+import com.tdoer.bedrock.impl.tenant.DefaultTenantClient;
+import com.tdoer.bedrock.impl.tenant.TenantLoader;
 import com.tdoer.springboot.error.ErrorCodeException;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_TENANT_CLIENT_FROM_HOST;
@@ -25,10 +27,10 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_TENANT
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class TenantClientCacheManagerByHost extends AbstractCacheManager<String, DefaultTenantClient> {
+public class TenantClientByHostCacheManager extends AbstractCacheManager<String, DefaultTenantClient> {
     private TenantLoader tenantLoader;
 
-    public TenantClientCacheManagerByHost(CachePolicy cachePolicy, DormantCacheCleaner cleaner, TenantLoader tenantLoader) {
+    public TenantClientByHostCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, TenantLoader tenantLoader) {
         super(cachePolicy, cleaner);
         this.tenantLoader = tenantLoader;
     }

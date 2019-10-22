@@ -26,21 +26,47 @@ import java.util.List;
  * @create 2017-09-19
  */
 public interface TenantProvider {
-    List<TenantDefinition> getTenantDefinitions();
 
-    TenantDefinition getTenantDefinition(Long tenantId);
+    /**
+     * Get tenant definition of specific tenant Id
+     * @param tenantId Tenant Id, cannot be <code>null</code>
+     * @return Tenant definition or <code>null</code>
+     */
+    TenantDefinition getTenantDefinitionById(Long tenantId);
 
-    TenantDefinition getTenantDefinition(String tenantCode);
+    /**
+     * Get tenant definition of specific tenant code
+     * @param tenantCode Tenant Id, cannot be blank
+     * @return Tenant definition or <code>null</code>
+     */
+    TenantDefinition getTenantDefinitionByCode(String tenantCode);
 
+    /**
+     * Get tenant definition of specific tenant code
+     * @param guid Tenant guid, cannot be blank
+     * @return Tenant definition or <code>null</code>
+     */
+    TenantDefinition getTenantDefinitionByGuid(String guid);
+
+    /**
+     * Get tenant product definitions of tenant Id
+     * @param tenantId Tenant Id, cannot be <code>null</code>
+     * @return Tenant product definition or <code>null</code>
+     */
     List<TenantProductDefinition> getTenantProductDefinitions(Long tenantId);
 
-    TenantProductDefinition getTenantProductDefinition(String productId, Long tenantId);
+    /**
+     * Get tenant client definitions of tenant Id
+     * @param tenantId Tenant Id, cannot be <code>null</code>
+     * @return Tenant client definition or <code>null</code>
+     */
+    List<TenantClientDefinition> getTenantClientDefinitions(Long tenantId);
 
+    /**
+     * Get tenant client definitions of access domain
+     * @param host Access domain or host, cannot be <code>null</code>
+     * @return Tenant client definition or <code>null</code>
+     */
     TenantClientDefinition getTenantClientDefinition(String host);
 
-    TenantClientDefinition getTenantClientDefinition(String clientId, Long tenantId);
-
-    List<String> getProductIds(Long tenantId);
-
-    List<String> getClientIds(Long tenantId);
 }

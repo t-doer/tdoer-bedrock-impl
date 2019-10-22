@@ -17,110 +17,205 @@ package com.tdoer.bedrock.impl.tenant;
 
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.impl.product.ClientDomain;
-import com.tdoer.bedrock.impl.domain.ProductDomain;
-import com.tdoer.bedrock.tenant.RentalCenter;
+import com.tdoer.bedrock.impl.tenant.cache.*;
+import com.tdoer.bedrock.tenant.*;
+import org.springframework.util.Assert;
 
-import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
 public class DefaultRentalCenter implements RentalCenter {
 
-    private TenantCacheManagerByID tenantCenterByID;
+    private TenantByIdCacheManager tenantByIdCacheManager;
 
-    private TenantCacheManagerByCode tenantCenterByCode;
+    private TenantByCodeCacheManager tenantByCodeCacheManager;
 
-    private ProductRentalCacheManager rentalCacheManager;
+    private TenantByGuidCacheManager tenantByGuidCacheManager;
 
-    private TenantClientCacheManagerByHost clientCacheManagerByHost;
+    private TenantClientByHostCacheManager tenantClientByHostCacheManager;
 
-    private TenantClientCacheManagerByDomain clientCacheManagerByDomain;
+    private ProductRentalsCacheManager productRentalsCacheManager;
 
-    private ProductIdsCacheManager productIdsCacheManager;
-
-    private ClientIdsCacheManager clientIdsCacheManager;
+    private TenantClientsCacheManager tenantClientsCacheManager;
 
 
     public DefaultRentalCenter(TenantLoader tenantLoader, CachePolicy cachePolicy, DormantCacheCleaner cleaner) {
         tenantLoader.setRentalCenter(this);
 
-        tenantCenterByID = new TenantCacheManagerByID(cachePolicy, cleaner, tenantLoader);
-        tenantCenterByCode = new TenantCacheManagerByCode(cachePolicy, cleaner, tenantLoader);
-        rentalCacheManager = new ProductRentalCacheManager(cachePolicy, cleaner, tenantLoader);
-        clientCacheManagerByHost = new TenantClientCacheManagerByHost(cachePolicy, cleaner, tenantLoader);
-        clientCacheManagerByDomain = new TenantClientCacheManagerByDomain(cachePolicy, cleaner, tenantLoader);
-        productIdsCacheManager = new ProductIdsCacheManager(cachePolicy, cleaner, tenantLoader);
-        clientIdsCacheManager = new ClientIdsCacheManager(cachePolicy, cleaner, tenantLoader);
+        tenantByIdCacheManager = new TenantByIdCacheManager(cachePolicy, cleaner, tenantLoader);
+        tenantByCodeCacheManager = new TenantByCodeCacheManager(cachePolicy, cleaner, tenantLoader);
+        tenantByGuidCacheManager = new TenantByGuidCacheManager(cachePolicy, cleaner, tenantLoader);
+        tenantClientByHostCacheManager = new TenantClientByHostCacheManager(cachePolicy, cleaner, tenantLoader);
+        productRentalsCacheManager = new ProductRentalsCacheManager(cachePolicy, cleaner, tenantLoader);
+        tenantClientsCacheManager = new TenantClientsCacheManager(cachePolicy, cleaner, tenantLoader);
 
         // Initialize cache manager
-        tenantCenterByID.initialize();
-        tenantCenterByCode.initialize();
-        rentalCacheManager.initialize();
-        clientCacheManagerByHost.initialize();
-        clientCacheManagerByDomain.initialize();
-        productIdsCacheManager.initialize();
-        clientIdsCacheManager.initialize();
-
+        tenantByIdCacheManager.initialize();
+        tenantByCodeCacheManager.initialize();
+        tenantByGuidCacheManager.initialize();
+        tenantClientByHostCacheManager.initialize();
+        productRentalsCacheManager.initialize();
+        tenantClientsCacheManager.initialize();
     }
 
+    /**
+     * Get tenant of specific tenant code
+     *
+     * @param tenantCode Tenant code, cannot be blank
+     * @return Tenant if found
+     * @throws TenantNotFoundException if not found
+     */
     @Override
-    public DefaultTenant getTenant(String tenantCode) {
-        return tenantCenterByCode.getSource(tenantCode);
+    public DefaultTenant getTenantByCode(String tenantCode) throws TenantNotFoundException {
+        Assert.hasText(tenantCode, "Tenant code cannot be blank");
+
+        DefaultTenant tenant = tenantByCodeCacheManager.getSource(tenantCode);
+        if(tenant != null){
+            return tenant;
+        }else{
+            throw new TenantNotFoundException(tenantCode);
+        }
     }
 
+    /**
+     * Get tenant of specific tenant Id
+     *
+     * @param tenantId Tenant Id, cannot be blank
+     * @return Tenant if found
+     * @throws TenantNotFoundException if not found
+     */
     @Override
-    public DefaultTenant getTenant(Long tenantId) {
-        return tenantCenterByID.getSource(tenantId);
+    public DefaultTenant getTenantById(Long tenantId) throws TenantNotFoundException {
+        Assert.notNull(tenantId, "Tenant Id cannot be blank");
+
+        DefaultTenant tenant = tenantByIdCacheManager.getSource(tenantId);
+        if(tenant != null){
+            return tenant;
+        }else{
+            throw new TenantNotFoundException(tenantId);
+        }
     }
 
+    /**
+     * Get tenant of specific tenant GUID
+     *
+     * @param guid Tenant GUID, cannot be blank
+     * @return Tenant if found
+     * @throws TenantNotFoundException if not found
+     */
     @Override
-    public DefaultProductRental getProductRendtal(Long tenantId, String productId) {
-        ProductDomain domain = new ProductDomain(productId, null, tenantId);
-        return rentalCacheManager.getSource(domain);
+    public DefaultTenant getTenantByGUID(String guid) throws TenantNotFoundException {
+        Assert.hasText(guid, "Tenant guid cannot be blank");
+
+        DefaultTenant tenant = tenantByGuidCacheManager.getSource(guid);
+        if(tenant != null){
+            return tenant;
+        }else{
+            throw new TenantNotFoundException(guid);
+        }
     }
 
+    /**
+     * Find product rental of tenant Id and product Id
+     *
+     * @param tenantId  Tenant Id, cannot be <code>null</code>
+     * @param productId Product Id, cannot be <code>null</code>
+     * @return Product rental or <code>null</code> if not found
+     */
     @Override
-    public DefaultProductRental[] getProductRendtal(Long tenantId) {
-        String[] productIds = productIdsCacheManager.getSource(tenantId);
-        ArrayList<DefaultProductRental> list = new ArrayList<>(productIds.length);
-        for(String productId : productIds){
-            try{
-                list.add(getProductRendtal(tenantId, productId));
-            }catch (Throwable t){
-                // todo, warn
+    public DefaultProductRental getProductRendtal(Long tenantId, Long productId) {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(productId, "Product Id cannot be null");
+
+        DefaultProductRental[] rentals =  productRentalsCacheManager.getSource(tenantId);
+        if (rentals != null) {
+            for(DefaultProductRental rental : rentals){
+                if(rental.getProductId().equals(productId)){
+                    return rental;
+                }
             }
         }
 
-        DefaultProductRental[] ret = new DefaultProductRental[list.size()];
-        return list.toArray(ret);
+        return null;
     }
 
+    /**
+     * List all product rentals of a tenant
+     *
+     * @param tenantId Tenant Id, cannot be <code>nul</code>
+     * @param list
+     * @return List of product rental or <code>null</code>
+     */
     @Override
-    public DefaultTenantClient getTenantClient(String host) {
-        return clientCacheManagerByHost.getSource(host);
+    public void listProductRentals(Long tenantId, List<ProductRental> list) {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
+
+        DefaultProductRental[] rentals =  productRentalsCacheManager.getSource(tenantId);
+        if (rentals != null) {
+            for(DefaultProductRental rental : rentals){
+                list.add(rental);
+            }
+        }
     }
 
+    /**
+     * Find the tenant client of specific access domain
+     *
+     * @param accessDomain
+     * @return Tenant client or <code>null</code> if not found
+     */
     @Override
-    public DefaultTenantClient getTenantClient(Long tenantId, String clientId) {
-        ClientDomain domain = new ClientDomain(clientId, tenantId);
-        return clientCacheManagerByDomain.getSource(domain);
+    public DefaultTenantClient getTenantClient(String accessDomain) {
+        Assert.notNull(accessDomain, "Access domain cannot be blank");
+
+        return tenantClientByHostCacheManager.getSource(accessDomain);
     }
 
+    /**
+     * Get tenant client of specific tenant and client
+     *
+     * @param tenantId Tenant Id, cannot be <code>null</code>
+     * @param clientId Client Id, cannot be <code>null</code>
+     * @return
+     */
     @Override
-    public DefaultTenantClient[] getTenantClients(Long tenantId) {
-        String[] clientIds = clientIdsCacheManager.getSource(tenantId);
-        ArrayList<DefaultTenantClient> list = new ArrayList<>(clientIds.length);
-        for(String clientId : clientIds){
-            try{
-                list.add(getTenantClient(tenantId, clientId));
-            }catch (Throwable t){
-                // todo, warn
+    public DefaultTenantClient getTenantClient(Long tenantId, Long clientId) {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(clientId, "Client Id cannot be null");
+
+        DefaultTenantClient[] clients =  tenantClientsCacheManager.getSource(tenantId);
+        if (clients != null) {
+            for(DefaultTenantClient client : clients){
+                if(client.getClientId().equals(clientId)){
+                    return client;
+                }
             }
         }
 
-        DefaultTenantClient[] ret = new DefaultTenantClient[list.size()];
-        return list.toArray(ret);
+        return null;
+    }
+
+    /**
+     * Get all tenant clients of a tenant
+     *
+     * @param tenantId Tenant Id, cannot be <code>null</code>
+     * @param list
+     * @return List of tenant client or <code>null</code>
+     */
+    @Override
+    public void listTenantClients(Long tenantId, List<TenantClient> list) {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
+
+        DefaultTenantClient[] clients =  tenantClientsCacheManager.getSource(tenantId);
+        if (clients != null) {
+            for(DefaultTenantClient client : clients){
+                list.add(client);
+            }
+        }
     }
 }

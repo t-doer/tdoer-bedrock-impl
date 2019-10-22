@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.tenant;
+package com.tdoer.bedrock.impl.tenant.cache;
 
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
+import com.tdoer.bedrock.impl.tenant.DefaultTenant;
+import com.tdoer.bedrock.impl.tenant.TenantLoader;
 import com.tdoer.springboot.error.ErrorCodeException;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_TENANT_OF_ID;
@@ -25,10 +27,10 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_TENANT
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class TenantCacheManagerByID extends AbstractCacheManager<Long, DefaultTenant> {
+public class TenantByIdCacheManager extends AbstractCacheManager<Long, DefaultTenant> {
     private TenantLoader tenantLoader;
 
-    public TenantCacheManagerByID(CachePolicy cachePolicy, DormantCacheCleaner cleaner, TenantLoader tenantLoader) {
+    public TenantByIdCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, TenantLoader tenantLoader) {
         super(cachePolicy, cleaner);
         this.tenantLoader = tenantLoader;
     }
@@ -37,7 +39,7 @@ public class TenantCacheManagerByID extends AbstractCacheManager<Long, DefaultTe
     protected DefaultTenant loadSource(Long tenantId) throws ErrorCodeException {
         try{
             logger.info("Loading tenant of Id ({}) ...", tenantId);
-            DefaultTenant ret = tenantLoader.loadTenant(tenantId);
+            DefaultTenant ret = tenantLoader.loadTenantById(tenantId);
             logger.info("Loaded tenant of Id ({}): {}", tenantId, ret);
             return ret;
         } catch (ErrorCodeException ece) {
@@ -57,7 +59,7 @@ public class TenantCacheManagerByID extends AbstractCacheManager<Long, DefaultTe
     protected DefaultTenant reloadSource(Long tenantId, DefaultTenant oldSource) throws ErrorCodeException {
         try{
             logger.info("Reloading tenant of Id ({}) ...", tenantId);
-            DefaultTenant ret = tenantLoader.loadTenant(tenantId);
+            DefaultTenant ret = tenantLoader.loadTenantById(tenantId);
             logger.info("Reloaded tenant of Id ({}): {}", tenantId, ret);
             return ret;
         } catch (ErrorCodeException ece) {

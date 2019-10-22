@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.tenant;
+package com.tdoer.bedrock.impl.tenant.cache;
 
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
+import com.tdoer.bedrock.impl.tenant.DefaultTenantClient;
+import com.tdoer.bedrock.impl.tenant.TenantLoader;
 import com.tdoer.springboot.error.ErrorCodeException;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_CLIENT_IDS_OF_TENANT;
@@ -25,45 +27,45 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_CLIENT
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ClientIdsCacheManager extends AbstractCacheManager<Long, String[]> {
+public class TenantClientsCacheManager extends AbstractCacheManager<Long, DefaultTenantClient[]> {
     private TenantLoader tenantLoader;
 
-    public ClientIdsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, TenantLoader tenantLoader) {
+    public TenantClientsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, TenantLoader tenantLoader) {
         super(cachePolicy, cleaner);
         this.tenantLoader = tenantLoader;
     }
 
     @Override
-    protected String[] loadSource(Long tenantId) throws ErrorCodeException {
+    protected DefaultTenantClient[] loadSource(Long tenantId) throws ErrorCodeException {
         try{
-            logger.info("Loading client Ids of tenant ({}) ...", tenantId);
-            String[] ret = tenantLoader.loadClientIds(tenantId);
-            logger.info("Loaded client Ids of tenant ({}): {}", tenantId, ret);
+            logger.info("Loading tenant clients of tenant ({}) ...", tenantId);
+            DefaultTenantClient[] ret = tenantLoader.loadTenantClients(tenantId);
+            logger.info("Loaded {} tenant clients of tenant ({}): {}", ret.length, tenantId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load client Ids of tenant ({})", tenantId, t);
+            logger.error("Failed to load tenant clients of tenant ({})", tenantId, t);
             throw new ErrorCodeException(FAILED_TO_LOAD_CLIENT_IDS_OF_TENANT, t, tenantId);
         }
     }
 
     @Override
-    protected void destroySource(String[] strings) {
+    protected void destroySource(DefaultTenantClient[] strings) {
         // do nothing
     }
 
     @Override
-    protected String[] reloadSource(Long tenantId, String[] oldSource) throws ErrorCodeException {
+    protected DefaultTenantClient[] reloadSource(Long tenantId, DefaultTenantClient[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading client Ids of tenant ({}) ...", tenantId);
-            String[] ret = tenantLoader.loadClientIds(tenantId);
-            logger.info("Reloaded client Ids of tenant ({}): {}", tenantId, ret);
+            logger.info("Reloading tenant clients of tenant ({}) ...", tenantId);
+            DefaultTenantClient[] ret = tenantLoader.loadTenantClients(tenantId);
+            logger.info("Reloaded {} tenant clients of tenant ({}): {}", ret.length, tenantId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload client Ids of tenant ({})", tenantId, t);
+            logger.error("Failed to reload tenant clients of tenant ({})", tenantId, t);
             throw new ErrorCodeException(FAILED_TO_LOAD_CLIENT_IDS_OF_TENANT, t, tenantId);
         }
     }

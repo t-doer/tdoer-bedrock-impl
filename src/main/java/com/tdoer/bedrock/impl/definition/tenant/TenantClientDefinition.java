@@ -24,6 +24,8 @@ import java.io.Serializable;
 public class TenantClientDefinition implements Serializable {
     Long tenantId;
 
+    Long productId;
+
     Long clientId;
 
     String hosts;
@@ -36,6 +38,14 @@ public class TenantClientDefinition implements Serializable {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
+    }
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
     public Long getClientId() {
