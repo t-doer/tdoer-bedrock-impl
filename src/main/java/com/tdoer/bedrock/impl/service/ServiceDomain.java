@@ -109,7 +109,7 @@ public class ServiceDomain {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("[");
+        sb.append("ServiceDomain[");
         sb.append(serviceId).append(": ");
         sb.append(applicationId).append(", ");
         sb.append(productId).append(", ");

@@ -22,10 +22,10 @@ import org.springframework.util.Assert;
 import java.util.Enumeration;
 
 /**
- * <p>Application extension domain enumerator.</p>
+ * <p>Page extension domain enumerator.</p>
  * <p>
- * Suppose current cloud environment is [applicationId: productId, clientId, tenantId, contextPath]
- * is [1: 1, 1, 1, 1.1-2.1], application domain enumerator will enumerate the application extension domains:
+ * Suppose current cloud environment is [pageId: productId, clientId, tenantId, contextPath]
+ * is [1: 1, 1, 1, 1.1-2.1], application domain enumerator will enumerate the page extension domains:
  * <ol>
  *     <li>[1:  1, 1, 1, 1.1-2.1]</li>
  *     <li>[1:  1, 1, 1, 1.1-2.0]</li>
@@ -46,16 +46,16 @@ import java.util.Enumeration;
  * @author Htinker Hu (htinker@163.com)
  * @create 2019-10-20
  */
-public class ApplicationDomainEnumerator implements Enumeration<ApplicationDomain> {
+public class PageDomainEnumerator implements Enumeration<PageDomain> {
 
-    protected final Long applicationId;
+    protected final Long pageId;
     protected final Long productId;
     protected final Long clientId;
     protected final Long tenantId;
     protected final ContextPath contextPath;
 
     // Elements
-    private static final int APPLICATION = 0;
+    private static final int PAGE = 0;
     private static final int PRODUCT = 1;
     private static final int CLIENT = 2;
     private static final int TENANT = 3;
@@ -72,33 +72,33 @@ public class ApplicationDomainEnumerator implements Enumeration<ApplicationDomai
     /**
      * ServiceDomainEnumerator constructor.
      *
-     * @param applicationId Application Id must not be <code>null</code>, and larger than zero
+     * @param pageId Application Id must not be <code>null</code>, and larger than zero
      * @param productId Product Id must not be <code>null</code>, and larger than zero
      * @param clientId Client Id must not be <code>null</code>, and larger than zero
      * @param tenantId Tenant Id must not be <code>null</code>, and larger than zero
      * @param contextPath Context Instance Id must not be <code>null</code>, and larger than zero
      */
-    public ApplicationDomainEnumerator(Long applicationId, Long productId, Long clientId, Long tenantId,
-                                       ContextPath contextPath) {
-        Assert.notNull(applicationId, "Application Id cannot be null");
+    public PageDomainEnumerator(Long pageId, Long productId, Long clientId, Long tenantId,
+                                ContextPath contextPath) {
+        Assert.notNull(pageId, "Application Id cannot be null");
         Assert.notNull(productId, "Product Id cannot be null");
         Assert.notNull(clientId, "Client Id cannot be null");
         Assert.notNull(tenantId, "Tenant Id Id cannot be null");
         Assert.notNull(contextPath, "Context path cannot be null");
-        Assert.isTrue(applicationId > 0, "Application Id must larger than zero");
+        Assert.isTrue(pageId > 0, "Application Id must larger than zero");
         Assert.isTrue(productId > 0, "Product Id must larger than zero");
         Assert.isTrue(clientId > 0, "Client Id must larger than zero");
         Assert.isTrue(tenantId > 0, "Tenant Id must larger than zero");
         Assert.isTrue(contextPath.getInstanceId() > 0, "Context Instance Id must larger than zero");
 
-        this.applicationId = applicationId;
+        this.pageId = pageId;
         this.productId = productId;
         this.clientId = clientId;
         this.tenantId = tenantId;
         this.contextPath = contextPath;
 
         // Init status
-        markers[APPLICATION] = 1;
+        markers[PAGE] = 1;
         markers[PRODUCT] = 1;
         markers[CLIENT] = 1;
         markers[TENANT] = 1;
@@ -112,7 +112,7 @@ public class ApplicationDomainEnumerator implements Enumeration<ApplicationDomai
 
     @Override
     public boolean hasMoreElements() {
-        if(markers[APPLICATION] == 0){
+        if(markers[PAGE] == 0){
             return false;
         }
 
@@ -144,10 +144,10 @@ public class ApplicationDomainEnumerator implements Enumeration<ApplicationDomai
     }
 
     @Override
-    public ApplicationDomain nextElement() {
-        ApplicationDomain ret = null;
-        if(markers[APPLICATION] != 0) {
-            ret = new ApplicationDomain(applicationId, proId, cliId, tenId, path);
+    public PageDomain nextElement() {
+        PageDomain ret = null;
+        if(markers[PAGE] != 0) {
+            ret = new PageDomain(pageId, proId, cliId, tenId, path);
 
             // move status forward
             if (markers[CONTEXT] == 2) {
@@ -172,7 +172,7 @@ public class ApplicationDomainEnumerator implements Enumeration<ApplicationDomai
                                 markers[PRODUCT] = 1;
                             } else {
                                 // reach end
-                                markers[APPLICATION] = 0;
+                                markers[PAGE] = 0;
                             }
                         }
                     }

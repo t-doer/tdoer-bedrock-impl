@@ -16,35 +16,34 @@
 package com.tdoer.bedrock.impl.application;
 
 import com.tdoer.bedrock.context.ContextPath;
-import com.tdoer.bedrock.impl.domain.DomainType;
 import org.springframework.util.Assert;
 
 /**
- * ApplicationDomain is used to search pages
+ * PageDomain is used to search actions
  *
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ApplicationDomain {
+public class PageDomain {
 
-    protected Long applicationId;
+    protected Long pageId;
 	protected Long productId;
 	protected Long clientId;
 	protected Long tenantId;
 	protected ContextPath contextPath;
 
-	public ApplicationDomain(Long applicationId, Long productId, Long clientId, Long tenantId, ContextPath contextPath) {
-        Assert.notNull(applicationId, "Application ID cannot be null");
+	public PageDomain(Long pageId, Long productId, Long clientId, Long tenantId, ContextPath contextPath) {
+        Assert.notNull(pageId, "Page ID cannot be null");
 
-	    this.applicationId = applicationId;
+	    this.pageId = pageId;
 	    this.productId = productId;
 		this.clientId = clientId;
 		this.tenantId = tenantId;
 		this.contextPath = contextPath;
 	}
 
-    public Long getApplicationId() {
-        return applicationId;
+    public Long getPageId() {
+        return pageId;
     }
 
     public Long getProductId() {
@@ -87,7 +86,7 @@ public class ApplicationDomain {
 		if(this == obj){
 			return true;
 		}
-	  	if(obj instanceof ApplicationDomain){
+	  	if(obj instanceof PageDomain){
 	  		return toString().equals(obj.toString());
 	  	}
 	  	return false;
@@ -96,8 +95,8 @@ public class ApplicationDomain {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("ApplicationDomain[");
-        sb.append(applicationId).append(": ");
+        sb.append("PageDomain[");
+        sb.append(pageId).append(": ");
         sb.append(productId);
         sb.append(", ").append(clientId);
         sb.append(", ").append(tenantId);

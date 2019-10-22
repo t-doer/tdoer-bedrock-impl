@@ -23,55 +23,56 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
-import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_PAGES;
+import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_SERVICES;
+
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class PagesCacheManager extends AbstractCacheManager<Long, DefaultPage[]> {
+public class ServiceIdsByIdCacheManager extends AbstractCacheManager<Long, Long[]> {
     protected ApplicationLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(PagesCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(ServiceIdsByIdCacheManager.class);
 
-    public PagesCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader) {
+    public ServiceIdsByIdCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader) {
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ApplicationLoader cannot be null");
         this.loader = loader;
-        logger.info("PagesCacheManager is initialized");
+        logger.info("ServiceIdsByIdCacheManager is initialized");
     }
 
     @Override
-    protected DefaultPage[] loadSource(Long applicationId) throws ErrorCodeException {
+    protected Long[] loadSource(Long applicationId) throws ErrorCodeException {
         try{
-            logger.info("Loading pages for the application Id {} ...", applicationId);
-            DefaultPage[] ret = loader.loadAllPages(applicationId);
-            logger.info("Loaded {} pages for the application Id {}.", ret.length, applicationId);
+            logger.info("Loading service Ids for the application Id {} ...", applicationId);
+            Long[] ret = loader.loadAllRefereeServiceIds(applicationId);
+            logger.info("Loaded {} service Ids for the application Id {}.", ret.length, applicationId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load pages for the application Id {}", applicationId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_PAGES, t, applicationId);
+            logger.error("Failed to load service Ids for the application Id {}", applicationId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICES, t, applicationId);
         }
     }
 
     @Override
-    protected void destroySource(DefaultPage[] defaultPages) {
+    protected void destroySource(Long[] defaultServices) {
         // do nothing here
     }
 
     @Override
-    protected DefaultPage[] reloadSource(Long applicationId, DefaultPage[] oldSource) throws ErrorCodeException {
+    protected Long[] reloadSource(Long applicationId, Long[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading pages for the application Id {} ...", applicationId);
-            DefaultPage[] ret = loader.loadAllPages(applicationId);
-            logger.info("Reloaded {} pages for the application Id {}.", ret.length, applicationId);
+            logger.info("Reloading service Ids for the application Id {} ...", applicationId);
+            Long[] ret = loader.loadAllRefereeServiceIds(applicationId);
+            logger.info("Reloaded {} service Ids for the application Id {}.", ret.length, applicationId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload pages for the application Id {}", applicationId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_PAGES, t, applicationId);
+            logger.error("Failed to reload service Ids for the application Id {}", applicationId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICES, t, applicationId);
         }
     }
 }

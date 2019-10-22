@@ -53,14 +53,14 @@ public class ServiceLoader {
         try{
             serviceDefinition = serviceProvider.getServiceDefinition(serviceCode);
         }catch(Throwable t){
-            logger.trace("Failed to load service definition of service code: " + serviceCode, t);
+            logger.error("Failed to load service definition of service code: " + serviceCode, t);
         }
 
         if(serviceDefinition != null){
             try{
                 return serviceBuilder.buildService(serviceDefinition);
             }catch(Exception ex){
-                logger.trace("Invalid service definition: " + serviceDefinition, ex);
+                logger.error("Invalid service definition: " + serviceDefinition, ex);
             }
         }
 
@@ -72,14 +72,14 @@ public class ServiceLoader {
         try{
             serviceDefinition = serviceProvider.getServiceDefinition(serviceId);
         }catch(Throwable t){
-            logger.trace("Failed to load service definition of service Id: " + serviceId, t);
+            logger.error("Failed to load service definition of service Id: " + serviceId, t);
         }
 
         if(serviceDefinition != null){
             try{
                 return serviceBuilder.buildService(serviceDefinition);
             }catch(Exception ex){
-                logger.trace("Invalid service definition: " + serviceDefinition, ex);
+                logger.error("Invalid service definition: " + serviceDefinition, ex);
             }
         }
 
@@ -93,23 +93,25 @@ public class ServiceLoader {
         try{
             list =serviceProvider.getAllServiceMethodDefinitions(serviceId);
         }catch(Throwable t){
-            logger.trace("Failed to load all service method definitions of service Id: " + serviceId, t);
+            logger.error("Failed to load all service method definitions of service Id: " + serviceId, t);
         }
 
-        ArrayList<DefaultServiceMethod> methodList = new ArrayList<>(list.size());
         if(list != null){
+            ArrayList<DefaultServiceMethod> methodList = new ArrayList<>(list.size());
             for(ServiceMethodDefinition methodDefinition : list){
                 try{
                     methodList.add(serviceBuilder.buildServiceMethod(methodDefinition));
                 }catch(Exception t){
-                    logger.trace("Invalid service method definition: " + methodDefinition, t);
+                    logger.error("Invalid service method definition: " + methodDefinition, t);
                 }
             }
+
+            DefaultServiceMethod[] ret = new DefaultServiceMethod[methodList.size()];
+            methodList.toArray(ret);
+            return ret;
         }
 
-        DefaultServiceMethod[] ret = new DefaultServiceMethod[methodList.size()];
-        methodList.toArray(ret);
-        return ret;
+        return new DefaultServiceMethod[0];
     }
 
     public Long[] loadServiceMethodIds(ServiceDomain serviceDomain){
@@ -127,7 +129,7 @@ public class ServiceLoader {
                 list = serviceProvider.getCommonServiceMethodIds(serviceDomain.getServiceId());
             }
         }catch(Throwable t){
-            logger.trace("Failed to load service method definitions of domain: " + serviceDomain, t);
+            logger.error("Failed to load service method Ids of service domain: " + serviceDomain, t);
         }
 
         if(list != null){
@@ -145,7 +147,7 @@ public class ServiceLoader {
         try{
             list = serviceProvider.getRefererClientIds(serviceId);
         }catch (Throwable t){
-            logger.trace("Failed to load referer client Ids of service Id: " + serviceId, t);
+            logger.error("Failed to load referer client Ids of service Id: " + serviceId, t);
         }
 
         if(list != null){
@@ -164,7 +166,7 @@ public class ServiceLoader {
         try{
             list = serviceProvider.getRefererApplicationIds(serviceId);
         }catch (Throwable t){
-            logger.trace("Failed to load referer application Ids of service Id: " + serviceId, t);
+            logger.error("Failed to load referer application Ids of service Id: " + serviceId, t);
         }
 
         if(list != null){
@@ -183,7 +185,7 @@ public class ServiceLoader {
         try{
             list = serviceProvider.getRefererServiceIds(serviceId);
         }catch (Throwable t){
-            logger.trace("Failed to load referer service Ids of service Id: " + serviceId, t);
+            logger.error("Failed to load referer service Ids of service Id: " + serviceId, t);
         }
 
         if(list != null){
@@ -202,7 +204,7 @@ public class ServiceLoader {
         try{
             list = serviceProvider.getRefereeServiceIds(serviceId);
         }catch (Throwable t){
-            logger.trace("Failed to load referee service Ids of service Id: " + serviceId, t);
+            logger.error("Failed to load referee service Ids of service Id: " + serviceId, t);
         }
 
         if(list != null){

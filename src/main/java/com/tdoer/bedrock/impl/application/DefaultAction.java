@@ -33,32 +33,14 @@ public class DefaultAction implements Action {
 
     private ActionDefinition actionDefinition;
 
-    private final DefaultServiceMethod[] serviceMethods;
+    private DefaultApplicationRepository applicationRepository;
 
-    private ContextPath contextPath;
-
-    public DefaultAction(ActionDefinition actionDefinition, ContextPath contextPath, DefaultServiceMethod[] serviceMethods){
+    public DefaultAction(ActionDefinition actionDefinition, DefaultApplicationRepository applicationRepository){
         Assert.notNull(actionDefinition, "ActionDefinition cannot be null");
-        Assert.notNull(actionDefinition.getId(), "Resource Id cannot be null");
+        Assert.notNull(applicationRepository, "Application repository cannot be null");
 
         this.actionDefinition = actionDefinition;
-        this.serviceMethods = serviceMethods;
-        this.contextPath = contextPath; // can be null
-    }
-
-    @Override
-    public ResourceType getType() {
-        return null;
-    }
-
-    @Override
-    public ResourceCategory getCategory() {
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
+        this.applicationRepository = applicationRepository;
     }
 
     /**
@@ -68,7 +50,7 @@ public class DefaultAction implements Action {
      */
     @Override
     public String getName() {
-        return null;
+        return actionDefinition.getName();
     }
 
     /**
@@ -78,7 +60,7 @@ public class DefaultAction implements Action {
      */
     @Override
     public String getCode() {
-        return null;
+        return actionDefinition.getCode();
     }
 
     /**
@@ -88,7 +70,7 @@ public class DefaultAction implements Action {
      */
     @Override
     public Long getPageId() {
-        return null;
+        return actionDefinition.getPageId();
     }
 
     /**
@@ -98,7 +80,7 @@ public class DefaultAction implements Action {
      */
     @Override
     public Long getApplicationId() {
-        return null;
+        return actionDefinition.getApplicationId();
     }
 
     /**
@@ -108,7 +90,9 @@ public class DefaultAction implements Action {
      */
     @Override
     public void listServiceMethods(List<ServiceMethod> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        applicationRepository.listServiceMethodsOfAction(getId(), list);
     }
 
     /**
@@ -118,6 +102,19 @@ public class DefaultAction implements Action {
      */
     @Override
     public Long getId() {
-        return null;
+        return actionDefinition.getId();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Action[");
+        sb.append(getId()).append(", ");
+        sb.append(getPageId()).append(", ");
+        sb.append(getApplicationId()).append(", ");
+        sb.append(getCode()).append(", ");
+        sb.append(getName());
+        sb.append("]");
+        return sb.toString();
     }
 }

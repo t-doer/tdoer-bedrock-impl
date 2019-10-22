@@ -23,55 +23,56 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
-import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_PAGES;
+import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_ACTIONS;
+
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class PagesCacheManager extends AbstractCacheManager<Long, DefaultPage[]> {
+public class ActionIdsCacheManager extends AbstractCacheManager<PageDomain, Long[]> {
     protected ApplicationLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(PagesCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(ActionIdsCacheManager.class);
 
-    public PagesCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader) {
+    public ActionIdsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader) {
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ApplicationLoader cannot be null");
         this.loader = loader;
-        logger.info("PagesCacheManager is initialized");
+        logger.info("ActionIdsCacheManager is initialized");
     }
 
     @Override
-    protected DefaultPage[] loadSource(Long applicationId) throws ErrorCodeException {
-        try{
-            logger.info("Loading pages for the application Id {} ...", applicationId);
-            DefaultPage[] ret = loader.loadAllPages(applicationId);
-            logger.info("Loaded {} pages for the application Id {}.", ret.length, applicationId);
+    protected Long[] loadSource(PageDomain pageDomain) throws ErrorCodeException {
+        try {
+            logger.info("Loading action Ids for the page domain {} ...", pageDomain);
+            Long[] ret = loader.loadActionIds(pageDomain);
+            logger.info("Loaded action Ids for the page domain {}: ", pageDomain, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load pages for the application Id {}", applicationId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_PAGES, t, applicationId);
+            logger.error("Failed to load action Ids for the page domain {}", pageDomain, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_ACTIONS, t, pageDomain);
         }
     }
 
     @Override
-    protected void destroySource(DefaultPage[] defaultPages) {
+    protected void destroySource(Long[] defaultPages) {
         // do nothing here
     }
 
     @Override
-    protected DefaultPage[] reloadSource(Long applicationId, DefaultPage[] oldSource) throws ErrorCodeException {
+    protected Long[] reloadSource(PageDomain pageDomain, Long[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading pages for the application Id {} ...", applicationId);
-            DefaultPage[] ret = loader.loadAllPages(applicationId);
-            logger.info("Reloaded {} pages for the application Id {}.", ret.length, applicationId);
+            logger.info("Reloading action Ids for the page domain {} ...", pageDomain);
+            Long[] ret = loader.loadActionIds(pageDomain);
+            logger.info("Reloaded action Ids for the page domain {}: ", pageDomain, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload pages for the application Id {}", applicationId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_PAGES, t, applicationId);
+            logger.error("Failed to reload action Ids for the page domain {}", pageDomain, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_ACTIONS, t, pageDomain);
         }
     }
 }

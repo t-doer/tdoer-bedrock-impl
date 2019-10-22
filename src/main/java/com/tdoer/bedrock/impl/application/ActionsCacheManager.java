@@ -28,7 +28,7 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_ACTION
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ActionsCacheManager extends AbstractCacheManager<ApplicationDomain, DefaultAction[]> {
+public class ActionsCacheManager extends AbstractCacheManager<Long, DefaultAction[]> {
     protected ApplicationLoader loader;
     protected Logger logger = LoggerFactory.getLogger(ActionsCacheManager.class);
 
@@ -41,17 +41,17 @@ public class ActionsCacheManager extends AbstractCacheManager<ApplicationDomain,
     }
 
     @Override
-    protected DefaultAction[] loadSource(ApplicationDomain applicationDomain) throws ErrorCodeException {
+    protected DefaultAction[] loadSource(Long pageId) throws ErrorCodeException {
         try {
-            logger.info("Loading actions for the application domain {} ...", applicationDomain);
-            DefaultAction[] ret = loader.loadActions(applicationDomain);
-            logger.info("Loaded actions for the application domain {}: ", applicationDomain, ret);
+            logger.info("Loading actions of the page Id: {} ...", pageId);
+            DefaultAction[] ret = loader.loadAllActions(pageId);
+            logger.info("Loaded {} actions of the page Id: {}", ret.length, pageId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load actions for the application domain {}", applicationDomain, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_ACTIONS, t, applicationDomain);
+            logger.error("Failed to load actions of the page Id: " + pageId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_ACTIONS, t, pageId);
         }
     }
 
@@ -61,17 +61,17 @@ public class ActionsCacheManager extends AbstractCacheManager<ApplicationDomain,
     }
 
     @Override
-    protected DefaultAction[] reloadSource(ApplicationDomain applicationDomain, DefaultAction[] oldSource) throws ErrorCodeException {
+    protected DefaultAction[] reloadSource(Long pageId, DefaultAction[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading actions for the application domain {} ...", applicationDomain);
-            DefaultAction[] ret = loader.loadActions(applicationDomain);
-            logger.info("Reloaded actions for the application domain {}: ", applicationDomain, ret);
+            logger.info("Reloading actions of the page Id: {} ...", pageId);
+            DefaultAction[] ret = loader.loadAllActions(pageId);
+            logger.info("Reloaded {} actions of the page Id: {}", ret.length, pageId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload actions for the application domain {}", applicationDomain, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_ACTIONS, t, applicationDomain);
+            logger.error("Failed to reload actions of the page Id: " + pageId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_ACTIONS, t, pageId);
         }
     }
 }

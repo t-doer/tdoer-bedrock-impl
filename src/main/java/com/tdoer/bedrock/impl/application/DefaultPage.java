@@ -16,19 +16,14 @@
 package com.tdoer.bedrock.impl.application;
 
 import com.tdoer.bedrock.CloudEnvironment;
-import com.tdoer.bedrock.CloudEnvironmentHolder;
+import com.tdoer.bedrock.Platform;
 import com.tdoer.bedrock.application.Action;
 import com.tdoer.bedrock.application.ApplicationRepository;
 import com.tdoer.bedrock.application.Page;
-import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.definition.application.PageDefinition;
-import com.tdoer.bedrock.impl.service.DefaultServiceMethod;
-import com.tdoer.bedrock.resource.ResourceCategory;
-import com.tdoer.bedrock.resource.ResourceType;
 import com.tdoer.bedrock.service.ServiceMethod;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 /**
  * @author Htinker Hu (htinker@163.com)
@@ -37,25 +32,14 @@ import java.util.List;
 public class DefaultPage implements Page {
     private PageDefinition pageDefinition;
 
-    private DefaultServiceMethod[] serviceMethods;
-
     private ApplicationRepository applicationRepository;
 
-    private ContextPath contextPath;
-
-    public DefaultPage(PageDefinition pageDefinition, ContextPath contextPath, DefaultServiceMethod[] serviceMethods, DefaultApplicationRepository applicationRepository) {
+    public DefaultPage(PageDefinition pageDefinition, DefaultApplicationRepository applicationRepository) {
         Assert.notNull(pageDefinition, "PageDefinition cannot be null");
         Assert.notNull(applicationRepository, "ApplicationRepository Id cannot be null");
 
         this.pageDefinition = pageDefinition;
-        this.contextPath = contextPath;
-        this.serviceMethods = serviceMethods;
         this.applicationRepository = applicationRepository;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
     }
 
     /**
@@ -65,7 +49,7 @@ public class DefaultPage implements Page {
      */
     @Override
     public String getName() {
-        return null;
+        return pageDefinition.getName();
     }
 
     /**
@@ -75,7 +59,7 @@ public class DefaultPage implements Page {
      */
     @Override
     public String getCode() {
-        return null;
+        return pageDefinition.getCode();
     }
 
     /**
@@ -85,7 +69,7 @@ public class DefaultPage implements Page {
      */
     @Override
     public String getURI() {
-        return null;
+        return pageDefinition.getUri();
     }
 
     /**
@@ -98,7 +82,9 @@ public class DefaultPage implements Page {
      */
     @Override
     public Action getAction(Long actionId) {
-        return null;
+        Assert.notNull(actionId, "Action Id cannot be null");
+
+        return applicationRepository.getAction(getId(), actionId);
     }
 
     /**
@@ -111,7 +97,9 @@ public class DefaultPage implements Page {
      */
     @Override
     public Action getAction(String actionCode) {
-        return null;
+        Assert.hasText(actionCode, "Action code cannot be blank");
+
+        return applicationRepository.getAction(getId(), actionCode);
     }
 
     /**
@@ -121,7 +109,23 @@ public class DefaultPage implements Page {
      */
     @Override
     public void listCurrentActions(List<Action> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        CloudEnvironment env = Platform.getCurrentEnvironment();
+        applicationRepository.listCurrentActions(getId(), env.getApplicationId(), env.getProductId(), env.getClientId(),
+                env.getTenantId(), env.getContextPath(), list);
+    }
+
+    /**
+     * List the page's common actions, excluding customized ones.
+     *
+     * @param list List to hold actions, cannot be <code>null</code>
+     */
+    @Override
+    public void listCommonActions(List<Action> list) {
+        Assert.notNull(list, "List cannot be null");
+
+        applicationRepository.listCommonActions(getId(), list);
     }
 
     /**
@@ -131,7 +135,9 @@ public class DefaultPage implements Page {
      */
     @Override
     public void listAllActions(List<Action> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        applicationRepository.listAllActions(getId(), list);
     }
 
     /**
@@ -141,7 +147,7 @@ public class DefaultPage implements Page {
      */
     @Override
     public Long getApplicationId() {
-        return null;
+        return pageDefinition.getApplicationId();
     }
 
     /**
@@ -151,7 +157,9 @@ public class DefaultPage implements Page {
      */
     @Override
     public void listServiceMethods(List<ServiceMethod> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        applicationRepository.listServiceMethodsOfPage(getId(), list);
     }
 
     /**
@@ -161,6 +169,20 @@ public class DefaultPage implements Page {
      */
     @Override
     public Long getId() {
-        return null;
+        return pageDefinition.getId();
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Page[");
+        sb.append(getId()).append(", ");
+        sb.append(getApplicationId()).append(", ");
+        sb.append(getCode()).append(", ");
+        sb.append(getName()).append(", ");
+        sb.append(getURI());
+        sb.append("]");
+        return sb.toString();
+    }
+
 }

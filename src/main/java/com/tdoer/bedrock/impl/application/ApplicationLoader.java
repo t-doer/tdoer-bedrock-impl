@@ -15,48 +15,38 @@
  */
 package com.tdoer.bedrock.impl.application;
 
-import com.tdoer.bedrock.ProviderFailedException;
-import com.tdoer.bedrock.application.ApplicationNotFoundException;
-import com.tdoer.bedrock.context.ContextPathParser;
-import com.tdoer.bedrock.impl.definition.application.ActionDefinition;
-import com.tdoer.bedrock.impl.definition.application.ApplicationDefinition;
-import com.tdoer.bedrock.impl.definition.application.ApplicationServiceDefinition;
-import com.tdoer.bedrock.impl.definition.application.PageDefinition;
+import com.tdoer.bedrock.impl.definition.application.*;
 import com.tdoer.bedrock.impl.provider.ApplicationProvider;
-import com.tdoer.bedrock.impl.service.DefaultService;
 import com.tdoer.bedrock.impl.service.DefaultServiceMethod;
 import com.tdoer.bedrock.impl.service.DefaultServiceRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.APPLICATION_NOT_FOUND;
-import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_APPLICATION;
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
 public class ApplicationLoader {
 
-    private ApplicationProvider applicationProvider;
+    private static Logger logger = LoggerFactory.getLogger(ApplicationLoader.class);
 
-    private ContextPathParser contextPathParser;
+    private ApplicationProvider applicationProvider;
 
     private DefaultServiceRepository serviceRepository;
 
     private ApplicationBuilder applicationBuilder;
 
-    public ApplicationLoader(ApplicationProvider applicationProvider, ContextPathParser contextPathParser, DefaultServiceRepository serviceRepository) {
+    public ApplicationLoader(ApplicationProvider applicationProvider, DefaultServiceRepository serviceRepository) {
         Assert.notNull(applicationProvider, "ApplicationProvider cannot be null");
-        Assert.notNull(contextPathParser, "ContextPathParser cannot be null");
         Assert.notNull(serviceRepository, "ServiceRepository cannot be null");
         this.applicationProvider = applicationProvider;
-        this.contextPathParser = contextPathParser;
         this.serviceRepository = serviceRepository;
 
         // initialize builder
-        this.applicationBuilder = new ApplicationBuilder(contextPathParser);
+        this.applicationBuilder = new ApplicationBuilder(serviceRepository);
     }
 
     public void setApplicationRepository(DefaultApplicationRepository applicationRepository){
@@ -69,119 +59,224 @@ public class ApplicationLoader {
         try{
             applicationDefinition = applicationProvider.getApplicationDefinitionByCode(applicationCode);
         }catch(Throwable t){
-            throw new ProviderFailedException(FAILED_TO_LOAD_APPLICATION, t, applicationCode);
+            logger.error("Failed load application of code: " + applicationCode, t);
         }
 
-        if(applicationDefinition == null){
-            ApplicationNotFoundException anfe = new ApplicationNotFoundException(APPLICATION_NOT_FOUND, applicationCode);
-            anfe.setApplicationId(applicationCode);
-            throw anfe;
+        if(applicationDefinition != null){
+            try{
+                return applicationBuilder.buildApplication(applicationDefinition);
+            }catch(Exception ex){
+                logger.error("Invalid application definition: " + applicationDefinition, ex);
+            }
         }
 
-        return applicationBuilder.buildApplication(applicationDefinition);
+        return null;
     }
 
-    public DefaultApplication loadApplicationById(String applicationCode){
+    public DefaultApplication loadApplicationById(Long applicationId){
         ApplicationDefinition applicationDefinition = null;
         try{
-            applicationDefinition = applicationProvider.getApplicationDefinition(applicationCode);
+            applicationDefinition = applicationProvider.getApplicationDefinitionById(applicationId);
         }catch(Throwable t){
-            throw new ProviderFailedException(FAILED_TO_LOAD_APPLICATION, t, applicationCode);
+            logger.error("Failed to load application of Id: " + applicationId, t);
         }
 
-        if(applicationDefinition == null){
-            ApplicationNotFoundException anfe = new ApplicationNotFoundException(APPLICATION_NOT_FOUND, applicationCode);
-            anfe.setApplicationId(applicationCode);
-            throw anfe;
+        if(applicationDefinition != null){
+            try{
+                return applicationBuilder.buildApplication(applicationDefinition);
+            }catch(Exception ex){
+                logger.error("Invalid application definition: " + applicationDefinition, ex);
+            }
         }
 
-        return applicationBuilder.buildApplication(applicationDefinition);
+        return null;
     }
 
-    public DefaultPage[] loadPages(ApplicationDomain applicationDomain){
-        ApplicationDomain ad = applicationDomain;
-        List<PageDefinition> list = applicationProvider.getPageDefinitions(ad.getApplicationId(), ad.getProductId(), ad.getClientId(),ad.getTenantId(), ad.getContextPath());
-        ArrayList<DefaultPage> pageList = new ArrayList<>(list.size());
+    public DefaultPage[] loadAllPages(Long applicationId){
+        List<PageDefinition> list = null;
+        try{
+            list = applicationProvider.getAllPageDefinitions(applicationId);
+        }catch(Throwable t){
+            logger.error("Failed to load all page of application Id: " + applicationId, t);
+        }
+
         if(list != null){
+            ArrayList<DefaultPage> pageList = new ArrayList<>(list.size());
             for(PageDefinition pageDefinition : list){
-                List<Long> smds = applicationProvider.getServiceMethodIdsOfPage(ad.getApplicationId(), pageDefinition.getId());
-                DefaultServiceMethod[] methods = null;
-                if(smds != null){
-                    methods = parseServiceMethods(smds);
-                }
-
                 try{
-                    pageList.add(applicationBuilder.buildPage(pageDefinition, methods));
-                }catch(Throwable t){
-                    // todo
+                    pageList.add(applicationBuilder.buildPage(pageDefinition));
+                }catch(Exception ex){
+                    logger.error("Invalid page definition: " + pageDefinition, ex);
                 }
             }
+            DefaultPage[] ret = new DefaultPage[pageList.size()];
+            pageList.toArray(ret);
+            return ret;
         }
 
-        DefaultPage[] ret = new DefaultPage[pageList.size()];
-        pageList.toArray(ret);
-        return ret;
+        return new DefaultPage[0];
     }
 
-    public DefaultAction[] loadActions(ApplicationDomain applicationDomain){
-        ApplicationDomain ad = applicationDomain;
-        List<ActionDefinition> list = applicationProvider.getActionDefinitions(ad.getApplicationId(), ad.getProductId(), ad.getClientId(),ad.getTenantId(), ad.getContextPath());
-        ArrayList<DefaultAction> actionList = new ArrayList<>(list.size());
+   public Long[] loadPageIds(ApplicationDomain applicationDomain){
+       Assert.notNull(applicationDomain, "Application domain cannot be null");
+
+       ApplicationDomain ad = applicationDomain;
+
+       List<Long> list = null;
+       try{
+           if(applicationDomain.isExtensionDomain()){
+               list = applicationProvider.getCustomizedPageIds(ad.getApplicationId(), ad.getProductId(), ad.getClientId(),ad.getTenantId(),
+                       ad.getContextPath()== null? "void" : ad.getContextPath().getAbsoluteValue());
+           }else{
+               list = applicationProvider.getCommonPageIds(ad.getApplicationId());
+           }
+       }catch(Throwable t){
+           logger.error("Failed to load page Ids of application domain: " + applicationDomain, t);
+       }
+
+       if(list != null){
+           Long[] ids = new Long[list.size()];
+           return list.toArray(ids);
+       }
+
+       return new Long[0];
+   }
+
+    public DefaultAction[] loadAllActions(Long pageId){
+        List<ActionDefinition> list = null;
+        try{
+            list = applicationProvider.getAllActionDefinitions(pageId);
+        }catch(Throwable t){
+            logger.error("Failed to load all action definitions of page Id: " + pageId, t);
+        }
         if(list != null){
+            ArrayList<DefaultAction> actionList = new ArrayList<>(list.size());
             for(ActionDefinition actionDefinition : list){
-                List<Long> smds = applicationProvider.getServiceMethodIdsOfAction(ad.getApplicationId(), actionDefinition.getPageId(), actionDefinition.getId());
-                DefaultServiceMethod[] methods = null;
-                if(smds != null){
-                    methods = parseServiceMethods(smds);
-                }
-
                 try{
-                    actionList.add(applicationBuilder.buildAction(actionDefinition, methods));
-                }catch(Throwable t){
-                    // todo
+                    actionList.add(applicationBuilder.buildAction(actionDefinition));
+                }catch(Exception ex){
+                    logger.error("Invalid action definition: " + actionDefinition, ex);
                 }
             }
+            DefaultAction[] ret = new DefaultAction[actionList.size()];
+            actionList.toArray(ret);
+            return ret;
         }
-
-        DefaultAction[] ret = new DefaultAction[actionList.size()];
-        actionList.toArray(ret);
-        return ret;
+        return new DefaultAction[0];
     }
 
+    public Long[] loadActionIds(PageDomain pageDomain){
+        Assert.notNull(pageDomain, "Page domain cannot be null");
 
-    protected DefaultServiceMethod[] parseServiceMethods(List<Long> smds){
-        ArrayList<DefaultServiceMethod> methodList = new ArrayList<>(smds.size());
-        for(Long methodId : smds){
-            DefaultServiceMethod method = serviceRepository.getServiceMethod(methodId);
-            if(method == null){
-                // todo
+        PageDomain ad = pageDomain;
+
+        List<Long> list = null;
+        try{
+            if(pageDomain.isExtensionDomain()){
+                list = applicationProvider.getCustomizedActionIds(ad.getPageId(), ad.getProductId(),
+                        ad.getClientId(), ad.getTenantId(),
+                        ad.getContextPath()== null? "void" : ad.getContextPath().getAbsoluteValue());
             }else{
-                methodList.add(method);
+                list = applicationProvider.getCommonActionIds(ad.getPageId());
             }
+        }catch(Throwable t){
+            logger.error("Failed to load action Ids of page domain: " + pageDomain, t);
         }
 
-        DefaultServiceMethod[] methods = new DefaultServiceMethod[methodList.size()];
-        methodList.toArray(methods);
-        return methods;
+        if(list != null){
+            Long[] ids = new Long[list.size()];
+            return list.toArray(ids);
+        }
+
+        return new Long[0];
     }
 
-    public DefaultService[] loadServices(ApplicationDomain applicationDomain){
+    public Long[] loadRefereeServiceIds(ApplicationDomain applicationDomain){
+        Assert.notNull(applicationDomain, "Application domain cannot be null");
+
         ApplicationDomain ad = applicationDomain;
-        List<ApplicationServiceDefinition> list = applicationProvider.getApplicationServiceDefinitions(ad.getApplicationId(), ad.getProductId(), ad.getClientId(),ad.getTenantId(), ad.getContextPath());
-        ArrayList<DefaultService> serviceList = new ArrayList<>(list.size());
+
+        List<Long> list = null;
+        try{
+            if(applicationDomain.isExtensionDomain()){
+                list = applicationProvider.getCustomizedRefereeServiceIds(ad.getApplicationId(), ad.getProductId(), ad.getClientId(),
+                        ad.getTenantId(), ad.getContextPath()== null? "void" : ad.getContextPath().getAbsoluteValue());
+            }else{
+                list = applicationProvider.getCommonRefereeServiceIds(ad.getApplicationId());
+            }
+        }catch(Throwable t){
+            logger.error("Failed to load referee service Ids of application domain: " + applicationDomain, t);
+        }
+
         if(list != null){
-            for(ApplicationServiceDefinition applicationServiceDefinition : list){
-                DefaultService service = serviceRepository.getService(applicationServiceDefinition.getServiceId());
-                if(service == null){
-                    // todo
-                }else{
-                    serviceList.add(service);
+            Long[] ids = new Long[list.size()];
+            return list.toArray(ids);
+        }
+
+        return new Long[0];
+    }
+
+    public Long[] loadAllRefereeServiceIds(Long applicationId){
+        Assert.notNull(applicationId, "Application Id cannot be null");
+        List<Long> list = null;
+        try{
+            list = applicationProvider.getAllRefereeServiceIds(applicationId);
+        }catch(Throwable t){
+            logger.error("Failed to load all referee service Ids of application Id: " + applicationId, t);
+        }
+
+        if(list != null){
+            Long[] ids = new Long[list.size()];
+            return list.toArray(ids);
+        }
+
+        return new Long[0];
+    }
+
+    public DefaultServiceMethod[] loadServiceMethodsOfPage(Long pageId){
+        List<PageMethodDefinition> list = null;
+        try{
+            list = applicationProvider.getPageMethodDefinitions(pageId);
+        }catch (Throwable t){
+            logger.error("Failed to load page method definitions of page Id: " + pageId, t);
+        }
+
+        if(list != null){
+            ArrayList<DefaultServiceMethod> methods = new ArrayList<>(list.size());
+            for(PageMethodDefinition def : list){
+                try{
+                    methods.add(serviceRepository.getServiceMethod(def.getServiceId(), def.getMethodId()));
+                }catch (Exception ex){
+                    logger.error("Invalid page method definition: " + def, ex);
                 }
             }
+            DefaultServiceMethod[] ret = new DefaultServiceMethod[methods.size()];
+            return methods.toArray(ret);
+        }
+        return new DefaultServiceMethod[0];
+    }
+
+    public DefaultServiceMethod[] loadServiceMethodsOfAction(Long actionId){
+        List<ActionMethodDefinition> list = null;
+        try{
+            list = applicationProvider.getActionMethodDefinitions(actionId);
+        }catch (Throwable t){
+            logger.error("Failed to load action method definitions of page Id: " + actionId, t);
         }
 
-        DefaultService[] ret = new DefaultService[serviceList.size()];
-        serviceList.toArray(ret);
-        return ret;
+        if(list != null){
+            ArrayList<DefaultServiceMethod> methods = new ArrayList<>(list.size());
+            for(ActionMethodDefinition def : list){
+                try{
+                    methods.add(serviceRepository.getServiceMethod(def.getServiceId(), def.getMethodId()));
+                }catch (Exception ex){
+                    logger.error("Invalid action method definition: " + def, ex);
+                }
+            }
+            DefaultServiceMethod[] ret = new DefaultServiceMethod[methods.size()];
+            return methods.toArray(ret);
+        }
+        return new DefaultServiceMethod[0];
     }
+
 }

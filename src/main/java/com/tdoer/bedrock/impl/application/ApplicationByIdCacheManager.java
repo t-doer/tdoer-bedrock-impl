@@ -45,7 +45,7 @@ public class ApplicationByIdCacheManager extends AbstractCacheManager<Long, Defa
     protected DefaultApplication loadSource(Long applicationId) throws ErrorCodeException {
         try{
             logger.info("Loading application of Id ({}) ...", applicationId);
-            DefaultApplication ret = loader.loadApplication(applicationId);
+            DefaultApplication ret = loader.loadApplicationById(applicationId);
             logger.info("Loaded application of Id ({}): {}", applicationId, ret);
             return ret;
         } catch (ErrorCodeException ece) {
@@ -65,7 +65,7 @@ public class ApplicationByIdCacheManager extends AbstractCacheManager<Long, Defa
     protected DefaultApplication reloadSource(Long applicationId, DefaultApplication oldSource) throws ErrorCodeException {
         try{
             logger.info("Reloading application of Id ({}) ...", applicationId);
-            DefaultApplication ret = loader.loadApplication(applicationId);
+            DefaultApplication ret = loader.loadApplicationById(applicationId);
             logger.info("Reloaded application of Id ({}): {}", applicationId, ret);
             return ret;
         } catch (ErrorCodeException ece) {

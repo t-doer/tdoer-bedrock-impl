@@ -44,7 +44,7 @@ public class ApplicationByCodeCacheManager extends AbstractCacheManager<String, 
     protected DefaultApplication loadSource(String applicationCode) throws ErrorCodeException {
         try{
             logger.info("Loading application of code ({}) ...", applicationCode);
-            DefaultApplication ret = loader.loadApplication(applicationCode);
+            DefaultApplication ret = loader.loadApplicationByCode(applicationCode);
             logger.info("Loaded application of code ({}): {}", applicationCode, ret);
             return ret;
         } catch (ErrorCodeException ece) {
@@ -64,7 +64,7 @@ public class ApplicationByCodeCacheManager extends AbstractCacheManager<String, 
     protected DefaultApplication reloadSource(String applicationCode, DefaultApplication oldSource) throws ErrorCodeException {
         try{
             logger.info("Reloading application of code ({}) ...", applicationCode);
-            DefaultApplication ret = loader.loadApplication(applicationCode);
+            DefaultApplication ret = loader.loadApplicationByCode(applicationCode);
             logger.info("Reloaded application of code ({}): {}", applicationCode, ret);
             return ret;
         } catch (ErrorCodeException ece) {

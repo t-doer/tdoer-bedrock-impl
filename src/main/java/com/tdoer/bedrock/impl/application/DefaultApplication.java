@@ -16,8 +16,7 @@
 package com.tdoer.bedrock.impl.application;
 
 import com.tdoer.bedrock.CloudEnvironment;
-import com.tdoer.bedrock.CloudEnvironmentHolder;
-import com.tdoer.bedrock.application.Action;
+import com.tdoer.bedrock.Platform;
 import com.tdoer.bedrock.application.Application;
 import com.tdoer.bedrock.application.Page;
 import com.tdoer.bedrock.impl.definition.application.ApplicationDefinition;
@@ -34,13 +33,13 @@ public class DefaultApplication implements Application {
 
     private ApplicationDefinition applicationDefinition;
 
-    private DefaultApplicationRepository repository;
+    private DefaultApplicationRepository applicationRepository;
 
-    public DefaultApplication(ApplicationDefinition applicationDefinition, DefaultApplicationRepository repository) {
+    public DefaultApplication(ApplicationDefinition applicationDefinition, DefaultApplicationRepository applicationRepository) {
         Assert.notNull(applicationDefinition, "ApplicationDefinition cannot be null");
-        Assert.notNull(repository, "ApplicationRepository cannot be null");
+        Assert.notNull(applicationRepository, "ApplicationRepository cannot be null");
         this.applicationDefinition = applicationDefinition;
-        this.repository = repository;
+        this.applicationRepository = applicationRepository;
     }
 
     /**
@@ -50,7 +49,7 @@ public class DefaultApplication implements Application {
      */
     @Override
     public Long getId() {
-        return null;
+        return applicationDefinition.getId();
     }
 
     /**
@@ -60,7 +59,7 @@ public class DefaultApplication implements Application {
      */
     @Override
     public String getCode() {
-        return null;
+        return applicationDefinition.getCode();
     }
 
     /**
@@ -70,7 +69,7 @@ public class DefaultApplication implements Application {
      */
     @Override
     public String getName() {
-        return null;
+        return applicationDefinition.getName();
     }
 
     /**
@@ -80,7 +79,7 @@ public class DefaultApplication implements Application {
      */
     @Override
     public String getDescription() {
-        return null;
+        return applicationDefinition.getDescription();
     }
 
     /**
@@ -90,7 +89,7 @@ public class DefaultApplication implements Application {
      */
     @Override
     public String getProvider() {
-        return null;
+        return applicationDefinition.getProvider();
     }
 
     /**
@@ -100,7 +99,7 @@ public class DefaultApplication implements Application {
      */
     @Override
     public String getVersion() {
-        return null;
+        return applicationDefinition.getVersion();
     }
 
     /**
@@ -111,7 +110,9 @@ public class DefaultApplication implements Application {
      */
     @Override
     public Page getPage(Long pageId) {
-        return null;
+        Assert.notNull(pageId, "Page Id cannot be null");
+
+        return applicationRepository.getPage(getId(), pageId);
     }
 
     /**
@@ -122,7 +123,9 @@ public class DefaultApplication implements Application {
      */
     @Override
     public Page getPage(String pageCode) {
-        return null;
+        Assert.hasText(pageCode, "Page code cannot be blank");
+
+        return applicationRepository.getPage(getId(), pageCode);
     }
 
     /**
@@ -133,7 +136,23 @@ public class DefaultApplication implements Application {
      */
     @Override
     public void listCurrentPages(List<Page> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        CloudEnvironment env = Platform.getCurrentEnvironment();
+        applicationRepository.listCurrentPages(env.getApplicationId(), env.getProductId(), env.getClientId(),
+                env.getTenantId(), env.getContextPath(), list);
+    }
+
+    /**
+     * List the application's common pages, excluding customized ones.
+     *
+     * @param list List to hold pages, cannot be <code>null</code>
+     */
+    @Override
+    public void listCommonPages(List<Page> list) {
+        Assert.notNull(list, "List cannot be null");
+
+        applicationRepository.listCommonPages(getId(), list);
     }
 
     /**
@@ -143,18 +162,49 @@ public class DefaultApplication implements Application {
      */
     @Override
     public void listAllPages(List<Page> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        applicationRepository.listAllPages(getId(), list);
     }
 
     /**
-     * List services the application needs to call in current cloud environment
+     * List the Ids of services the application needs to call in current cloud environment
      * {@link CloudEnvironment}.
      *
-     * @param list List to hold services.
+     * @param list List to hold service Ids.
      */
     @Override
-    public void listCurrentRefereeServices(List<Service> list) {
+    public void listCurrentRefereeServiceIds(List<Long> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        CloudEnvironment env = Platform.getCurrentEnvironment();
+        applicationRepository.listCurrentRefereeServiceIds(env.getApplicationId(), env.getProductId(),
+                env.getClientId(), env.getTenantId(), env.getContextPath(), list);
+    }
+
+    /**
+     * List the Ids of services the application commonly needs to call.
+     *
+     * @param list List to hold service Ids, cannot be <code>null</code>.
+     */
+    @Override
+    public void listCommonRefereeServiceIds(List<Long> list) {
+        Assert.notNull(list, "List cannot be null");
+
+        applicationRepository.listCommonRefereeServiceIds(getId(), list);
+    }
+
+    /**
+     * List the Ids of all services the application totally needs to call,
+     * including common ones and cutomized ones.
+     *
+     * @param list List to hold service Ids, cannot be <code>null</code>.
+     */
+    @Override
+    public void listAllRefereeServiceIds(List<Long> list) {
+        Assert.notNull(list, "List cannot be null");
+
+        applicationRepository.listAllRefereeServiceIds(getId(), list);
     }
 
     /**
@@ -166,29 +216,12 @@ public class DefaultApplication implements Application {
      */
     @Override
     public boolean isServiceAccessible(Service service) {
-        return false;
-    }
+        Assert.notNull(service, "Service cannot be null");
 
-    /**
-     * Get action of specific Id available in the application
-     *
-     * @param actionId Action Id, cannot be <code>null</code>
-     * @return {@link Action} if it exists in the application, otherwise return <code>null</code>
-     */
-    @Override
-    public Action getAction(Long actionId) {
-        return null;
-    }
+        ArrayList<Long> list = new ArrayList<>();
+        listCurrentRefereeServiceIds(list);
 
-    /**
-     * Get action of specific code available in the application
-     *
-     * @param actionCode Action code, cannot be <code>null</code>
-     * @return {@link Action} if it exists in the application, otherwise return <code>null</code>
-     */
-    @Override
-    public Action getAction(String actionCode) {
-        return null;
+        return list.contains(service.getId());
     }
 
     @Override

@@ -19,7 +19,7 @@ import com.tdoer.bedrock.application.*;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.service.Service;
+import com.tdoer.bedrock.impl.service.DefaultServiceMethod;
 import com.tdoer.bedrock.service.ServiceMethod;
 import org.springframework.util.Assert;
 
@@ -30,13 +30,25 @@ import java.util.List;
  */
 public class DefaultApplicationRepository implements ApplicationRepository {
 
-    protected ApplicationByCodeCacheManager applicationCacheManager;
+    protected ApplicationByCodeCacheManager applicationByCodeCacheManager;
+
+    protected ApplicationByIdCacheManager applicationByIdCacheManager;
 
     protected PagesCacheManager pagesCacheManager;
 
+    protected PageIdsCacheManager pageIdsCacheManager;
+
     protected ActionsCacheManager actionsCacheManager;
 
-    protected ServicesCacheManager servicesCacheManager;
+    protected ActionIdsCacheManager actionIdsCacheManager;
+
+    protected ServiceIdsByDomainCacheManager serviceIdsByDomainCacheManager;
+
+    protected ServiceIdsByIdCacheManager serviceIdsByIdCacheManager;
+
+    protected MethodsByPageIdCacheManager methodsByPageIdCacheManager;
+
+    protected MethodsByActionIdCacheManager methodsByActionIdCacheManager;
 
     public DefaultApplicationRepository(ApplicationLoader applicationLoader, CachePolicy cachePolicy, DormantCacheCleaner cleaner) {
         Assert.notNull(applicationLoader, "ApplicationLoader cannot be null");
@@ -44,16 +56,28 @@ public class DefaultApplicationRepository implements ApplicationRepository {
         Assert.notNull(cleaner, "DormantObjectCleaner cannot be null");
 
         applicationLoader.setApplicationRepository(this);
-        applicationCacheManager = new ApplicationByCodeCacheManager(cachePolicy, cleaner, applicationLoader);
+        applicationByCodeCacheManager = new ApplicationByCodeCacheManager(cachePolicy, cleaner, applicationLoader);
+        applicationByIdCacheManager = new ApplicationByIdCacheManager(cachePolicy, cleaner, applicationLoader);
         pagesCacheManager = new PagesCacheManager(cachePolicy, cleaner, applicationLoader);
+        pageIdsCacheManager = new PageIdsCacheManager(cachePolicy, cleaner, applicationLoader);
         actionsCacheManager = new ActionsCacheManager(cachePolicy, cleaner, applicationLoader);
-        servicesCacheManager = new ServicesCacheManager(cachePolicy, cleaner, applicationLoader);
+        actionIdsCacheManager = new ActionIdsCacheManager(cachePolicy, cleaner, applicationLoader);
+        serviceIdsByDomainCacheManager = new ServiceIdsByDomainCacheManager(cachePolicy, cleaner, applicationLoader);
+        serviceIdsByIdCacheManager = new ServiceIdsByIdCacheManager(cachePolicy, cleaner, applicationLoader);
+        methodsByPageIdCacheManager = new MethodsByPageIdCacheManager(cachePolicy, cleaner, applicationLoader);
+        methodsByActionIdCacheManager = new MethodsByActionIdCacheManager(cachePolicy, cleaner, applicationLoader);
 
         // Initialize cache managers
-        applicationCacheManager.initialize();
+        applicationByCodeCacheManager.initialize();
+        applicationByIdCacheManager.initialize();
         pagesCacheManager.initialize();
+        pageIdsCacheManager.initialize();
         actionsCacheManager.initialize();
-        servicesCacheManager.initialize();
+        actionIdsCacheManager.initialize();
+        serviceIdsByDomainCacheManager.initialize();
+        serviceIdsByIdCacheManager.initialize();
+        methodsByPageIdCacheManager.initialize();
+        methodsByActionIdCacheManager.initialize();
     }
 
     /**
@@ -64,8 +88,15 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      * @throws ApplicationNotFoundException if application does not exist or is disabled
      */
     @Override
-    public Application getApplication(Long applicationId) throws ApplicationNotFoundException {
-        return null;
+    public DefaultApplication getApplication(Long applicationId) throws ApplicationNotFoundException {
+        Assert.notNull(applicationId, "Application Id cannot be null");
+
+        DefaultApplication ret = applicationByIdCacheManager.getSource(applicationId);
+        if(ret != null){
+            return ret;
+        }else{
+            throw new ApplicationNotFoundException(applicationId);
+        }
     }
 
     /**
@@ -76,8 +107,15 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      * @throws ApplicationNotFoundException if application does not exist or is disabled
      */
     @Override
-    public Application getApplication(String applicationCode) throws ApplicationNotFoundException {
-        return null;
+    public DefaultApplication getApplication(String applicationCode) throws ApplicationNotFoundException {
+        Assert.hasText(applicationCode, "Application code cannot be blank");
+
+        DefaultApplication ret = applicationByCodeCacheManager.getSource(applicationCode);
+        if(ret != null){
+            return ret;
+        }else{
+            throw new ApplicationNotFoundException(applicationCode);
+        }
     }
 
     /**
@@ -89,8 +127,20 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      * @throws PageNotFoundException if the page dose not exist or is disabled
      */
     @Override
-    public Page getPage(Long applicationId, Long pageId) throws PageNotFoundException {
-        return null;
+    public DefaultPage getPage(Long applicationId, Long pageId) throws PageNotFoundException {
+        Assert.notNull(applicationId, "Application Id cannot be null");
+        Assert.notNull(pageId, "Page Id cannot be null");
+
+        DefaultPage[] pages = pagesCacheManager.getSource(applicationId);
+        if(pages != null){
+            for(DefaultPage pg : pages){
+                if(pg.getId().equals(pageId)){
+                    return pg;
+                }
+            }
+        }
+
+        throw new PageNotFoundException(pageId);
     }
 
     /**
@@ -103,7 +153,19 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      */
     @Override
     public Page getPage(Long applicationId, String pageCode) throws PageNotFoundException {
-        return null;
+        Assert.notNull(applicationId, "Application Id cannot be null");
+        Assert.hasText(pageCode, "Page Id cannot be blank");
+
+        DefaultPage[] pages = pagesCacheManager.getSource(applicationId);
+        if(pages != null){
+            for(DefaultPage pg : pages){
+                if(pg.getCode().equals(pageCode)){
+                    return pg;
+                }
+            }
+        }
+
+        throw new PageNotFoundException(applicationId, pageCode);
     }
 
     /**
@@ -117,8 +179,45 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      * @param list          List to hold pages, cannot be <code>null</code>
      */
     @Override
-    public void listCurrentPages(Long applicationId, Long productId, Long clientId, Long tenantId, ContextPath contextPath, List<Page> list) {
+    public void  listCurrentPages(Long applicationId, Long productId, Long clientId, Long tenantId,
+                                  ContextPath contextPath, List<Page> list) {
+        Assert.notNull(applicationId, "Application Id cannot be null");
+        Assert.notNull(productId, "Product Id cannot be null");
+        Assert.notNull(clientId, "Client Id cannot be null");
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        ApplicationDomainEnumerator enumerator = new ApplicationDomainEnumerator(applicationId, productId, clientId
+                , tenantId, contextPath);
+        while(enumerator.hasMoreElements()){
+            Long[] pageIds = pageIdsCacheManager.getSource(enumerator.nextElement());
+            if(pageIds != null){
+                for(Long pageId : pageIds){
+                    list.add(getPage(applicationId, pageId));
+                }
+            }
+        }
+    }
+
+    /**
+     * List an application's common pages only, excluding customized ones.
+     *
+     * @param applicationId Application Id, cannot be <code>null</code>
+     * @param list          List to hold pages, cannot be <code>null</code>
+     */
+    @Override
+    public void listCommonPages(Long applicationId, List<Page> list) {
+        Assert.notNull(applicationId, "Application Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
+
+        ApplicationDomain domain = new ApplicationDomain(applicationId, 0L, 0L, 0L, null);
+        Long[] pageIds = pageIdsCacheManager.getSource(domain);
+        if(pageIds != null){
+            for(Long pageId : pageIds){
+                list.add(getPage(applicationId, pageId));
+            }
+        }
     }
 
     /**
@@ -129,7 +228,14 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      */
     @Override
     public void listAllPages(Long applicationId, List<Page> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        DefaultPage[] pages = pagesCacheManager.getSource(applicationId);
+        if(pages != null){
+            for(DefaultPage pg : pages){
+                list.add(pg);
+            }
+        }
     }
 
     /**
@@ -143,7 +249,19 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      */
     @Override
     public Action getAction(Long pageId, Long actionId) throws ActionNotFoundException {
-        return null;
+        Assert.notNull(pageId, "Page Id cannot be null");
+        Assert.notNull(actionId, "Action Id cannot be null");
+
+        DefaultAction[] actions = actionsCacheManager.getSource(pageId);
+        if(actions != null){
+            for(DefaultAction act : actions){
+                if(act.getId().equals(actionId)){
+                    return act;
+                }
+            }
+        }
+
+        throw new ActionNotFoundException(actionId);
     }
 
     /**
@@ -156,7 +274,19 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      */
     @Override
     public Action getAction(Long pageId, String actionCode) throws ActionNotFoundException {
-        return null;
+        Assert.notNull(pageId, "Page Id cannot be null");
+        Assert.hasText(actionCode, "Action Id cannot be blank");
+
+        DefaultAction[] actions = actionsCacheManager.getSource(pageId);
+        if(actions != null){
+            for(DefaultAction act : actions){
+                if(act.getCode().equals(actionCode)){
+                    return act;
+                }
+            }
+        }
+
+        throw new ActionNotFoundException(pageId, actionCode);
     }
 
     /**
@@ -173,7 +303,44 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      */
     @Override
     public void listCurrentActions(Long pageId, Long applicationId, Long productId, Long clientId, Long tenantId, ContextPath contextPath, List<Action> list) {
+        Assert.notNull(pageId, "Page Id cannot be null");
+        Assert.notNull(applicationId, "Application Id cannot be null");
+        Assert.notNull(productId, "Product Id cannot be null");
+        Assert.notNull(clientId, "Client Id cannot be null");
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        PageDomainEnumerator enumerator = new PageDomainEnumerator(pageId, productId, clientId
+                , tenantId, contextPath);
+        while(enumerator.hasMoreElements()){
+            Long[] actionIds = actionIdsCacheManager.getSource(enumerator.nextElement());
+            if(actionIds != null){
+                for(Long actionId : actionIds){
+                    list.add(getAction(pageId, actionId));
+                }
+            }
+        }
+    }
+
+    /**
+     * List common actions of a page only, excluding customized ones
+     *
+     * @param pageId Page Id, cannot be <code>null</code>
+     * @param list   List to hold pages, cannot be <code>null</code>
+     */
+    @Override
+    public void listCommonActions(Long pageId, List<Action> list) {
+        Assert.notNull(pageId, "Page Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
+
+        PageDomain domain = new PageDomain(pageId, 0L, 0L, 0L,null);
+        Long[] actionIds = actionIdsCacheManager.getSource(domain);
+        if(actionIds != null){
+            for(Long actionId : actionIds){
+                list.add(getAction(pageId, actionId));
+            }
+        }
     }
 
     /**
@@ -184,11 +351,18 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      */
     @Override
     public void listAllActions(Long pageId, List<Action> list) {
+        Assert.notNull(list, "List cannot be null");
 
+        DefaultAction[] actions = actionsCacheManager.getSource(pageId);
+        if(actions != null){
+            for(DefaultAction act : actions){
+                list.add(act);
+            }
+        }
     }
 
     /**
-     * List the referee services which are referred to or called by specific application,
+     * List the Ids of referee services which are referred to or called by specific application,
      * and are available for current product, client, tenant, and context instance.
      *
      * @param applicationId Application Id, cannot be <code>null</code>
@@ -199,19 +373,66 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      * @param list          List to referee services, cannot be <code>null</code>
      */
     @Override
-    public void listCurrentRefereeServices(Long applicationId, Long productId, Long clientId, Long tenantId, ContextPath contextPath, List<Service> list) {
+    public void listCurrentRefereeServiceIds(Long applicationId, Long productId, Long clientId, Long tenantId, ContextPath contextPath, List<Long> list) {
+        Assert.notNull(applicationId, "Application Id cannot be null");
+        Assert.notNull(productId, "Product Id cannot be null");
+        Assert.notNull(clientId, "Client Id cannot be null");
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        ApplicationDomainEnumerator enumerator = new ApplicationDomainEnumerator(applicationId, productId, clientId
+                , tenantId, contextPath);
+        while(enumerator.hasMoreElements()){
+            Long[] serviceIds = serviceIdsByDomainCacheManager.getSource(enumerator.nextElement());
+            if(serviceIds != null){
+                for(Long serviceId : serviceIds){
+                    list.add(serviceId);
+                }
+            }
+        }
     }
 
     /**
-     * List all available referee services of the application.
+     * List all common referee services of the application only, excluding customized ones.
      *
      * @param applicationId Application Id, cannot be <code>null</code>
      * @param list          List to referee services, cannot be <code>null</code>
      */
     @Override
-    public void listAllRefereeServices(Long applicationId, List<Service> list) {
+    public void listCommonRefereeServiceIds(Long applicationId, List<Long> list) {
+        Assert.notNull(applicationId, "Application Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        ApplicationDomain domain = new ApplicationDomain(applicationId, 0L, 0L
+                , 0L, null);
+        Long[] serviceIds = serviceIdsByDomainCacheManager.getSource(domain);
+        if(serviceIds != null){
+            for(Long serviceId : serviceIds){
+                list.add(serviceId);
+            }
+        }
+    }
+
+    /**
+     * List all referee services of the application only, including common ones and  customized ones.
+     *
+     * @param applicationId Application Id, cannot be <code>null</code>
+     * @param list          List to referee services, cannot be <code>null</code>
+     */
+    @Override
+    public void listAllRefereeServiceIds(Long applicationId, List<Long> list) {
+        Assert.notNull(applicationId, "Application Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
+
+        ApplicationDomain domain = new ApplicationDomain(applicationId, 0L, 0L
+                , 0L, null);
+        Long[] serviceIds = serviceIdsByIdCacheManager.getSource(applicationId);
+        if(serviceIds != null){
+            for(Long serviceId : serviceIds){
+                list.add(serviceId);
+            }
+        }
     }
 
     /**
@@ -222,7 +443,15 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      */
     @Override
     public void listServiceMethodsOfAction(Long actionId, List<ServiceMethod> list) {
+        Assert.notNull(actionId, "Action Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        DefaultServiceMethod[] methods = methodsByActionIdCacheManager.getSource(actionId);
+        if(methods != null){
+            for(DefaultServiceMethod method : methods){
+                list.add(method);
+            }
+        }
     }
 
     /**
@@ -233,6 +462,14 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      */
     @Override
     public void listServiceMethodsOfPage(Long pageId, List<ServiceMethod> list) {
+        Assert.notNull(pageId, "Page Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        DefaultServiceMethod[] methods = methodsByPageIdCacheManager.getSource(pageId);
+        if(methods != null){
+            for(DefaultServiceMethod method : methods){
+                list.add(method);
+            }
+        }
     }
 }

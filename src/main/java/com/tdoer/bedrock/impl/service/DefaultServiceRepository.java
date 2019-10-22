@@ -15,12 +15,13 @@
  */
 package com.tdoer.bedrock.impl.service;
 
-import com.tdoer.bedrock.application.Application;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.product.Client;
-import com.tdoer.bedrock.service.*;
+import com.tdoer.bedrock.service.ServiceMethod;
+import com.tdoer.bedrock.service.ServiceMethodNotFoundException;
+import com.tdoer.bedrock.service.ServiceNotFoundException;
+import com.tdoer.bedrock.service.ServiceRepository;
 import org.springframework.util.Assert;
 
 import java.util.List;
@@ -81,14 +82,14 @@ public class DefaultServiceRepository implements ServiceRepository {
      * Get the service of specific id.
      *
      * @param serviceId Service Id, cannot be <code>null</code>
-     * @return {@link Service}
+     * @return {@link DefaultService}
      * @throws ServiceNotFoundException if the service dose not exist or is disabled.
      */
     @Override
-    public Service getService(Long serviceId) throws ServiceNotFoundException {
+    public DefaultService getService(Long serviceId) throws ServiceNotFoundException {
         Assert.notNull(serviceId, "Service Id cannot be null");
 
-        Service service = serviceByIdCacheManager.getSource(serviceId);
+        DefaultService service = serviceByIdCacheManager.getSource(serviceId);
         if(service != null){
             return service;
         }else{
@@ -100,14 +101,14 @@ public class DefaultServiceRepository implements ServiceRepository {
      * Get the service according to its code.
      *
      * @param serviceCode Service code, cannot be <code>null</code>
-     * @return {@link Service}
+     * @return {@link DefaultService}
      * @throws ServiceNotFoundException if the service dose not exist or is disabled.
      */
     @Override
-    public Service getService(String serviceCode) throws ServiceNotFoundException {
+    public DefaultService getService(String serviceCode) throws ServiceNotFoundException {
         Assert.hasText(serviceCode, "Service code cannot be blank");
 
-        Service service = serviceByCodeCacheManager.getSource(serviceCode);
+        DefaultService service = serviceByCodeCacheManager.getSource(serviceCode);
         if(service != null){
             return service;
         }else{
@@ -184,15 +185,15 @@ public class DefaultServiceRepository implements ServiceRepository {
      *
      * @param serviceId Service Id, cannot be <code>null</code>
      * @param methodId Method Id, cannot be <code>null</code>
-     * @return {@link ServiceMethod} if found
+     * @return {@link DefaultServiceMethod} if found
      * @throws ServiceMethodNotFoundException if the service method dose not exist or is disabled.
      */
     @Override
-    public ServiceMethod getServiceMethod(Long serviceId, Long methodId) throws ServiceMethodNotFoundException {
+    public DefaultServiceMethod getServiceMethod(Long serviceId, Long methodId) throws ServiceMethodNotFoundException {
         Assert.notNull(serviceId, "Service Id cannot be null");
         Assert.notNull(methodId, "Service method Id cannot be null");
 
-        ServiceMethod ret = null;
+        DefaultServiceMethod ret = null;
         DefaultServiceMethod[] methods = methodsCacheManager.getSource(serviceId);
         if(methods != null){
             for(DefaultServiceMethod method : methods){

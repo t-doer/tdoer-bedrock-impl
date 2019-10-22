@@ -15,13 +15,12 @@
  */
 package com.tdoer.bedrock.impl.application;
 
-import com.tdoer.bedrock.context.ContextPath;
-import com.tdoer.bedrock.context.ContextPathParser;
 import com.tdoer.bedrock.impl.definition.application.ActionDefinition;
 import com.tdoer.bedrock.impl.definition.application.ApplicationDefinition;
 import com.tdoer.bedrock.impl.definition.application.PageDefinition;
-import com.tdoer.bedrock.impl.service.DefaultServiceMethod;
-import org.springframework.util.StringUtils;
+import com.tdoer.bedrock.impl.service.DefaultServiceRepository;
+import org.springframework.util.Assert;
+
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
@@ -29,13 +28,15 @@ import org.springframework.util.StringUtils;
 public class ApplicationBuilder {
     private DefaultApplicationRepository applicationRepository;
 
-    private ContextPathParser contextPathParser;
+    private DefaultServiceRepository serviceRepository;
 
-    public ApplicationBuilder(ContextPathParser contextPathParser) {
-        this.contextPathParser = contextPathParser;
+    public ApplicationBuilder(DefaultServiceRepository serviceRepository) {
+        Assert.notNull(serviceRepository, "Service repository cannot be null");
+        this.serviceRepository = serviceRepository;
     }
 
     public void setApplicationRepository(DefaultApplicationRepository applicationRepository) {
+        Assert.notNull(applicationRepository, "Application repository cannot be null");
         this.applicationRepository = applicationRepository;
     }
 
@@ -44,23 +45,15 @@ public class ApplicationBuilder {
         return new DefaultApplication(applicationDefinition, applicationRepository);
     }
 
-    public DefaultPage buildPage(PageDefinition pageDefinition, DefaultServiceMethod[] serviceMethods){
+    public DefaultPage buildPage(PageDefinition pageDefinition){
         // todo verify defnition
-        ContextPath contextPath = null;
-        if(StringUtils.hasText(pageDefinition.getContextPath())){
-            contextPath = contextPathParser.parse(pageDefinition.getContextPath());
 
-        }
-        return new DefaultPage(pageDefinition, contextPath, serviceMethods, applicationRepository);
+        return new DefaultPage(pageDefinition, applicationRepository);
     }
 
-    public DefaultAction buildAction(ActionDefinition actionDefinition, DefaultServiceMethod[] serviceMethods){
+    public DefaultAction buildAction(ActionDefinition actionDefinition){
         // todo verify defintion
-        ContextPath contextPath = null;
-        if(StringUtils.hasText(actionDefinition.getContextPath())){
-            contextPath = contextPathParser.parse(actionDefinition.getContextPath());
 
-        }
-        return new DefaultAction(actionDefinition, contextPath, serviceMethods);
+        return new DefaultAction(actionDefinition, applicationRepository);
     }
 }
