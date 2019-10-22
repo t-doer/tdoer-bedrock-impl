@@ -19,10 +19,12 @@ import com.tdoer.bedrock.impl.definition.product.ClientDefinition;
 import com.tdoer.bedrock.product.Client;
 import com.tdoer.bedrock.product.ClientCategory;
 import com.tdoer.bedrock.product.ClientConfig;
-import com.tdoer.bedrock.product.Product;
+import com.tdoer.bedrock.service.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @author Htinker Hu (htinker@163.com)
@@ -30,29 +32,44 @@ import java.util.ArrayList;
  */
 public class DefaultClient implements Client {
     private ClientDefinition definition;
+    private DefaultClientRole[] clientRoles;
     private DefaultClientConfig clientConfig;
-    private DefaultProductRepository productRepository;
 
-    public DefaultClient(ClientDefinition definition, DefaultClientConfig clientConfig, DefaultProductRepository productRepository) {
+    public DefaultClient(ClientDefinition definition, DefaultClientRole[] clientRoles,
+                         DefaultClientConfig clientConfig) {
+        Assert.notNull(definition, "Client definition cannot be null");
+        Assert.notNull(clientRoles, "Client roles cannot be null");
+        Assert.notNull(clientConfig, "Client config cannot be null");
+
         this.definition = definition;
+        this.clientRoles = clientRoles;
         this.clientConfig = clientConfig;
-        this.productRepository = productRepository;
     }
 
     /**
      * Client Id
      *
-     * @return
+     * @return Client Id, must not be <code>null</code>
      */
     @Override
-    public String getId() {
+    public Long getId() {
         return definition.getId();
+    }
+
+    /**
+     * Client code
+     *
+     * @return Client code, must not be blank
+     */
+    @Override
+    public String getCode() {
+        return definition.getCode();
     }
 
     /**
      * Client name
      *
-     * @return
+     * @return Client name, must not be blank
      */
     @Override
     public String getName() {
@@ -60,19 +77,19 @@ public class DefaultClient implements Client {
     }
 
     /**
-     * The product the client belongs to
+     * The Id of the product to which the client belongs
      *
-     * @return
+     * @return Product Id, must not be <code>null</code>
      */
     @Override
-    public Product getProduct() {
-        return productRepository.getProduct(definition.getProductId());
+    public Long getProductId() {
+        return definition.getProductId();
     }
 
     /**
-     * Clent category
+     * Clent category, B_END or C_END
      *
-     * @return
+     * @return Client category, must not be <code>null</code>
      */
     @Override
     public ClientCategory getCategory() {
@@ -80,19 +97,9 @@ public class DefaultClient implements Client {
     }
 
     /**
-     * Client secret
-     *
-     * @return
-     */
-    @Override
-    public String getSecret() {
-        return definition.getSecret();
-    }
-
-    /**
      * The client's access scopes
      *
-     * @return
+     * @return The client's access scopes
      */
     @Override
     public String[] getScopes() {
@@ -100,62 +107,64 @@ public class DefaultClient implements Client {
     }
 
     /**
-     * The client's grant types
+     * The client's roles that it can plays to services
      *
-     * @return
-     */
-    @Override
-    public String[] getGrantTypes() {
-        return StringUtils.delimitedListToStringArray(definition.getGrantTypes(), ",");
-    }
-
-    /**
-     * The client's auto approval's scope
-     *
-     * @return
-     */
-    @Override
-    public String[] getAutoApprovals() {
-        return StringUtils.delimitedListToStringArray(definition.getAutoApprovals(), ",");
-    }
-
-    /**
-     * The client's authorities or roles that it can plays as in its product
-     *
-     * @return
+     * @return Client's roles
      */
     @Override
     public DefaultClientRole[] getRoles() {
-        DefaultClientRole[] ret = null;
-        String[] arr = StringUtils.delimitedListToStringArray(definition.getAuthorities(), ",");
-        if(arr != null){
-            ArrayList<DefaultClientRole> list = new ArrayList<>(arr.length);
-            for(String auth : arr){
-                list.add(new DefaultClientRole(getId(), auth, auth));
-            }
-            ret = new DefaultClientRole[list.size()];
-            list.toArray(ret);
-        }
-        return ret;
+        return Arrays.copyOf(clientRoles, clientRoles.length);
     }
 
     /**
-     * Whether the client can be trusted or not
+     * Whether the client can be trusted or not. If a client program
+     * is developed by 3rd-party, usually the client should not be trusted,
+     * and conduct strict access policy
      *
-     * @return
+     * @return true if the client is trusted
      */
     @Override
     public boolean isTrusted() {
-        return !("N".equalsIgnoreCase(definition.getTrusted()));
+        return "Y".equalsIgnoreCase(definition.getTrusted());
     }
 
     /**
-     * Client configuration
+     * Client configuration, for example, installed applications, services,
+     * and access token configuration.
      *
-     * @return
+     * @return Client configuration, must not be <code>null</code>
      */
     @Override
     public ClientConfig getClientConfig() {
         return clientConfig;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null){
+            return false;
+        }
+        if(obj == this){
+            return true;
+        }
+        if(obj instanceof Service){
+            return this.getId().equals(((Client) obj).getId());
+        }
+
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Client[");
+        sb.append(getId()).append(", ");
+        sb.append(getProductId()).append(", ");
+        sb.append(getCode()).append(", ");
+        sb.append(getName()).append(", ");
+        sb.append(getCategory()).append(", ");
+        sb.append(isTrusted());
+        sb.append("]");
+        return sb.toString();
     }
 }

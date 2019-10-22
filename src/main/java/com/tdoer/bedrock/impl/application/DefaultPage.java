@@ -18,9 +18,11 @@ package com.tdoer.bedrock.impl.application;
 import com.tdoer.bedrock.CloudEnvironment;
 import com.tdoer.bedrock.Platform;
 import com.tdoer.bedrock.application.Action;
+import com.tdoer.bedrock.application.Application;
 import com.tdoer.bedrock.application.ApplicationRepository;
 import com.tdoer.bedrock.application.Page;
 import com.tdoer.bedrock.impl.definition.application.PageDefinition;
+import com.tdoer.bedrock.service.Service;
 import com.tdoer.bedrock.service.ServiceMethod;
 import org.springframework.util.Assert;
 
@@ -170,6 +172,21 @@ public class DefaultPage implements Page {
     @Override
     public Long getId() {
         return pageDefinition.getId();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null){
+            return false;
+        }
+        if(obj == this){
+            return true;
+        }
+        if(obj instanceof Service){
+            return this.getId().equals(((Page) obj).getId());
+        }
+
+        return false;
     }
 
     @Override

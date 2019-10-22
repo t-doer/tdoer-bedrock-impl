@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.service;
+package com.tdoer.bedrock.impl.service.cache;
 
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
+import com.tdoer.bedrock.impl.service.DefaultService;
+import com.tdoer.bedrock.impl.service.ServiceLoader;
 import com.tdoer.springboot.error.ErrorCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,50 +31,50 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_SERVIC
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class RefereeServiceIdsCacheManager extends AbstractCacheManager<Long, Long[]> {
+public class ServiceByCodeCacheManager extends AbstractCacheManager<String, DefaultService> {
     protected ServiceLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(RefereeServiceIdsCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(ServiceByCodeCacheManager.class);
 
-    public RefereeServiceIdsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
+    public ServiceByCodeCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ServiceLoader cannot be null");
         this.loader = loader;
-        logger.info("RefereeServiceIdsCacheManager is initialized");
+        logger.info("ServiceByCodeCacheManager is initialized");
     }
 
     @Override
-    protected Long[] loadSource(Long serviceId) throws ErrorCodeException {
+    protected DefaultService loadSource(String serviceCode) throws ErrorCodeException {
         try{
-            logger.info("Loading referee service Ids of service Id ({}) ...", serviceId);
-            Long[] ret = loader.loadRefereeServiceIds(serviceId);
-            logger.info("Loaded {} referee service Ids of service Id ({}): {}", ret.length, serviceId);
+            logger.info("Loading service of code ({}) ...", serviceCode);
+            DefaultService ret = loader.loadService(serviceCode);
+            logger.info("Loaded service of code ({}): {}", serviceCode, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load referee service Ids of service Id ({})", serviceId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceId);
+            logger.error("Failed to load service of code ({})", serviceCode, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceCode);
         }
     }
 
     @Override
-    protected void destroySource(Long[] serviceIds) {
+    protected void destroySource(DefaultService defaultService) {
         // do nothing here
     }
 
     @Override
-    protected Long[] reloadSource(Long serviceId, Long[] oldSource) throws ErrorCodeException {
+    protected DefaultService reloadSource(String serviceCode, DefaultService oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading referee service Ids of service Id ({}) ...", serviceId);
-            Long[] ret = loader.loadRefereeServiceIds(serviceId);
-            logger.info("Reloaded {} referee service Ids of service Id ({}): {}", ret.length, serviceId);
+            logger.info("Reloading service of code ({}) ...", serviceCode);
+            DefaultService ret = loader.loadService(serviceCode);
+            logger.info("Reloaded service of code ({}): {}", serviceCode, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload referee service Ids of service Id ({})", serviceId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceId);
+            logger.error("Failed to reload service of code ({})", serviceCode, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceCode);
         }
     }
 }

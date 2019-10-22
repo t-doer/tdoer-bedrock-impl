@@ -13,27 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.domain;
+package com.tdoer.bedrock.impl.product;
 
 import com.tdoer.bedrock.impl.application.ApplicationDomain;
+import com.tdoer.bedrock.impl.domain.DomainType;
+import com.tdoer.bedrock.impl.domain.ExtensionDomain;
 import org.springframework.util.Assert;
 
 /**
+ * Client domain is used for search client configuration
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ClientDomain extends ExtensionDomain<ClientDomain> {
+public class ClientDomain {
 
-    protected String clientId;
+    protected Long clientId;
     protected Long tenantId;
 
-    public ClientDomain(String clientId, Long tenantId) {
+    public ClientDomain(Long clientId, Long tenantId) {
         Assert.notNull(clientId, "Client ID cannot be null");
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+
         this.clientId = clientId;
         this.tenantId = tenantId;
     }
 
-    public String getClientId() {
+    public Long getClientId() {
         return clientId;
     }
 
@@ -41,30 +46,6 @@ public class ClientDomain extends ExtensionDomain<ClientDomain> {
         return tenantId;
     }
 
-    @Override
-    public DomainType getType() {
-        return DomainType.PRODUCT;
-    }
-
-    /**
-     * Suppose current client domain is [clientId: tenantId]
-     * is [cc-engineer-app: 1], next lookup sequence will be:
-     * <ol>
-     *     <li>[cc-engineer-app: 1]</li>
-     *     <li>[cc-engineer-app: 0]</li>
-     *     <li>null</li>
-     * </ol>
-     *
-     * @return
-     */
-    @Override
-    public ClientDomain nextLookup() {
-        if(tenantId != null && !tenantId.equals(0L)){
-            return new ClientDomain(clientId, 0L);
-        }else{
-            return null;
-        }
-    }
     @Override
     public int hashCode() {
         return toString().hashCode();
@@ -78,7 +59,7 @@ public class ClientDomain extends ExtensionDomain<ClientDomain> {
         if(this == obj){
             return true;
         }
-        if(obj instanceof ApplicationDomain){
+        if(obj instanceof ClientDomain){
             return toString().equals(obj.toString());
         }
         return false;
@@ -87,7 +68,7 @@ public class ClientDomain extends ExtensionDomain<ClientDomain> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("[");
+        sb.append("ClientDomain[");
         sb.append(clientId).append(": ");
         sb.append(tenantId);
         sb.append("]");

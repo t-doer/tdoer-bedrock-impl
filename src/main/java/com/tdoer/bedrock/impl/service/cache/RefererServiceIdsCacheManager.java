@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.service;
+package com.tdoer.bedrock.impl.service.cache;
 
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
+import com.tdoer.bedrock.impl.service.ServiceLoader;
 import com.tdoer.springboot.error.ErrorCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,49 +30,49 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_SERVIC
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ServiceByIdCacheManager extends AbstractCacheManager<Long, DefaultService> {
+public class RefererServiceIdsCacheManager extends AbstractCacheManager<Long, Long[]> {
     protected ServiceLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(ServiceByIdCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(RefererServiceIdsCacheManager.class);
 
-    public ServiceByIdCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
+    public RefererServiceIdsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ServiceLoader loader){
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ServiceLoader cannot be null");
         this.loader = loader;
-        logger.info("ServiceByIdCacheManager is initialized");
+        logger.info("RefererServiceIdsCacheManager is initialized");
     }
 
     @Override
-    protected DefaultService loadSource(Long serviceId) throws ErrorCodeException {
+    protected Long[] loadSource(Long serviceId) throws ErrorCodeException {
         try{
-            logger.info("Loading service of Id ({}) ...", serviceId);
-            DefaultService ret = loader.loadService(serviceId);
-            logger.info("Loaded service of Id ({}): {}", serviceId, ret);
+            logger.info("Loading referer service Ids of service Id ({}) ...", serviceId);
+            Long[] ret = loader.loadRefererServiceIds(serviceId);
+            logger.info("Loaded {} referer service Ids of service Id ({}): {}", ret.length, serviceId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load service of Id ({})", serviceId, t);
+            logger.error("Failed to load referer service Ids of service Id ({})", serviceId, t);
             throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceId);
         }
     }
 
     @Override
-    protected void destroySource(DefaultService defaultService) {
+    protected void destroySource(Long[] serviceIds) {
         // do nothing here
     }
 
     @Override
-    protected DefaultService reloadSource(Long serviceId, DefaultService oldSource) throws ErrorCodeException {
+    protected Long[] reloadSource(Long serviceId, Long[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading service of Id ({}) ...", serviceId);
-            DefaultService ret = loader.loadService(serviceId);
-            logger.info("Reloaded service of Id ({}): {}", serviceId, ret);
+            logger.info("Reloading referer service Ids of service Id ({}) ...", serviceId);
+            Long[] ret = loader.loadRefererServiceIds(serviceId);
+            logger.info("Reloaded {} referer service Ids of service Id ({}): {}", ret.length, serviceId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload service of Id ({})", serviceId, t);
+            logger.error("Failed to reload referer service Ids of service Id ({})", serviceId, t);
             throw new ErrorCodeException(FAILED_TO_LOAD_SERVICE, t, serviceId);
         }
     }

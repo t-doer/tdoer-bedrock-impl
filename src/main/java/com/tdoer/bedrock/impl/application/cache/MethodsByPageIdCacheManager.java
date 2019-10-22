@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.application;
+package com.tdoer.bedrock.impl.application.cache;
 
+import com.tdoer.bedrock.impl.application.ApplicationLoader;
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
@@ -30,30 +31,30 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_SERVIC
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class MethodsByActionIdCacheManager extends AbstractCacheManager<Long, DefaultServiceMethod[]> {
+public class MethodsByPageIdCacheManager extends AbstractCacheManager<Long, DefaultServiceMethod[]> {
     protected ApplicationLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(MethodsByActionIdCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(MethodsByPageIdCacheManager.class);
 
-    public MethodsByActionIdCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader) {
+    public MethodsByPageIdCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader) {
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ApplicationLoader cannot be null");
         this.loader = loader;
-        logger.info("MethodsByActionIdCacheManager is initialized");
+        logger.info("MethodsByPageIdCacheManager is initialized");
     }
 
     @Override
-    protected DefaultServiceMethod[] loadSource(Long actionId) throws ErrorCodeException {
+    protected DefaultServiceMethod[] loadSource(Long pageId) throws ErrorCodeException {
         try{
-            logger.info("Loading service methods for the action Id: {} ...", actionId);
-            DefaultServiceMethod[] ret = loader.loadServiceMethodsOfAction(actionId);
-            logger.info("Loaded {} service methods for the action Id: {}.", ret.length, actionId);
+            logger.info("Loading service methods for the page Id: {} ...", pageId);
+            DefaultServiceMethod[] ret = loader.loadServiceMethodsOfPage(pageId);
+            logger.info("Loaded {} service methods for the page Id: {}.", ret.length, pageId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load service methods for the action Id: {}", actionId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICES, t, actionId);
+            logger.error("Failed to load service methods for the page Id: {}", pageId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICES, t, pageId);
         }
     }
 
@@ -63,17 +64,17 @@ public class MethodsByActionIdCacheManager extends AbstractCacheManager<Long, De
     }
 
     @Override
-    protected DefaultServiceMethod[] reloadSource(Long actionId, DefaultServiceMethod[] oldSource) throws ErrorCodeException {
+    protected DefaultServiceMethod[] reloadSource(Long pageId, DefaultServiceMethod[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading service methods for the action Id: {} ...", actionId);
-            DefaultServiceMethod[] ret = loader.loadServiceMethodsOfAction(actionId);
-            logger.info("Reloaded {} service methods for the action Id: {}.", ret.length, actionId);
+            logger.info("Reloading service methods for the page Id: {} ...", pageId);
+            DefaultServiceMethod[] ret = loader.loadServiceMethodsOfPage(pageId);
+            logger.info("Reloaded {} service methods for the page Id: {}.", ret.length, pageId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload service Ids for the application: Id {}", actionId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICES, t, actionId);
+            logger.error("Failed to reload service Ids for the application: Id {}", pageId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_SERVICES, t, pageId);
         }
     }
 }

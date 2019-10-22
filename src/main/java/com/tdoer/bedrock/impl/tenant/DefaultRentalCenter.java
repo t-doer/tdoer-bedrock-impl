@@ -17,7 +17,7 @@ package com.tdoer.bedrock.impl.tenant;
 
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.impl.domain.ClientDomain;
+import com.tdoer.bedrock.impl.product.ClientDomain;
 import com.tdoer.bedrock.impl.domain.ProductDomain;
 import com.tdoer.bedrock.tenant.RentalCenter;
 

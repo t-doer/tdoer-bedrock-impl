@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.product;
+package com.tdoer.bedrock.impl.product.cache;
 
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
+import com.tdoer.bedrock.impl.product.DefaultProduct;
+import com.tdoer.bedrock.impl.product.ProductLoader;
 import com.tdoer.springboot.error.ErrorCodeException;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_PRODUCT;
@@ -26,26 +28,28 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_PRODUC
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ProductCacheManager extends AbstractCacheManager<String, DefaultProduct> {
+public class ProductByCodeCacheManager extends AbstractCacheManager<String, DefaultProduct> {
+
     private ProductLoader productLoader;
 
-    public ProductCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ProductLoader productLoader) {
+    public ProductByCodeCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ProductLoader productLoader) {
         super(cachePolicy, cleaner);
+
         this.productLoader = productLoader;
     }
 
     @Override
-    protected DefaultProduct loadSource(String productId) throws ErrorCodeException {
+    protected DefaultProduct loadSource(String productCode) throws ErrorCodeException {
         try{
-            logger.info("Loading product of Id ({}) ...", productId);
-            DefaultProduct ret = productLoader.loadProduct(productId);
-            logger.info("Loaded product of Id ({}): {}", productId, ret);
+            logger.info("Loading product of code ({}) ...", productCode);
+            DefaultProduct ret = productLoader.loadProduct(productCode);
+            logger.info("Loaded product of code ({}): {}", productCode, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load product of Id ({})", productId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_PRODUCT, t, productId);
+            logger.error("Failed to load product of code ({})", productCode, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_PRODUCT, t, productCode);
         }
     }
 
@@ -55,17 +59,17 @@ public class ProductCacheManager extends AbstractCacheManager<String, DefaultPro
     }
 
     @Override
-    protected DefaultProduct reloadSource(String productId, DefaultProduct oldSource) throws ErrorCodeException {
+    protected DefaultProduct reloadSource(String productCode, DefaultProduct oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading product of Id ({}) ...", productId);
-            DefaultProduct ret = productLoader.loadProduct(productId);
-            logger.info("Reloaded product of Id ({}): {}", productId, ret);
+            logger.info("Reloading product of code ({}) ...", productCode);
+            DefaultProduct ret = productLoader.loadProduct(productCode);
+            logger.info("Reloaded product of code ({}): {}", productCode, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload product of Id ({})", productId, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_PRODUCT, t, productId);
+            logger.error("Failed to reload product of code ({})", productCode, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_PRODUCT, t, productCode);
         }
     }
 }

@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.product;
+package com.tdoer.bedrock.impl.product.cache;
 
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.impl.domain.ClientDomain;
+import com.tdoer.bedrock.impl.product.ClientDomain;
+import com.tdoer.bedrock.impl.product.DefaultTokenConfig;
+import com.tdoer.bedrock.impl.product.ProductLoader;
 import com.tdoer.springboot.error.ErrorCodeException;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_TOKEN_CONFIG;
@@ -39,7 +41,7 @@ public class TokenConfigCacheManager extends AbstractCacheManager<ClientDomain, 
     protected DefaultTokenConfig loadSource(ClientDomain clientDomain) throws ErrorCodeException {
         try{
             logger.info("Loading token config for the client domain {} ...", clientDomain);
-            DefaultTokenConfig ret = productLoader.loadTokenConfig(clientDomain.getClientId(), clientDomain.getTenantId());
+            DefaultTokenConfig ret = productLoader.loadTokenConfig(clientDomain);
             logger.info("Loaded token config for the client domain {}.", clientDomain, ret);
             return ret;
         } catch (ErrorCodeException ece) {
@@ -59,7 +61,7 @@ public class TokenConfigCacheManager extends AbstractCacheManager<ClientDomain, 
     protected DefaultTokenConfig reloadSource(ClientDomain clientDomain, DefaultTokenConfig oldSource) throws ErrorCodeException {
         try{
             logger.info("Reloading token config for the client domain {} ...", clientDomain);
-            DefaultTokenConfig ret = productLoader.loadTokenConfig(clientDomain.getClientId(), clientDomain.getTenantId());
+            DefaultTokenConfig ret = productLoader.loadTokenConfig(clientDomain);
             logger.info("Reloaded token config for the client domain {}.", clientDomain, ret);
             return ret;
         } catch (ErrorCodeException ece) {

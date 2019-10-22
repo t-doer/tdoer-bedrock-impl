@@ -16,11 +16,13 @@
 package com.tdoer.bedrock.impl.application;
 
 import com.tdoer.bedrock.application.Action;
+import com.tdoer.bedrock.application.Application;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.definition.application.ActionDefinition;
 import com.tdoer.bedrock.impl.service.DefaultServiceMethod;
 import com.tdoer.bedrock.resource.ResourceCategory;
 import com.tdoer.bedrock.resource.ResourceType;
+import com.tdoer.bedrock.service.Service;
 import com.tdoer.bedrock.service.ServiceMethod;
 import org.springframework.util.Assert;
 
@@ -103,6 +105,21 @@ public class DefaultAction implements Action {
     @Override
     public Long getId() {
         return actionDefinition.getId();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null){
+            return false;
+        }
+        if(obj == this){
+            return true;
+        }
+        if(obj instanceof Service){
+            return this.getId().equals(((Action) obj).getId());
+        }
+
+        return false;
     }
 
     @Override

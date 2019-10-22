@@ -32,21 +32,81 @@ public class DefaultTokenConfig implements TokenConfig {
         this.definition = definition;
     }
 
+    /**
+     * Client Id
+     *
+     * @return Client Id, must not be <code>null</code>
+     */
     @Override
-    public String[] getWebRedirectURIs() {
-        return StringUtils.delimitedListToStringArray(definition.getWebRedirectURI(),",");
+    public Long getClientId() {
+        return definition.getClientId();
     }
 
+    /**
+     * Tenant Id
+     *
+     * @return Tenant Id, must not be <code>null</code>
+     */
+    @Override
+    public Long getTenantId() {
+        return definition.getTenantId();
+    }
+
+    /**
+     * The client's grant types, for example, authorization_code, password etc.
+     *
+     * @return token grant type, must not be empty
+     */
+    @Override
+    public String[] getGrantTypes() {
+        return StringUtils.commaDelimitedListToStringArray(definition.getGrantTypes());
+    }
+
+    /**
+     * The client's auto approval's scope
+     *
+     * @return Auto approval, must not be empty
+     */
+    @Override
+    public String[] getAutoApprovals() {
+        return StringUtils.commaDelimitedListToStringArray(definition.getAutoApprovals());
+    }
+
+    /**
+     * The redirection URI once user's access token is granted
+     *
+     * @return Redirection URI, may be blank
+     */
+    @Override
+    public String getWebRedirectURI() {
+        return definition.getWebRedirectURI();
+    }
+
+    /**
+     * Access token's validity duration in seconds.
+     *
+     * @return Validity duration, must not be <code>null</code>
+     */
     @Override
     public Integer getAccessTokenValidityInSeconds() {
         return definition.getAccessTokenValidity();
     }
 
+    /**
+     * Refresh token's validity duration in seconds.
+     *
+     * @return Validity duration, must not be <code>null</code>
+     */
     @Override
     public Integer getRefreshTokenValidityInSeconds() {
         return definition.getRefreshTokenValidity();
     }
 
+    /**
+     * Session policy
+     *
+     * @return Session policy, must not be <code>null</code>
+     */
     @Override
     public SessionPolicy getSessionPolicy() {
         return SessionPolicy.resolve(definition.getSessionPolicty());

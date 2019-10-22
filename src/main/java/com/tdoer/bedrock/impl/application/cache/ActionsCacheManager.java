@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.application;
+package com.tdoer.bedrock.impl.application.cache;
 
+import com.tdoer.bedrock.impl.application.ApplicationLoader;
+import com.tdoer.bedrock.impl.application.DefaultAction;
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
@@ -24,55 +26,54 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_ACTIONS;
-
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ActionIdsCacheManager extends AbstractCacheManager<PageDomain, Long[]> {
+public class ActionsCacheManager extends AbstractCacheManager<Long, DefaultAction[]> {
     protected ApplicationLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(ActionIdsCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(ActionsCacheManager.class);
 
-    public ActionIdsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader) {
+    public ActionsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader) {
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ApplicationLoader cannot be null");
         this.loader = loader;
-        logger.info("ActionIdsCacheManager is initialized");
+        logger.info("ActionsCacheManager is initialized");
     }
 
     @Override
-    protected Long[] loadSource(PageDomain pageDomain) throws ErrorCodeException {
+    protected DefaultAction[] loadSource(Long pageId) throws ErrorCodeException {
         try {
-            logger.info("Loading action Ids for the page domain {} ...", pageDomain);
-            Long[] ret = loader.loadActionIds(pageDomain);
-            logger.info("Loaded action Ids for the page domain {}: ", pageDomain, ret);
+            logger.info("Loading actions of the page Id: {} ...", pageId);
+            DefaultAction[] ret = loader.loadAllActions(pageId);
+            logger.info("Loaded {} actions of the page Id: {}", ret.length, pageId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load action Ids for the page domain {}", pageDomain, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_ACTIONS, t, pageDomain);
+            logger.error("Failed to load actions of the page Id: " + pageId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_ACTIONS, t, pageId);
         }
     }
 
     @Override
-    protected void destroySource(Long[] defaultPages) {
+    protected void destroySource(DefaultAction[] defaultPages) {
         // do nothing here
     }
 
     @Override
-    protected Long[] reloadSource(PageDomain pageDomain, Long[] oldSource) throws ErrorCodeException {
+    protected DefaultAction[] reloadSource(Long pageId, DefaultAction[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading action Ids for the page domain {} ...", pageDomain);
-            Long[] ret = loader.loadActionIds(pageDomain);
-            logger.info("Reloaded action Ids for the page domain {}: ", pageDomain, ret);
+            logger.info("Reloading actions of the page Id: {} ...", pageId);
+            DefaultAction[] ret = loader.loadAllActions(pageId);
+            logger.info("Reloaded {} actions of the page Id: {}", ret.length, pageId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload action Ids for the page domain {}", pageDomain, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_ACTIONS, t, pageDomain);
+            logger.error("Failed to reload actions of the page Id: " + pageId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_ACTIONS, t, pageId);
         }
     }
 }

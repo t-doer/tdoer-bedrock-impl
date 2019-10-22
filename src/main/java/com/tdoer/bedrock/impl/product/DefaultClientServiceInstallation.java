@@ -15,39 +15,38 @@
  */
 package com.tdoer.bedrock.impl.product;
 
-import com.tdoer.bedrock.application.Application;
-import com.tdoer.bedrock.impl.application.DefaultApplication;
-import com.tdoer.bedrock.impl.application.DefaultApplicationRepository;
-import com.tdoer.bedrock.impl.definition.product.ClientApplicationDefinition;
-import com.tdoer.bedrock.product.ClientApplicationInstallation;
+import com.tdoer.bedrock.impl.definition.product.ClientServiceDefinition;
+import com.tdoer.bedrock.impl.service.DefaultServiceRepository;
+import com.tdoer.bedrock.product.ClientServiceInstallation;
+import com.tdoer.bedrock.service.Service;
 
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class DefaultClientApplicationInstallation implements ClientApplicationInstallation {
+public class DefaultClientServiceInstallation implements ClientServiceInstallation {
 
-    private ClientApplicationDefinition definition;
+    private ClientServiceDefinition definition;
 
-    private DefaultApplicationRepository applicationRepository;
+    private DefaultServiceRepository serviceRepository;
 
-    public DefaultClientApplicationInstallation(ClientApplicationDefinition definition, DefaultApplicationRepository applicationRepository) {
+    public DefaultClientServiceInstallation(ClientServiceDefinition definition, DefaultServiceRepository serviceRepository) {
         this.definition = definition;
-        this.applicationRepository = applicationRepository;
+        this.serviceRepository = serviceRepository;
     }
 
     /**
-     * The Id of the installed application
+     * The Id of installed service
      *
      * @return Application Id, must not be <code>null</code>
      */
     @Override
-    public Long getApplicationId() {
-        return definition.getApplicationId();
+    public Long getServiceId() {
+        return definition.getServiceId();
     }
 
     /**
-     * The Id of the client in which the application is installed
+     * The Id of the client in which the service is installed
      *
      * @return Client Id, it must not be <code>null</code>
      */
@@ -57,7 +56,7 @@ public class DefaultClientApplicationInstallation implements ClientApplicationIn
     }
 
     /**
-     * The Id of the tenant, in which the application is installed specifically
+     * The Id of the tenant, in which the service is installed specifically
      *
      * @return Tenant Id, it must not be <code>null</code>, but it may be zero.
      */
@@ -67,12 +66,12 @@ public class DefaultClientApplicationInstallation implements ClientApplicationIn
     }
 
     /**
-     * The installed application
+     * Get the installed service
      *
-     * @return the installed application, it must not be <code>null</code>
+     * @return The installed service
      */
     @Override
-    public Application getApplication() {
-        return applicationRepository.getApplication(getApplicationId());
+    public Service getService() {
+        return serviceRepository.getService(definition.getServiceId());
     }
 }

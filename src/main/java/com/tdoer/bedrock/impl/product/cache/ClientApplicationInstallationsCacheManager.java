@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.product;
+package com.tdoer.bedrock.impl.product.cache;
 
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.impl.domain.ProductDomain;
+import com.tdoer.bedrock.impl.product.ClientDomain;
+import com.tdoer.bedrock.impl.product.DefaultClientApplicationInstallation;
+import com.tdoer.bedrock.impl.product.ProductLoader;
 import com.tdoer.springboot.error.ErrorCodeException;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_CLIENT_APPLICATION_INSTALLATIONS;
@@ -27,7 +29,8 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_CLIENT
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ClientApplicationInstallationsCacheManager extends AbstractCacheManager<ProductDomain, DefaultClientApplicationInstallation[]> {
+public class ClientApplicationInstallationsCacheManager extends AbstractCacheManager<ClientDomain,
+        DefaultClientApplicationInstallation[]> {
     private ProductLoader productLoader;
 
     public ClientApplicationInstallationsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ProductLoader productLoader) {
@@ -36,16 +39,16 @@ public class ClientApplicationInstallationsCacheManager extends AbstractCacheMan
     }
 
     @Override
-    protected DefaultClientApplicationInstallation[] loadSource(ProductDomain domain) throws ErrorCodeException {
+    protected DefaultClientApplicationInstallation[] loadSource(ClientDomain domain) throws ErrorCodeException {
         try{
-            logger.info("Loading client application installations of product domain ({}) ...", domain);
-            DefaultClientApplicationInstallation[] ret = productLoader.loadApplicationInstallations(domain.getProductId(), domain.getClientId(), domain.getTenantId());
-            logger.info("Loaded client application installations of product domain ({}): {}", domain, ret);
+            logger.info("Loading client application installations of domain ({}) ...", domain);
+            DefaultClientApplicationInstallation[] ret = productLoader.loadApplicationInstallations(domain);
+            logger.info("Loaded {} client application installations of domain ({})", ret.length, domain);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load client application installations of product domain ({})", domain, t);
+            logger.error("Failed to load client application installations of domain ({})", domain, t);
             throw new ErrorCodeException(FAILED_TO_LOAD_CLIENT_APPLICATION_INSTALLATIONS, t, domain);
         }
         
@@ -57,16 +60,16 @@ public class ClientApplicationInstallationsCacheManager extends AbstractCacheMan
     }
 
     @Override
-    protected DefaultClientApplicationInstallation[] reloadSource(ProductDomain domain, DefaultClientApplicationInstallation[] oldSource) throws ErrorCodeException {
+    protected DefaultClientApplicationInstallation[] reloadSource(ClientDomain domain, DefaultClientApplicationInstallation[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading client application installations of product domain ({}) ...", domain);
-            DefaultClientApplicationInstallation[] ret = productLoader.loadApplicationInstallations(domain.getProductId(), domain.getClientId(), domain.getTenantId());
-            logger.info("Reloaded client application installations of product domain ({}): {}", domain, ret);
+            logger.info("Reloading client application installations of domain ({}) ...", domain);
+            DefaultClientApplicationInstallation[] ret = productLoader.loadApplicationInstallations(domain);
+            logger.info("Reloaded {} client application installations of domain ({}): {}", ret.length, domain);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload client application installations of product domain ({})", domain, t);
+            logger.error("Failed to reload client application installations of domain ({})", domain, t);
             throw new ErrorCodeException(FAILED_TO_LOAD_CLIENT_APPLICATION_INSTALLATIONS, t, domain);
         }
     }

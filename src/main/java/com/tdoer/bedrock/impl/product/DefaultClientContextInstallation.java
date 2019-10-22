@@ -17,7 +17,7 @@ package com.tdoer.bedrock.impl.product;
 
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.definition.product.ClientContextDefinition;
-import com.tdoer.bedrock.product.ContextInstallation;
+import com.tdoer.bedrock.product.ClientContextInstallation;
 import com.tdoer.springboot.util.LocaleUtil;
 
 import java.util.Locale;
@@ -26,48 +26,73 @@ import java.util.Locale;
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class DefaultContextInstallation implements ContextInstallation {
+public class DefaultClientContextInstallation implements ClientContextInstallation {
     private ClientContextDefinition definition;
 
     private ContextPath contextPath;
 
-    public DefaultContextInstallation(ClientContextDefinition definition, ContextPath contextPath) {
+    public DefaultClientContextInstallation(ClientContextDefinition definition, ContextPath contextPath) {
         this.definition = definition;
         this.contextPath = contextPath;
     }
 
+    /**
+     * The Id of the client in which the context is installed
+     *
+     * @return Client Id, it must not be <code>null</code>
+     */
     @Override
-    public String getProductId() {
-        return definition.getProductId();
-    }
-
-    @Override
-    public String getClientId() {
+    public Long getClientId() {
         return definition.getClientId();
     }
 
+    /**
+     * The Id of the tenant, in which the context is installed specifically
+     *
+     * @return Tenant Id, it must not be <code>null</code>, but it may be zero.
+     */
     @Override
     public Long getTenantId() {
         return definition.getTenantId();
     }
 
+    /**
+     * Default entry application code
+     *
+     * @return Application code, it must not be blank
+     */
     @Override
-    public ContextPath getContextPath() {
-        return contextPath;
+    public String getEntryApplicationCode() {
+        return definition.getEntryAppCode();
     }
 
-    @Override
-    public String getEntryApplicationId() {
-        return definition.getEntryApplicationId();
-    }
-
+    /**
+     * Default entry nav item
+     *
+     * @return Navigation item's node Id, it must not be blank
+     */
     @Override
     public String getEntryNavItem() {
         return definition.getEntryNavItem();
     }
 
+    /**
+     * Default entry language
+     *
+     * @return Language, it must not be <code>null</code>
+     */
     @Override
     public Locale getEntryLanguage() {
         return LocaleUtil.getLocale(definition.getEntryLanguage());
+    }
+
+    /**
+     * The context type which is installed
+     *
+     * @return Context path of context type, must not be <code>null</code>
+     */
+    @Override
+    public ContextPath getContextPath() {
+        return contextPath;
     }
 }

@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.product;
+package com.tdoer.bedrock.impl.product.cache;
 
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.impl.domain.ProductDomain;
+import com.tdoer.bedrock.impl.product.ClientDomain;
+import com.tdoer.bedrock.impl.product.DefaultClientContextInstallation;
+import com.tdoer.bedrock.impl.product.ProductLoader;
 import com.tdoer.springboot.error.ErrorCodeException;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_CONTEXT_INSTALLATIONS;
@@ -27,45 +29,45 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_CONTEX
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ContextInstallationsCacheManager extends AbstractCacheManager<ProductDomain, DefaultContextInstallation[]> {
+public class ClientContextInstallationsCacheManager extends AbstractCacheManager<ClientDomain, DefaultClientContextInstallation[]> {
     private ProductLoader productLoader;
 
-    public ContextInstallationsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ProductLoader productLoader) {
+    public ClientContextInstallationsCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ProductLoader productLoader) {
         super(cachePolicy, cleaner);
         this.productLoader = productLoader;
     }
 
     @Override
-    protected DefaultContextInstallation[] loadSource(ProductDomain domain) throws ErrorCodeException {
+    protected DefaultClientContextInstallation[] loadSource(ClientDomain domain) throws ErrorCodeException {
         try{
-            logger.info("Loading context installations for the product domain {} ...", domain);
-            DefaultContextInstallation[] ret = productLoader.loadContextInstallations(domain.getProductId(), domain.getClientId(), domain.getTenantId());
-            logger.info("Loaded context installations for the product domain {}: {}", domain, ret);
+            logger.info("Loading client context installations for the domain {} ...", domain);
+            DefaultClientContextInstallation[] ret = productLoader.loadContextInstallations(domain);
+            logger.info("Loaded {} client context installations for the domain {}", ret.length, domain);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to load context installations for the product domain {}", domain, t);
+            logger.error("Failed to load client context installations for the domain {}", domain, t);
             throw new ErrorCodeException(FAILED_TO_LOAD_CONTEXT_INSTALLATIONS, t, domain);
         }
     }
 
     @Override
-    protected void destroySource(DefaultContextInstallation[] defaultContextInstallations) {
+    protected void destroySource(DefaultClientContextInstallation[] defaultContextInstallations) {
         // do nothing
     }
 
     @Override
-    protected DefaultContextInstallation[] reloadSource(ProductDomain domain, DefaultContextInstallation[] oldSource) throws ErrorCodeException {
+    protected DefaultClientContextInstallation[] reloadSource(ClientDomain domain, DefaultClientContextInstallation[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading context installations for the product domain {} ...", domain);
-            DefaultContextInstallation[] ret = productLoader.loadContextInstallations(domain.getProductId(), domain.getClientId(), domain.getTenantId());
-            logger.info("Reloaded context installations for the product domain {}: {}", domain, ret);
+            logger.info("Reloading client context installations for the domain {} ...", domain);
+            DefaultClientContextInstallation[] ret = productLoader.loadContextInstallations(domain);
+            logger.info("Reloaded {} client context installations for the domain {}", ret.length, domain);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch (Throwable t){
-            logger.error("Failed to reload context installations for the product domain {}", domain, t);
+            logger.error("Failed to reload client context installations for the domain {}", domain, t);
             throw new ErrorCodeException(FAILED_TO_LOAD_CONTEXT_INSTALLATIONS, t, domain);
         }
     }

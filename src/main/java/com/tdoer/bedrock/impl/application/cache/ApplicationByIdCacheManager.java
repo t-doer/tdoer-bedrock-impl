@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.application;
+package com.tdoer.bedrock.impl.application.cache;
 
+import com.tdoer.bedrock.impl.application.ApplicationLoader;
+import com.tdoer.bedrock.impl.application.DefaultApplication;
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
@@ -24,34 +26,35 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_APPLICATION;
+
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class ApplicationByCodeCacheManager extends AbstractCacheManager<String, DefaultApplication> {
+public class ApplicationByIdCacheManager extends AbstractCacheManager<Long, DefaultApplication> {
     protected ApplicationLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(ApplicationByCodeCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(ApplicationByIdCacheManager.class);
 
-    public ApplicationByCodeCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader){
+    public ApplicationByIdCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ApplicationLoader loader){
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "ApplicationLoader cannot be null");
         this.loader = loader;
-        logger.info("ApplicationByCodeCacheManager is initialized");
+        logger.info("ApplicationByIdCacheManager is initialized");
     }
 
     @Override
-    protected DefaultApplication loadSource(String applicationCode) throws ErrorCodeException {
+    protected DefaultApplication loadSource(Long applicationId) throws ErrorCodeException {
         try{
-            logger.info("Loading application of code ({}) ...", applicationCode);
-            DefaultApplication ret = loader.loadApplicationByCode(applicationCode);
-            logger.info("Loaded application of code ({}): {}", applicationCode, ret);
+            logger.info("Loading application of Id ({}) ...", applicationId);
+            DefaultApplication ret = loader.loadApplicationById(applicationId);
+            logger.info("Loaded application of Id ({}): {}", applicationId, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch(Throwable t){
-            logger.error("Failed to load application of code ({})", applicationCode, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_APPLICATION, t, applicationCode);
+            logger.error("Failed to load application of Id ({})", applicationId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_APPLICATION, t, applicationId);
         }
     }
 
@@ -61,17 +64,17 @@ public class ApplicationByCodeCacheManager extends AbstractCacheManager<String, 
     }
 
     @Override
-    protected DefaultApplication reloadSource(String applicationCode, DefaultApplication oldSource) throws ErrorCodeException {
+    protected DefaultApplication reloadSource(Long applicationId, DefaultApplication oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading application of code ({}) ...", applicationCode);
-            DefaultApplication ret = loader.loadApplicationByCode(applicationCode);
-            logger.info("Reloaded application of code ({}): {}", applicationCode, ret);
+            logger.info("Reloading application of Id ({}) ...", applicationId);
+            DefaultApplication ret = loader.loadApplicationById(applicationId);
+            logger.info("Reloaded application of Id ({}): {}", applicationId, ret);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch(Throwable t){
-            logger.error("Failed to reload application of code ({})", applicationCode, t);
-            throw new ErrorCodeException(FAILED_TO_LOAD_APPLICATION, t, applicationCode);
+            logger.error("Failed to reload application of Id ({})", applicationId, t);
+            throw new ErrorCodeException(FAILED_TO_LOAD_APPLICATION, t, applicationId);
         }
     }
 }

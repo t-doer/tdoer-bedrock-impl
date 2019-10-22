@@ -24,6 +24,7 @@ import com.tdoer.bedrock.impl.service.DefaultServiceRepository;
 import com.tdoer.springboot.util.LocaleUtil;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 /**
@@ -58,20 +59,34 @@ public class ProductBuilder {
     public DefaultProduct buildProduct(ProductDefinition definition){
         // todo check definition
 
-        Locale defaultLanguage = LocaleUtil.getLocale(definition.getDefaultLanguage());
         String[] ls = StringUtils.delimitedListToStringArray(definition.getLanguages(), ",");
         Locale[] languages = new Locale[ls.length];
         for(int i=0; i<ls.length; i++){
             languages[i] = LocaleUtil.getLocale(ls[i].trim());
         }
 
-        return new DefaultProduct(definition, defaultLanguage, languages, productRepository);
+        return new DefaultProduct(definition, languages, productRepository);
     }
 
     public DefaultClient buildClient(ClientDefinition definition){
         // todo check definition
-        DefaultClientConfig clientConfig = new DefaultClientConfig(definition.getProductId(), definition.getId(), clientConfigCenter);
-        return new DefaultClient(definition, clientConfig, productRepository);
+
+        DefaultClientRole[] clientRoles = null;
+        String[] arr = StringUtils.delimitedListToStringArray(definition.getRoles(), ",");
+        if(arr != null){
+            ArrayList<DefaultClientRole> list = new ArrayList<>(arr.length);
+            for(String auth : arr){
+                list.add(new DefaultClientRole(auth));
+            }
+            clientRoles = new DefaultClientRole[list.size()];
+            list.toArray(clientRoles);
+        }else{
+            clientRoles = new DefaultClientRole[0];
+        }
+
+        DefaultClientConfig clientConfig = new DefaultClientConfig(definition.getId(), productRepository);
+
+        return new DefaultClient(definition, clientRoles, clientConfig);
     }
 
     public DefaultClientApplicationInstallation buildApplicationInstallation(ClientApplicationDefinition definition){
@@ -79,15 +94,15 @@ public class ProductBuilder {
         return new DefaultClientApplicationInstallation(definition, applicationRepository);
     }
 
-    public DefaultClientService buildClientService(ClientServiceDefinition definition){
+    public DefaultClientServiceInstallation buildClientServiceInstallation(ClientServiceDefinition definition){
         // todo check definition
-        return new DefaultClientService(definition, serviceRepository);
+        return new DefaultClientServiceInstallation(definition, serviceRepository);
     }
 
-    public DefaultContextInstallation buildContextInstallation(ClientContextDefinition definition){
+    public DefaultClientContextInstallation buildClientContextInstallation(ClientContextDefinition definition){
         // todo check definition
         ContextPath contextPath = contextPathParser.parse(definition.getContextPath());
-        return new DefaultContextInstallation(definition, contextPath);
+        return new DefaultClientContextInstallation(definition, contextPath);
     }
 
     public DefaultTokenConfig buildTokenConfig(ClientTokenDefinition definition){

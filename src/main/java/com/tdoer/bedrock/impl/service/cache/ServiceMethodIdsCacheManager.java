@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tdoer.bedrock.impl.service;
+package com.tdoer.bedrock.impl.service.cache;
 
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
+import com.tdoer.bedrock.impl.service.ServiceDomain;
+import com.tdoer.bedrock.impl.service.ServiceLoader;
 import com.tdoer.springboot.error.ErrorCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

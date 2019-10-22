@@ -18,7 +18,7 @@ package com.tdoer.bedrock.impl.tenant;
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.impl.domain.ClientDomain;
+import com.tdoer.bedrock.impl.product.ClientDomain;
 import com.tdoer.springboot.error.ErrorCodeException;
 
 import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_TENANT_CLIENT_OF_DOMAIN;

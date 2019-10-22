@@ -17,6 +17,7 @@ package com.tdoer.bedrock.impl.application;
 
 import com.tdoer.bedrock.application.*;
 import com.tdoer.bedrock.context.ContextPath;
+import com.tdoer.bedrock.impl.application.cache.*;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
 import com.tdoer.bedrock.impl.service.DefaultServiceMethod;
@@ -152,7 +153,7 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      * @throws PageNotFoundException if the page dose not exist or is disabled
      */
     @Override
-    public Page getPage(Long applicationId, String pageCode) throws PageNotFoundException {
+    public DefaultPage getPage(Long applicationId, String pageCode) throws PageNotFoundException {
         Assert.notNull(applicationId, "Application Id cannot be null");
         Assert.hasText(pageCode, "Page Id cannot be blank");
 
@@ -248,7 +249,7 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      * @
      */
     @Override
-    public Action getAction(Long pageId, Long actionId) throws ActionNotFoundException {
+    public DefaultAction getAction(Long pageId, Long actionId) throws ActionNotFoundException {
         Assert.notNull(pageId, "Page Id cannot be null");
         Assert.notNull(actionId, "Action Id cannot be null");
 
@@ -273,7 +274,7 @@ public class DefaultApplicationRepository implements ApplicationRepository {
      * @throws ActionNotFoundException if the action dose not exist or is disabled
      */
     @Override
-    public Action getAction(Long pageId, String actionCode) throws ActionNotFoundException {
+    public DefaultAction getAction(Long pageId, String actionCode) throws ActionNotFoundException {
         Assert.notNull(pageId, "Page Id cannot be null");
         Assert.hasText(actionCode, "Action Id cannot be blank");
 
