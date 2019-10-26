@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 T-Doer (tdoer.com).
+ * Copyright 2019 T-Doer (tdoer.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package com.tdoer.bedrock.impl.definition.context;
 
@@ -21,12 +22,9 @@ import java.io.Serializable;
 
 /**
  * @author Htinker Hu (htinker@163.com)
- * @create 2017-09-19
+ * @create 2019-10-25
  */
-public class ContextRoleMethodDefinition implements Serializable {
-
-    private Long roleId;
-
+public class ContextPublicMethodDefinition implements Serializable {
     private Long tenantId;
 
     private ContextPath contextPath;
@@ -34,22 +32,6 @@ public class ContextRoleMethodDefinition implements Serializable {
     private Long methodId;
 
     private Long serviceId;
-
-    public Long getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
-    }
-
-    public Long getMethodId() {
-        return methodId;
-    }
-
-    public void setMethodId(Long methodId) {
-        this.methodId = methodId;
-    }
 
     public Long getTenantId() {
         return tenantId;
@@ -65,6 +47,14 @@ public class ContextRoleMethodDefinition implements Serializable {
 
     public void setContextPath(ContextPath contextPath) {
         this.contextPath = contextPath;
+    }
+
+    public Long getMethodId() {
+        return methodId;
+    }
+
+    public void setMethodId(Long methodId) {
+        this.methodId = methodId;
     }
 
     public Long getServiceId() {

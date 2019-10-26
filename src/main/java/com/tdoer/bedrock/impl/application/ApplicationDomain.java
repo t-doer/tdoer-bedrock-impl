@@ -16,7 +16,6 @@
 package com.tdoer.bedrock.impl.application;
 
 import com.tdoer.bedrock.context.ContextPath;
-import com.tdoer.bedrock.impl.domain.DomainType;
 import org.springframework.util.Assert;
 
 /**

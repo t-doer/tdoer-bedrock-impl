@@ -15,8 +15,7 @@
  */
 package com.tdoer.bedrock.impl.tenant;
 
-import com.tdoer.bedrock.impl.context.DefaultContextConfigCenter;
-import com.tdoer.bedrock.impl.context.DefaultRootContextType;
+import com.tdoer.bedrock.impl.context.DefaultContextCenter;
 import com.tdoer.bedrock.impl.definition.tenant.TenantClientDefinition;
 import com.tdoer.bedrock.impl.definition.tenant.TenantDefinition;
 import com.tdoer.bedrock.impl.definition.tenant.TenantProductDefinition;
@@ -24,6 +23,7 @@ import com.tdoer.bedrock.impl.product.DefaultProductRepository;
 import com.tdoer.bedrock.impl.provider.TenantProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +39,13 @@ public class TenantLoader {
 
     private TenantBuilder tenantBuilder;
 
-    public TenantLoader(TenantProvider tenantProvider, DefaultProductRepository productRepository, DefaultRootContextType rootContextType, DefaultContextConfigCenter configCenter) {
+    public TenantLoader(TenantProvider tenantProvider, DefaultProductRepository productRepository, DefaultContextCenter contextCenter) {
+        Assert.notNull(tenantProvider, "Tenant provider cannot be null");
+        Assert.notNull(productRepository, "Product repository cannot be null");
+        Assert.notNull(contextCenter, "Context center cannot be null");
+
         this.tenantProvider = tenantProvider;
-        this.tenantBuilder = new TenantBuilder(productRepository, rootContextType, configCenter);
+        this.tenantBuilder = new TenantBuilder(productRepository, contextCenter);
     }
 
     public void setRentalCenter(DefaultRentalCenter rentalCenter) {

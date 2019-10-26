@@ -15,12 +15,14 @@
  */
 package com.tdoer.bedrock.impl.context;
 
-import com.tdoer.bedrock.application.ApplicationResource;
+import com.tdoer.bedrock.CloudEnvironment;
+import com.tdoer.bedrock.Platform;
+import com.tdoer.bedrock.context.ClientResource;
 import com.tdoer.bedrock.context.ContextPath;
-import com.tdoer.bedrock.context.RoleAuthority;
 import com.tdoer.bedrock.impl.definition.context.ContextRoleDefinition;
 import com.tdoer.bedrock.service.ServiceMethod;
-import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,17 +36,15 @@ public class DefaultContextRole implements com.tdoer.bedrock.context.ContextRole
 
     private ContextPath contextPath;
 
-    private DefaultRoleAuthority[] authorities;
+    private DefaultContextCenter configCenter;
 
-    public DefaultContextRole(ContextRoleDefinition definition, ContextPath contextPath, DefaultRoleAuthority[] authorities) {
+    public DefaultContextRole(ContextRoleDefinition definition, ContextPath contextPath, DefaultContextCenter configCenter) {
+        Assert.notNull(definition, "Context role definition cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(configCenter, "Config center cannot be null");
         this.definition = definition;
         this.contextPath = contextPath;
-        this.authorities = authorities;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
+        this.configCenter = configCenter;
     }
 
     /**
@@ -54,7 +54,7 @@ public class DefaultContextRole implements com.tdoer.bedrock.context.ContextRole
      */
     @Override
     public Long getId() {
-        return null;
+        return definition.getId();
     }
 
     /**
@@ -64,7 +64,7 @@ public class DefaultContextRole implements com.tdoer.bedrock.context.ContextRole
      */
     @Override
     public String getName() {
-        return null;
+        return definition.getName();
     }
 
     /**
@@ -75,7 +75,7 @@ public class DefaultContextRole implements com.tdoer.bedrock.context.ContextRole
      */
     @Override
     public String getCode() {
-        return null;
+        return definition.getCode();
     }
 
     /**
@@ -85,7 +85,7 @@ public class DefaultContextRole implements com.tdoer.bedrock.context.ContextRole
      */
     @Override
     public ContextPath getContextPath() {
-        return null;
+        return contextPath;
     }
 
     /**
@@ -96,29 +96,32 @@ public class DefaultContextRole implements com.tdoer.bedrock.context.ContextRole
      */
     @Override
     public Long getTenantId() {
-        return null;
+        return definition.getTenantId();
     }
 
     /**
      * List front-end resources which are authorized to the context role,
      * such like page, action and navigation etc.
      *
-     * @param list List to hold role authorities, cannot be <code>null</code>
+     * @param list List to hold client resource, cannot be <code>null</code>
      */
     @Override
-    public void listFrontendResource(List<RoleAuthority> list) {
-
+    public void listClientResources(List<ClientResource> list) {
+        Assert.notNull(list, "List cannot be null");
+        CloudEnvironment env = Platform.getCurrentEnvironment();
+        configCenter.listRoleResources(getId(), env.getClientId(), getTenantId(), getContextPath(), list);
     }
 
     /**
-     * List back-end resources, mainly service methods which are authorized to
-     * the context role.
+     * List back-end service methods which are authorized to the context role.
      *
-     * @param list
+     * @param list List to hold service methods, cannot be <code>null</code>
      */
     @Override
-    public void listServiceMethods(List<RoleAuthority> list) {
-
+    public void listServiceMethods(List<ServiceMethod> list) {
+        Assert.notNull(list, "List cannot be null");
+        CloudEnvironment env = Platform.getCurrentEnvironment();
+        configCenter.listRoleMethods(getId(), env.getClientId(), getTenantId(), getContextPath(), list);
     }
 
     /**
@@ -130,11 +133,41 @@ public class DefaultContextRole implements com.tdoer.bedrock.context.ContextRole
      */
     @Override
     public boolean permitServiceMethodAccess(String httpMethod, String URI) {
+        Assert.notNull(HttpMethod.resolve(httpMethod), "Unknown HTTP method: " + httpMethod);
+        Assert.hasText(URI, "Request URI cannot be blank");
+
+        // go through user roles
+        ArrayList<ServiceMethod> lst = new ArrayList<>();
+        listServiceMethods(lst);
+        for(ServiceMethod method : lst){
+            if(method.match(httpMethod, URI)){
+                return true;
+            }
+        }
+
         return false;
     }
 
+    /**
+     * Same with {@link #getCode()}
+     * @return Role code
+     */
     @Override
     public String getAuthority() {
-        return null;
+        return getCode();
+    }
+
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ContextRole[");
+        sb.append(getId()).append(", ");
+        sb.append(getCode()).append(", ");
+        sb.append(getName()).append(", ");
+        sb.append(getTenantId()).append(", ");
+        sb.append(getContextPath());
+        sb.append("]");
+        return sb.toString();
     }
 }

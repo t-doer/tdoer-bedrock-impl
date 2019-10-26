@@ -15,15 +15,13 @@
  */
 package com.tdoer.bedrock.impl.tenant;
 
-import com.tdoer.bedrock.context.ContextPath;
-import com.tdoer.bedrock.context.ContextType;
-import com.tdoer.bedrock.impl.context.DefaultContextConfig;
-import com.tdoer.bedrock.impl.context.DefaultContextConfigCenter;
-import com.tdoer.bedrock.impl.context.DefaultRootContextType;
+import com.tdoer.bedrock.impl.context.DefaultContextCenter;
 import com.tdoer.bedrock.impl.definition.tenant.TenantClientDefinition;
 import com.tdoer.bedrock.impl.definition.tenant.TenantDefinition;
 import com.tdoer.bedrock.impl.definition.tenant.TenantProductDefinition;
 import com.tdoer.bedrock.impl.product.DefaultProductRepository;
+import org.springframework.util.Assert;
+
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
@@ -33,27 +31,27 @@ public class TenantBuilder {
 
     private DefaultProductRepository productRepository;
 
-    private DefaultRootContextType rootContextType;
+    private DefaultContextCenter contextCenter;
 
-    private DefaultContextConfigCenter configCenter;
+    public TenantBuilder(DefaultProductRepository productRepository, DefaultContextCenter contextCenter) {
+        Assert.notNull(productRepository, "Product repository cannot be null");
+        Assert.notNull(contextCenter, "Context center cannot be null");
 
-    public TenantBuilder(DefaultProductRepository productRepository, DefaultRootContextType rootContextType, DefaultContextConfigCenter configCenter) {
         this.productRepository = productRepository;
-        this.rootContextType = rootContextType;
-        this.configCenter = configCenter;
+        this.contextCenter = contextCenter;
+        this.contextCenter = contextCenter;
     }
 
     public void setRentalCenter(DefaultRentalCenter rentalCenter) {
+        Assert.notNull(rentalCenter, "Rental center cannot be null");
+
         this.rentalCenter = rentalCenter;
     }
 
     public DefaultTenant buildTenant(TenantDefinition definition){
         // todo check defnition
-        ContextType contextType = rootContextType.getRoot();
-        ContextPath contextPath = new ContextPath(contextType.getType(), definition.getId());
-        DefaultContextConfig contextConfig = new DefaultContextConfig(configCenter, contextPath);
 
-        return new DefaultTenant(definition, contextPath, contextType, contextConfig, rentalCenter);
+        return new DefaultTenant(definition, rentalCenter, contextCenter);
     }
 
     public DefaultProductRental buildProductRental(TenantProductDefinition definition){

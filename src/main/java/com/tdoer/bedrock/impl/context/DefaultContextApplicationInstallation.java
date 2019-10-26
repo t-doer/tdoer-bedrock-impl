@@ -20,6 +20,8 @@ import com.tdoer.bedrock.context.ContextApplicationInstallation;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.application.DefaultApplicationRepository;
 import com.tdoer.bedrock.impl.definition.context.ContextApplicationDefinition;
+import org.springframework.util.Assert;
+
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
@@ -34,6 +36,10 @@ public class DefaultContextApplicationInstallation implements ContextApplication
 
 
     public DefaultContextApplicationInstallation(ContextApplicationDefinition definition, ContextPath contextPath, DefaultApplicationRepository applicationRepository) {
+        Assert.notNull(definition, "Client context application installation cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(applicationRepository, "Application repository cannot be null");
+
         this.definition = definition;
         this.contextPath = contextPath;
         this.applicationRepository = applicationRepository;
@@ -47,7 +53,7 @@ public class DefaultContextApplicationInstallation implements ContextApplication
      */
     @Override
     public ContextPath getContextPath() {
-        return null;
+        return contextPath;
     }
 
     /**
@@ -57,7 +63,7 @@ public class DefaultContextApplicationInstallation implements ContextApplication
      */
     @Override
     public Long getClientId() {
-        return null;
+        return definition.getClientId();
     }
 
     /**
@@ -67,7 +73,7 @@ public class DefaultContextApplicationInstallation implements ContextApplication
      */
     @Override
     public Long getTenantId() {
-        return null;
+        return definition.getTenantId();
     }
 
     /**
@@ -77,6 +83,16 @@ public class DefaultContextApplicationInstallation implements ContextApplication
      */
     @Override
     public Application getApplication() {
-        return null;
+        return applicationRepository.getApplication(definition.getApplicationId());
+    }
+
+    /**
+     * The Id of the installed application
+     *
+     * @return Application Id, must not be <code>null</code>
+     */
+    @Override
+    public Long getApplicationId() {
+        return definition.getApplicationId();
     }
 }

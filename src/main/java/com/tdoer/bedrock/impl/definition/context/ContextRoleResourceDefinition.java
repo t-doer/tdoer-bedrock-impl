@@ -15,6 +15,8 @@
  */
 package com.tdoer.bedrock.impl.definition.context;
 
+import com.tdoer.bedrock.context.ContextPath;
+
 import java.io.Serializable;
 
 /**
@@ -24,6 +26,10 @@ import java.io.Serializable;
 public class ContextRoleResourceDefinition implements Serializable {
 
     private Long roleId;
+
+    private Long tenantId;
+
+    private ContextPath contextPath;
 
     private Long resourceId;
 
@@ -37,6 +43,22 @@ public class ContextRoleResourceDefinition implements Serializable {
 
     public void setRoleId(Long roleId) {
         this.roleId = roleId;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public ContextPath getContextPath() {
+        return contextPath;
+    }
+
+    public void setContextPath(ContextPath contextPath) {
+        this.contextPath = contextPath;
     }
 
     public Long getResourceId() {

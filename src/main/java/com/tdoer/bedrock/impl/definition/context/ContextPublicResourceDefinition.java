@@ -15,12 +15,18 @@
  */
 package com.tdoer.bedrock.impl.definition.context;
 
+import com.tdoer.bedrock.context.ContextPath;
+
 import java.io.Serializable;
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class PublicResourceDefinition implements Serializable {
+public class ContextPublicResourceDefinition implements Serializable {
+    private Long tenantId;
+
+    private ContextPath contextPath;
+
     private Long clientId;
 
     private Long resourceId;

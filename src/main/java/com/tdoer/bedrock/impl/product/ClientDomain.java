@@ -15,9 +15,6 @@
  */
 package com.tdoer.bedrock.impl.product;
 
-import com.tdoer.bedrock.impl.application.ApplicationDomain;
-import com.tdoer.bedrock.impl.domain.DomainType;
-import com.tdoer.bedrock.impl.domain.ExtensionDomain;
 import org.springframework.util.Assert;
 
 /**

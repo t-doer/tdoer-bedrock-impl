@@ -19,8 +19,9 @@ import com.tdoer.bedrock.impl.application.ApplicationLoader;
 import com.tdoer.bedrock.impl.application.DefaultApplicationRepository;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-import com.tdoer.bedrock.impl.context.*;
-import com.tdoer.bedrock.impl.product.DefaultClientConfigCenter;
+import com.tdoer.bedrock.impl.context.ContextLoader;
+import com.tdoer.bedrock.impl.context.DefaultContextCenter;
+import com.tdoer.bedrock.impl.context.DefaultContextPathParser;
 import com.tdoer.bedrock.impl.product.DefaultProductRepository;
 import com.tdoer.bedrock.impl.product.ProductLoader;
 import com.tdoer.bedrock.impl.provider.*;
@@ -28,12 +29,19 @@ import com.tdoer.bedrock.impl.service.DefaultServiceRepository;
 import com.tdoer.bedrock.impl.service.ServiceLoader;
 import com.tdoer.bedrock.impl.tenant.DefaultRentalCenter;
 import com.tdoer.bedrock.impl.tenant.TenantLoader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * Bedrock auto configuration needs the beans:
+ * <p>
+ *     <ol>{@link com.tdoer.bedrock.impl.provider.ServiceProvider}</ol>
+ *     <ol>{@link com.tdoer.bedrock.impl.provider.ApplicationProvider}</ol>
+ *     <ol>{@link com.tdoer.bedrock.impl.provider.ProductProvider}</ol>
+ *     <ol>{@link com.tdoer.bedrock.impl.provider.TenantProvider}</ol>
+ *     <ol>{@link com.tdoer.bedrock.impl.provider.ContextProvider}</ol>
+ * </p>
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
@@ -41,22 +49,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan("com.tdoer.bedrock.impl.cache.admin.controller")
 public class BeckrockAutoConfiguration {
-
-    // Below services need be declared in application
-    @Autowired
-    protected ServiceProvider serviceProvider;
-
-    @Autowired
-    protected ApplicationProvider applicationProvider;
-
-    @Autowired
-    protected ContextProvider contextProvider;
-
-    @Autowired
-    protected ProductProvider productProvider;
-
-    @Autowired
-    protected TenantProvider tenantProvider;
 
     // -----------------------------------------------------------------------------------
     // Cache and Loaders
@@ -72,86 +64,66 @@ public class BeckrockAutoConfiguration {
     }
 
     @Bean
-    protected ContextTypeLoader contextTypeLoader(){
-        return new ContextTypeLoader(contextProvider);
-    }
-
-    @Bean
-    protected ServiceLoader serviceLoader(){
+    protected ServiceLoader serviceLoader(ServiceProvider serviceProvider){
         return new ServiceLoader(serviceProvider);
     }
 
     @Bean
-    protected ApplicationLoader applicationLoader(){
-        return new ApplicationLoader(applicationProvider, defaultServiceRepository());
+    public DefaultServiceRepository defaultServiceRepository(ServiceLoader serviceLoader){
+        return new DefaultServiceRepository(serviceLoader, cachePolicy(), dormantObjectCleaner());
     }
 
     @Bean
-    protected ContextConfigLoader contextConfigLoader(){
-        return new ContextConfigLoader(contextProvider, defaultContextPathParser(), defaultApplicationRepository());
+    protected ApplicationLoader applicationLoader(ApplicationProvider applicationProvider,
+                                                  DefaultServiceRepository defaultServiceRepository){
+        return new ApplicationLoader(applicationProvider, defaultServiceRepository);
     }
 
     @Bean
-    protected ContextInstanceLoader contextInstanceLoader(){
-        return  new ContextInstanceLoader(contextProvider, defaultContextConfigCenter(), defaultContextTypeRoot());
+    public DefaultApplicationRepository defaultApplicationRepository(ApplicationLoader applicationLoader){
+        return new DefaultApplicationRepository(applicationLoader, cachePolicy(), dormantObjectCleaner());
     }
 
-    @Bean
-    protected ProductLoader productLoader(){
-        return new ProductLoader(productProvider, defaultClientConfigCenter(), defaultServiceRepository(),  defaultApplicationRepository(), defaultContextTypeRoot(), defaultContextPathParser());
-    }
-
-    @Bean
-    protected TenantLoader tenantLoader(){
-        return new TenantLoader(tenantProvider, defaultProductRepository(), defaultContextTypeRoot(), defaultContextConfigCenter());
-    }
-
-    // -----------------------------------------------------------------------------------
-    // Below public beans are needed by com.tdoer.bedrock.PlatformConfiguration
-    // -----------------------------------------------------------------------------------
     @Bean
     public DefaultContextPathParser defaultContextPathParser(){
         return new DefaultContextPathParser();
     }
 
     @Bean
-    public DefaultRootContextType defaultContextTypeRoot(){
-        return new DefaultRootContextType(contextTypeLoader());
+    protected ProductLoader productLoader(ProductProvider productProvider,
+                                          DefaultServiceRepository defaultServiceRepository,
+                                          DefaultApplicationRepository defaultApplicationRepository,
+                                          DefaultContextPathParser defaultContextPathParser){
+        return new ProductLoader(productProvider, defaultServiceRepository,  defaultApplicationRepository,  defaultContextPathParser);
     }
 
     @Bean
-    public DefaultServiceRepository defaultServiceRepository(){
-        return new DefaultServiceRepository(serviceLoader(), cachePolicy(), dormantObjectCleaner());
+    public DefaultProductRepository defaultProductRepository(ProductLoader productLoader){
+        return new DefaultProductRepository(productLoader, cachePolicy(), dormantObjectCleaner());
     }
 
     @Bean
-    public DefaultApplicationRepository defaultApplicationRepository(){
-        return new DefaultApplicationRepository(applicationLoader(), cachePolicy(), dormantObjectCleaner());
+    protected ContextLoader contextLoader(ContextProvider contextProvider,
+                                          DefaultContextPathParser defaultContextPathParser,
+                                          DefaultApplicationRepository defaultApplicationRepository){
+        return new ContextLoader(contextProvider, defaultContextPathParser, defaultApplicationRepository);
     }
 
     @Bean
-    public DefaultContextConfigCenter defaultContextConfigCenter(){
-        return new DefaultContextConfigCenter(contextConfigLoader(), cachePolicy(), dormantObjectCleaner());
+    public DefaultContextCenter defaultContextCenter(ContextLoader contextLoader){
+        return new DefaultContextCenter(contextLoader, cachePolicy(), dormantObjectCleaner());
     }
 
     @Bean
-    public DefaultContextInstanceCenter defaultContextInstanceCenter(){
-        return new DefaultContextInstanceCenter(contextInstanceLoader(), defaultContextTypeRoot(), defaultRentalCenter(), cachePolicy(), dormantObjectCleaner());
+    protected TenantLoader tenantLoader(TenantProvider tenantProvider,
+                                        DefaultProductRepository defaultProductRepository,
+                                        DefaultContextCenter defaultContextCenter){
+        return new TenantLoader(tenantProvider, defaultProductRepository,  defaultContextCenter);
     }
 
     @Bean
-    public DefaultProductRepository defaultProductRepository(){
-        return new DefaultProductRepository(productLoader(), cachePolicy(), dormantObjectCleaner());
-    }
-
-    @Bean
-    public DefaultClientConfigCenter defaultClientConfigCenter(){
-        return new DefaultClientConfigCenter(productLoader(), cachePolicy(), dormantObjectCleaner());
-    }
-
-    @Bean
-    public DefaultRentalCenter defaultRentalCenter(){
-        return new DefaultRentalCenter(tenantLoader(), cachePolicy(), dormantObjectCleaner());
+    public DefaultRentalCenter defaultRentalCenter(TenantLoader tenantLoader){
+        return new DefaultRentalCenter(tenantLoader, cachePolicy(), dormantObjectCleaner());
     }
 
 }

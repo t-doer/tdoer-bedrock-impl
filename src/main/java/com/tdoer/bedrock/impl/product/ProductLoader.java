@@ -17,7 +17,6 @@ package com.tdoer.bedrock.impl.product;
 
 import com.tdoer.bedrock.context.ContextPathParser;
 import com.tdoer.bedrock.impl.application.DefaultApplicationRepository;
-import com.tdoer.bedrock.impl.context.DefaultRootContextType;
 import com.tdoer.bedrock.impl.definition.product.*;
 import com.tdoer.bedrock.impl.provider.ProductProvider;
 import com.tdoer.bedrock.impl.service.DefaultServiceRepository;
@@ -39,9 +38,9 @@ public class ProductLoader {
 
     private ProductBuilder productBuilder;
 
-    public ProductLoader(ProductProvider productProvider, DefaultClientConfigCenter clientConfigCenter, DefaultServiceRepository serviceRepository, DefaultApplicationRepository applicationRepository, DefaultRootContextType rootContextType, ContextPathParser contextPathParser) {
+    public ProductLoader(ProductProvider productProvider, DefaultServiceRepository serviceRepository, DefaultApplicationRepository applicationRepository, ContextPathParser contextPathParser) {
         this.productProvider = productProvider;
-        this.productBuilder = new ProductBuilder(serviceRepository, applicationRepository, rootContextType, contextPathParser, clientConfigCenter);
+        this.productBuilder = new ProductBuilder(serviceRepository, applicationRepository, contextPathParser);
     }
 
     void setProductRepository(DefaultProductRepository productRepository){

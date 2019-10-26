@@ -15,6 +15,7 @@
  */
 package com.tdoer.bedrock.impl.context;
 
+import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.context.ContextType;
 import com.tdoer.bedrock.impl.definition.context.ContextTypeDefinition;
 
@@ -43,40 +44,61 @@ public final class DefaultContextType implements ContextType {
 		children = new ArrayList<>();
 	}
 
-	public void addChild(DefaultContextType child){
-		children.add(child);
-		child.setParent(this);
-	}
-
-	public void setParent(DefaultContextType parent){
-	    this.parent = parent;
-    }
-
+	/**
+	 * Context type
+	 *
+	 * @return Context type, must not be <code>null</code>
+	 */
 	@Override
-	public Integer getType() {
-		return definition.getType();
+	public Long getType() {
+		return definition.getId();
 	}
 
+	/**
+	 * Context name
+	 *
+	 * @return Context name, must not be blank
+	 */
 	@Override
 	public String getName() {
 		return definition.getName();
 	}
 
+	/**
+	 * Context code
+	 *
+	 * @return Context code, must not be blank
+	 */
 	@Override
 	public String getCode() {
 		return definition.getCode();
 	}
 
+	/**
+	 * Context category
+	 *
+	 * @return Context category, must not be blank
+	 */
 	@Override
 	public String getCategory() {
 		return definition.getCategory();
 	}
 
+	/**
+	 * Parent context type
+	 *
+	 * @return Parent context type or <code>null</code> if the context type is the root context type
+	 */
 	@Override
 	public DefaultContextType getParent() {
 		return parent;
 	}
 
+	/**
+	 * Children context types
+	 *
+	 * @return Context types or <code>null</code> if the context type is the leaf node
+	 */
 	@Override
 	public DefaultContextType[] getChildren() {
 		if(children == null){
@@ -90,8 +112,13 @@ public final class DefaultContextType implements ContextType {
 		return arr;
 	}
 
+	/**
+	 * Root context type, must be "TENANT" context type
+	 *
+	 * @return Context type, must not be <code>null</code>
+	 */
 	@Override
-	public DefaultContextType getRoot(){
+	public DefaultContextType getRoot() {
 		DefaultContextType c = this;
 		while(c.getParent() != null) {
 			c = c.getParent();
@@ -99,47 +126,61 @@ public final class DefaultContextType implements ContextType {
 		return c;
 	}
 
+	/**
+	 * The path of the context
+	 *
+	 * @return Context path, must not be <code>null</code>
+	 */
 	@Override
-	public DefaultContextType find(Integer contextType){
-		DefaultContextType root = getRoot();
-		return search(root, contextType);
+	public ContextPath getContextPath() {
+		if(parent == null){
+			return new ContextPath(getType(), 0L);
+		}else{
+			return new ContextPath(getType(), 0L, getParent().getContextPath());
+		}
 	}
 
-	private DefaultContextType search(DefaultContextType current, Integer contextType){
-		if(current.getType().equals(contextType)){
-			return current;
-		}
-
-		DefaultContextType candidate = null;
-		for(DefaultContextType child : current.getChildren()){
-			candidate = search(child, contextType);
-			if(candidate != null){
-				return candidate;
-			}
-		}
-
-		return null;
+	/**
+	 * Check if the context is "TENANT" context type. "TENANT" context type is
+	 * the root context type, is the top parent of all other context types.
+	 *
+	 * @return true if it's "TENANT" context type
+	 */
+	@Override
+	public boolean isTenant() {
+		return (parent == null);
 	}
 
-    @Override
-    public int hashCode() {
-        return definition.getType();
-    }
+	@Override
+	public int hashCode() {
+		return definition.getId().hashCode();
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if(obj == null){
-            return false;
-        }
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null){
+			return false;
+		}
 
-        if(this == obj){
-            return true;
-        }
+		if(this == obj){
+			return true;
+		}
 
-        if(obj instanceof ContextType && this.getType().equals(((ContextType)obj).getType())){
-            return true;
-        }
+		if(obj instanceof ContextType && this.getType().equals(((ContextType)obj).getType())){
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("ContextType[");
+		sb.append(getType()).append(", ");
+		sb.append(getCode()).append(", ");
+		sb.append(getContextPath());
+		sb.append("]");
+		return sb.toString();
+	}
 }

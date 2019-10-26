@@ -18,7 +18,6 @@ package com.tdoer.bedrock.impl.product;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.context.ContextPathParser;
 import com.tdoer.bedrock.impl.application.DefaultApplicationRepository;
-import com.tdoer.bedrock.impl.context.DefaultRootContextType;
 import com.tdoer.bedrock.impl.definition.product.*;
 import com.tdoer.bedrock.impl.service.DefaultServiceRepository;
 import com.tdoer.springboot.util.LocaleUtil;
@@ -38,18 +37,12 @@ public class ProductBuilder {
 
     private DefaultServiceRepository serviceRepository;
 
-    private DefaultRootContextType rootContextType;
+     private ContextPathParser contextPathParser;
 
-    private ContextPathParser contextPathParser;
-
-    private DefaultClientConfigCenter clientConfigCenter;
-
-    public ProductBuilder(DefaultServiceRepository serviceRepository, DefaultApplicationRepository applicationRepository, DefaultRootContextType rootContextType, ContextPathParser contextPathParser, DefaultClientConfigCenter clientConfigCenter) {
+    public ProductBuilder(DefaultServiceRepository serviceRepository, DefaultApplicationRepository applicationRepository, ContextPathParser contextPathParser) {
         this.serviceRepository = serviceRepository;
         this.applicationRepository = applicationRepository;
-        this.rootContextType = rootContextType;
         this.contextPathParser = contextPathParser;
-        this.clientConfigCenter = clientConfigCenter;
     }
 
     public void setProductRepository(DefaultProductRepository productRepository) {
