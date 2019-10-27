@@ -29,7 +29,7 @@ public class ContextRoleResourceDefinition implements Serializable {
 
     private Long tenantId;
 
-    private ContextPath contextPath;
+    private String contextPath;
 
     private Long resourceId;
 
@@ -53,11 +53,11 @@ public class ContextRoleResourceDefinition implements Serializable {
         this.tenantId = tenantId;
     }
 
-    public ContextPath getContextPath() {
+    public String getContextPath() {
         return contextPath;
     }
 
-    public void setContextPath(ContextPath contextPath) {
+    public void setContextPath(String contextPath) {
         this.contextPath = contextPath;
     }
 

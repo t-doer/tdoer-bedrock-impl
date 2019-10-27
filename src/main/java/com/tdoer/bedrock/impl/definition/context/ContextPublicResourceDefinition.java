@@ -25,7 +25,7 @@ import java.io.Serializable;
 public class ContextPublicResourceDefinition implements Serializable {
     private Long tenantId;
 
-    private ContextPath contextPath;
+    private String contextPath;
 
     private Long clientId;
 
