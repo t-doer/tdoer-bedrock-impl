@@ -17,13 +17,11 @@ package com.tdoer.bedrock.impl.context;
 
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.context.ContextPathParser;
-import com.tdoer.bedrock.impl.application.DefaultApplication;
 import com.tdoer.bedrock.impl.application.DefaultApplicationRepository;
-import com.tdoer.bedrock.impl.definition.context.ContextApplicationDefinition;
-import com.tdoer.bedrock.impl.definition.context.ContextRoleResourceDefinition;
-import com.tdoer.bedrock.impl.definition.context.ContextRoleDefinition;
-import com.tdoer.bedrock.impl.definition.context.ContextPublicResourceDefinition;
-import com.tdoer.bedrock.resource.Resource;
+import com.tdoer.bedrock.impl.definition.context.*;
+import com.tdoer.bedrock.impl.product.DefaultClientResource;
+import com.tdoer.bedrock.impl.service.DefaultServiceMethod;
+import com.tdoer.bedrock.impl.service.DefaultServiceRepository;
 import com.tdoer.bedrock.resource.ResourceType;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -33,17 +31,24 @@ import org.springframework.util.StringUtils;
  */
 public class ContextBuilder {
 
+    private DefaultServiceRepository serviceRepository;
+
     private DefaultApplicationRepository applicationRepository;
 
     private ContextPathParser contextPathParser;
 
     private DefaultContextCenter contextCenter;
 
-    public ContextBuilder(ContextPathParser contextPathParser, DefaultApplicationRepository applicationRepository) {
+    public ContextBuilder(ContextPathParser contextPathParser, DefaultApplicationRepository applicationRepository,
+                          DefaultServiceRepository serviceRepository) {
+        Assert.notNull(contextPathParser, "Context path parser cannot be null");
+        Assert.notNull(applicationRepository, "Application repository cannot be null");
+        Assert.notNull(serviceRepository, "Service repository cannot be null");
+
         this.contextPathParser = contextPathParser;
         this.applicationRepository = applicationRepository;
+        this.serviceRepository = serviceRepository;
     }
-
 
     void setContextCenter(DefaultContextCenter contextCenter){
         Assert.notNull(contextCenter, "Context center cannot be null");
@@ -51,67 +56,60 @@ public class ContextBuilder {
         this.contextCenter = contextCenter;
     }
 
-//    public DefaultContextRole buildContextRole(ContextRoleDefinition definition, DefaultRoleAuthority[] authorities){
-//        // todo check definition
-//
-//        ContextPath contextPath = null;
-//        if(StringUtils.hasText(definition.getContextPath())){
-//            contextPath = contextPathParser.parse(definition.getContextPath());
-//        }
-//
-//        return new DefaultContextRole(definition, contextPath, authorities);
-//    }
-//
-//    public DefaultPublicAuthority buildPublicAuthority(ContextPublicResourceDefinition definition){
-//        // todo check definition
-//
-//        ResourceType type = ResourceType.resolve(definition.getResourceType());
-//        Resource resource = findResource(definition.getApplicationId(), type, definition.getResourceId());
-//        if(resource == null){
-//            // todo
-//        }
-//
-//        return new DefaultPublicAuthority(resource);
-//    }
-//
-//    public DefaultRoleAuthority buildRoleAuthority(ContextRoleResourceDefinition definition){
-//        // todo check definition
-//
-//        ResourceType type = ResourceType.resolve(definition.getResourceType());
-//        Resource resource = findResource(definition.getApplicationId(), type, definition.getResourceId());
-//        if(resource == null){
-//            // todo
-//        }
-//
-//        return new DefaultRoleAuthority(definition.getRoleId(), resource);
-//    }
-//
-//    protected Resource findResource(String applicationId, ResourceType type, Long resourceId){
-//        DefaultApplication application = null;
-//        switch(type){
-//            case PAGE:
-//                application = applicationRepository.getApplication(applicationId);
-//                return application.getPage(resourceId);
-//            case ACTION:
-//                application = applicationRepository.getApplication(applicationId);
-//                return application.getAction(resourceId);
-//            case NAVIGATION:
-//                // todo
-//                return null;
-//            default:
-//                // null
-//        }
-//        return null;
-//    }
-//
-//    public DefaultContextApplicationInstallation buildContextApplicationInstallation(ContextApplicationDefinition definition){
-//        //todo check definition
-//
-//        ContextPath contextPath = null;
-//        if(StringUtils.hasText(definition.getContextPath())){
-//            contextPath = contextPathParser.parse(definition.getContextPath());
-//        }
-//
-//        return new DefaultContextApplicationInstallation(definition, contextPath, applicationRepository);
-//    }
+    public DefaultContextType buildContextType(ContextTypeDefinition definition){
+        return buildContextType(definition, null);
+    }
+
+    public DefaultContextType buildContextType(ContextTypeDefinition definition, DefaultContextType parent){
+        // todo, check definition
+        return new DefaultContextType(definition, parent);
+    }
+
+
+    public DefaultContextRole buildContextRole(ContextRoleDefinition definition){
+        // todo check definition
+
+        ContextPath contextPath = contextPathParser.parse(definition.getContextPath());
+
+        return new DefaultContextRole(definition, contextPath, contextCenter);
+    }
+
+    public DefaultContextApplicationInstallation buildContextApplicationInstallation(ContextApplicationDefinition definition){
+        //todo check definition
+
+        ContextPath contextPath = null;
+        if(StringUtils.hasText(definition.getContextPath())){
+            contextPath = contextPathParser.parse(definition.getContextPath());
+        }
+
+        return new DefaultContextApplicationInstallation(definition, contextPath, applicationRepository);
+    }
+
+    public DefaultClientResource buildPublicClientResource(ContextPublicResourceDefinition definition){
+        // todo check definition
+
+        ResourceType type = ResourceType.resolve(definition.getResourceType());
+        return new DefaultClientResource(definition.getClientId(),
+                definition.getResourceId(), type);
+    }
+
+    public DefaultClientResource buildRoleClientResource(ContextRoleResourceDefinition definition){
+        // todo check definition
+
+        ResourceType type = ResourceType.resolve(definition.getResourceType());
+        return new DefaultClientResource(definition.getClientId(),
+                definition.getResourceId(), type);
+    }
+
+    public DefaultServiceMethod buildRoleServiceMethods(ContextRoleMethodDefinition definition){
+        // todo check definition
+
+        return serviceRepository.getServiceMethod(definition.getServiceId(), definition.getMethodId());
+    }
+
+    public DefaultServiceMethod buildPublicServiceMethods(ContextPublicMethodDefinition definition){
+        // todo check definition
+
+        return serviceRepository.getServiceMethod(definition.getServiceId(), definition.getMethodId());
+    }
 }

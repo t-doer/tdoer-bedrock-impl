@@ -19,6 +19,7 @@ import com.tdoer.bedrock.CloudEnvironment;
 import com.tdoer.bedrock.Platform;
 import com.tdoer.bedrock.application.Application;
 import com.tdoer.bedrock.context.*;
+import com.tdoer.bedrock.product.ClientResource;
 import com.tdoer.bedrock.service.ServiceMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

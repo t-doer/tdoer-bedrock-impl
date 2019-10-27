@@ -18,6 +18,7 @@ package com.tdoer.bedrock.impl.context;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.context.ContextType;
 import com.tdoer.bedrock.impl.definition.context.ContextTypeDefinition;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 /**
@@ -44,11 +45,15 @@ public final class DefaultContextType implements ContextType {
 		children = new ArrayList<>();
 	}
 
-	/**
-	 * Context type
-	 *
-	 * @return Context type, must not be <code>null</code>
-	 */
+	void addChild(DefaultContextType child){
+		children.add(child);
+		child.setParent(this);
+	}
+
+	void setParent(DefaultContextType parent){
+	    this.parent = parent;
+    }
+
 	@Override
 	public Long getType() {
 		return definition.getId();
@@ -149,6 +154,65 @@ public final class DefaultContextType implements ContextType {
 	@Override
 	public boolean isTenant() {
 		return (parent == null);
+	}
+
+	/**
+	 * Search specific context type from the context type itself and it descendants
+	 *
+	 * @param contextType Context type, cannot be <code>null</code>
+	 * @return Context type or <code>null</code>
+	 */
+	@Override
+	public ContextType search(Long contextType) {
+		Assert.notNull(contextType, "Context type cannot be null");
+
+		return searchByType(this, contextType);
+	}
+
+	/**
+	 * Search specific context type from the context type itself and it descendants
+	 *
+	 * @param contextCode Context code, cannot be blank
+	 * @return Context type or <code>null</code>
+	 */
+	@Override
+	public ContextType search(String contextCode) {
+		Assert.hasText(contextCode, "Context code cannot be blank");
+
+		return searchByCode(this, contextCode);
+	}
+
+	private DefaultContextType searchByCode(DefaultContextType current, String code){
+		if(current.getCode().equals(code)){
+			return current;
+		}
+
+		DefaultContextType candidate = null;
+		for(DefaultContextType child : current.getChildren()){
+			candidate = searchByCode(child, code);
+			if(candidate != null){
+				return candidate;
+			}
+		}
+
+		return null;
+	}
+
+
+	private DefaultContextType searchByType(DefaultContextType current, Long contextType){
+		if(current.getType().equals(contextType)){
+			return current;
+		}
+
+		DefaultContextType candidate = null;
+		for(DefaultContextType child : current.getChildren()){
+			candidate = searchByType(child, contextType);
+			if(candidate != null){
+				return candidate;
+			}
+		}
+
+		return null;
 	}
 
 	@Override

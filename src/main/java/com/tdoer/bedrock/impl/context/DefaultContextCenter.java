@@ -18,11 +18,14 @@ package com.tdoer.bedrock.impl.context;
 import com.tdoer.bedrock.context.*;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
-//import com.tdoer.bedrock.impl.context.cache.ContextApplicationsInstallationCacheManager;
-//import com.tdoer.bedrock.impl.context.cache.ContextRolesCacheManager;
+import com.tdoer.bedrock.impl.context.cache.*;
+import com.tdoer.bedrock.impl.product.DefaultClientResource;
+import com.tdoer.bedrock.impl.service.DefaultServiceMethod;
+import com.tdoer.bedrock.product.ClientResource;
 import com.tdoer.bedrock.service.ServiceMethod;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 /**
  * @author Htinker Hu (htinker@163.com)
@@ -30,27 +33,56 @@ import java.util.List;
  */
 public class DefaultContextCenter implements ContextCenter {
 
-//    private ContextRolesCacheManager rolesCacheManager;
-//
-//    private ContextApplicationsInstallationCacheManager applicationsInstallationCacheManager;
+    private RootContextTypeCacheManager rootContextTypeCacheManager;
 
-//    private PublicAuthoritiesCacheManager publicAuthoritiesCacheManager;
+    private ContextInstanceByIdCacheManager contextInstanceByIdCacheManager;
 
-    public DefaultContextCenter(ContextLoader contextConfigLoader, CachePolicy cachePolicy, DormantCacheCleaner cleaner) {
-        Assert.notNull(contextConfigLoader, "ContextConfigLoader cannot be null");
+    private ContextInstanceByGuidCacheManager contextInstanceByGuidCacheManager;
+
+    private ContextRolesCacheManager contextRolesCacheManager;
+
+    private RoleIdsCacheManager roleIdsCacheManager;
+
+    private ContextApplicationsInstallationCacheManager contextApplicationsInstallationCacheManager;
+
+    private PublicClientResourcesCacheManager publicClientResourceCacheManager;
+
+    private PublicServiceMethodsCacheManager publicServiceMethodsCacheManager;
+
+    private RoleClientResourcesCacheManager roleClientResourcesCacheManager;
+
+    private RoleServiceMethodsCacheManager roleServiceMethodsCacheManager;
+
+    public DefaultContextCenter(ContextLoader contextLoader, CachePolicy cachePolicy, DormantCacheCleaner cleaner) {
+        Assert.notNull(contextLoader, "ContextLoader cannot be null");
         Assert.notNull(cachePolicy, "CachePolicy cannot be null");
         Assert.notNull(cleaner, "DormantObjectCleaner cannot be null");
 
-        contextConfigLoader.setContextCenter(this);
+        contextLoader.setContextCenter(this);
 
-//        this.rolesCacheManager = new ContextRolesCacheManager(cachePolicy, cleaner, contextConfigLoader);
-//        this.applicationsInstallationCacheManager = new ContextApplicationsInstallationCacheManager(cachePolicy, cleaner, contextConfigLoader);
-//        this.publicAuthoritiesCacheManager = new PublicAuthoritiesCacheManager(cachePolicy, cleaner, contextConfigLoader);
-
+        this.rootContextTypeCacheManager = new RootContextTypeCacheManager(cachePolicy, cleaner, contextLoader);
+        this.contextInstanceByGuidCacheManager = new ContextInstanceByGuidCacheManager(cachePolicy, cleaner, contextLoader);
+        this.contextInstanceByIdCacheManager = new ContextInstanceByIdCacheManager(cachePolicy, cleaner, contextLoader);
+        this.contextRolesCacheManager = new ContextRolesCacheManager(cachePolicy, cleaner, contextLoader);
+        this.roleIdsCacheManager = new RoleIdsCacheManager(cachePolicy, cleaner, contextLoader);
+        this.contextApplicationsInstallationCacheManager =
+                new ContextApplicationsInstallationCacheManager(cachePolicy, cleaner, contextLoader);
+        this.publicServiceMethodsCacheManager = new PublicServiceMethodsCacheManager(cachePolicy, cleaner,
+                contextLoader);
+        this.roleServiceMethodsCacheManager = new RoleServiceMethodsCacheManager(cachePolicy, cleaner, contextLoader);
+        this.publicClientResourceCacheManager = new PublicClientResourcesCacheManager(cachePolicy, cleaner, contextLoader);
+        this.roleClientResourcesCacheManager = new RoleClientResourcesCacheManager(cachePolicy, cleaner, contextLoader);
         // Initialize cache managers
-//        rolesCacheManager.initialize();
-//        applicationsInstallationCacheManager.initialize();
-//        publicAuthoritiesCacheManager.initialize();
+        this.rootContextTypeCacheManager.initialize();
+        this.contextInstanceByGuidCacheManager.initialize();
+        this.contextInstanceByIdCacheManager.initialize();
+        this.contextRolesCacheManager.initialize();
+        this.roleIdsCacheManager.initialize();
+        this.contextApplicationsInstallationCacheManager.initialize();
+        this.publicClientResourceCacheManager.initialize();
+        this.publicServiceMethodsCacheManager.initialize();
+        this.roleServiceMethodsCacheManager.initialize();
+        this.roleClientResourcesCacheManager.initialize();
     }
 
     /**
@@ -61,21 +93,9 @@ public class DefaultContextCenter implements ContextCenter {
      */
     @Override
     public DefaultContextType getRootContextType(Long tenantId) {
-        return null;
-    }
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
 
-    /**
-     * List all context types defined by the tenant.
-     * <p>
-     * Note the list should not include "TENANT" context type which is
-     * the root context type for all.
-     *
-     * @param tenantId Tenant Id, cannot be <code>null</code>
-     * @param list     List to hold a tenant's context types.
-     */
-    @Override
-    public void listContextTypes(Long tenantId, List<ContextType> list) {
-
+        return rootContextTypeCacheManager.getSource(tenantId);
     }
 
     /**
@@ -87,7 +107,10 @@ public class DefaultContextCenter implements ContextCenter {
      */
     @Override
     public ContextType getContextType(Long tenantId, Long contextType) {
-        return null;
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextType, "Context type cannot be null");
+
+        return getRootContextType(tenantId).search(contextType);
     }
 
     /**
@@ -99,7 +122,10 @@ public class DefaultContextCenter implements ContextCenter {
      */
     @Override
     public ContextType getContextType(Long tenantId, String contextCode) {
-        return null;
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextCode, "Context code cannot be blank");
+
+        return getRootContextType(tenantId).search(contextCode);
     }
 
     /**
@@ -112,7 +138,10 @@ public class DefaultContextCenter implements ContextCenter {
      */
     @Override
     public ContextInstance getContextInstance(Long tenantId, ContextPath contextPath) throws ContextInstanceNotFoundException {
-        return null;
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+
+        return getContextInstance(tenantId, contextPath.getInstanceId());
     }
 
     /**
@@ -125,7 +154,16 @@ public class DefaultContextCenter implements ContextCenter {
      */
     @Override
     public ContextInstance getContextInstance(Long tenantId, String guid) throws ContextInstanceNotFoundException {
-        return null;
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(guid, "Context instance's guid cannot be blank");
+
+        ContextInstanceGuidCacheKey key = ContextInstanceGuidCacheKey.getKey(tenantId, guid);
+        ContextInstance ret = contextInstanceByGuidCacheManager.getSource(key);
+        if(ret != null){
+            return ret;
+        }else{
+            throw new ContextInstanceNotFoundException(key);
+        }
     }
 
     /**
@@ -138,6 +176,58 @@ public class DefaultContextCenter implements ContextCenter {
      */
     @Override
     public ContextInstance getContextInstance(Long tenantId, Long instanceId) throws ContextInstanceNotFoundException {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(instanceId, "Context instance's Id cannot be null");
+
+        ContextInstanceIdCacheKey key = ContextInstanceIdCacheKey.getKey(tenantId, instanceId);
+        ContextInstance ret = contextInstanceByIdCacheManager.getSource(key);
+        if(ret != null){
+            return ret;
+        }else{
+            throw new ContextInstanceNotFoundException(key);
+        }
+    }
+
+    /**
+     * Get specific role defined in a tenant' context
+     *
+     * @param tenantId    Tenant Id, cannot be <code>null</code>
+     * @param contextPath Context path of context instance, cannot be <code>null</code>
+     * @param roleId      Role Id, cannot be <code>null</code>
+     * @return Context role or <code>null</code>
+     */
+    @Override
+    public ContextRole getContextRole(Long tenantId, ContextPath contextPath, Long roleId) {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(roleId, "Role Id cannot be null");
+
+        ArrayList<ContextRole> list = new ArrayList<>();
+        listContextRoles(tenantId, contextPath, list);
+        return searchContextRole(list, roleId);
+    }
+
+    /**
+     * Get specific role defined in a tenant' context
+     *
+     * @param tenantId    Tenant Id, cannot be <code>null</code>
+     * @param contextPath Context path of context instance, cannot be <code>null</code>
+     * @param roleCode    Role code, cannot be blank
+     * @return Context role or <code>null</code>
+     */
+    @Override
+    public ContextRole getContextRole(Long tenantId, ContextPath contextPath, String roleCode) {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(roleCode, "Role Id cannot be blank");
+
+        ArrayList<ContextRole> list = new ArrayList<>();
+        listContextRoles(tenantId, contextPath, list);
+        for(ContextRole role : list){
+            if(role.getCode().equals(roleCode)){
+                return role;
+            }
+        }
         return null;
     }
 
@@ -151,7 +241,37 @@ public class DefaultContextCenter implements ContextCenter {
      */
     @Override
     public void listUserRoles(Long tenantId, ContextPath contextPath, Long userId, List<ContextRole> list) {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(userId, "User Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        UserRolesCacheKey key = UserRolesCacheKey.getKey(tenantId, contextPath, userId);
+        Long[] roleIds = roleIdsCacheManager.getSource(key);
+
+        if(roleIds != null){
+            ContextRole role = null;
+            ArrayList<ContextRole> ret = new ArrayList<>(roleIds.length);
+            ArrayList<ContextRole> all = new ArrayList<>();
+            listContextRoles(tenantId, contextPath, all);
+            for(Long roleId : roleIds){
+                role = searchContextRole(all, roleId);
+                if(role != null){
+                    ret.add(role);
+                }else{
+                    // TODO
+                }
+            }
+        }
+    }
+
+    private ContextRole searchContextRole(List<ContextRole> list, Long roleId){
+        for(ContextRole role : list){
+            if(role.getId().equals(roleId)){
+                return role;
+            }
+        }
+        return null;
     }
 
     /**
@@ -163,7 +283,19 @@ public class DefaultContextCenter implements ContextCenter {
      */
     @Override
     public void listContextRoles(Long tenantId, ContextPath contextPath, List<ContextRole> list) {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        ContextDomainEnumerator enumerator = new ContextDomainEnumerator(tenantId, contextPath);
+        while(enumerator.hasMoreElements()){
+            DefaultContextRole[] roles = contextRolesCacheManager.getSource(enumerator.nextElement());
+            if(roles != null){
+                for(DefaultContextRole role : roles){
+                    list.add(role);
+                }
+            }
+        }
     }
 
     /**
@@ -177,7 +309,21 @@ public class DefaultContextCenter implements ContextCenter {
      */
     @Override
     public void listApplicationInstallation(Long clientId, Long tenantId, ContextPath contextPath, List<ContextApplicationInstallation> list) {
+        Assert.notNull(clientId, "Client Id cannot be null");
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        ClientContextDomainEnumerator enumerator = new ClientContextDomainEnumerator(clientId, tenantId, contextPath);
+        while(enumerator.hasMoreElements()){
+            ContextApplicationInstallation[] arr =
+                    contextApplicationsInstallationCacheManager.getSource(enumerator.nextElement());
+            if(arr != null){
+                for(ContextApplicationInstallation ins : arr){
+                    list.add(ins);
+                }
+            }
+        }
     }
 
     /**
@@ -190,7 +336,21 @@ public class DefaultContextCenter implements ContextCenter {
      */
     @Override
     public void listPublicResources(Long clientId, Long tenantId, ContextPath contextPath, List<ClientResource> list) {
+        Assert.notNull(clientId, "Client Id cannot be null");
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        ClientContextDomainEnumerator enumerator = new ClientContextDomainEnumerator(clientId, tenantId, contextPath);
+        while(enumerator.hasMoreElements()){
+            DefaultClientResource[] arr =
+                    publicClientResourceCacheManager.getSource(enumerator.nextElement());
+            if(arr != null){
+                for(DefaultClientResource ins : arr){
+                    list.add(ins);
+                }
+            }
+        }
     }
 
     /**
@@ -203,34 +363,75 @@ public class DefaultContextCenter implements ContextCenter {
      */
     @Override
     public void listPublicMethods(Long clientId, Long tenantId, ContextPath contextPath, List<ServiceMethod> list) {
+        Assert.notNull(clientId, "Client Id cannot be null");
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        ClientContextDomainEnumerator enumerator = new ClientContextDomainEnumerator(clientId, tenantId, contextPath);
+        while(enumerator.hasMoreElements()){
+            DefaultServiceMethod[] arr =
+                    publicServiceMethodsCacheManager.getSource(enumerator.nextElement());
+            if(arr != null){
+                for(DefaultServiceMethod ins : arr){
+                    list.add(ins);
+                }
+            }
+        }
     }
+
 
     /**
      * List resource authorities of specific role in specific tenant's specific context instance
      *
-     * @param roleId      Role Id, cannot be <code>null</code>
      * @param clientId    Client Id, cannot be <code>null</code>
      * @param tenantId    Tenant Id, cannot be <code>null</code>
      * @param contextPath Context path of context instance, cannot be <code>null</code>
+     * @param roleId      Role Id, cannot be <code>null</code>
      * @param list        List to hold public client resources, cannot be <code>null</code>
      */
     @Override
-    public void listRoleResources(Long roleId, Long clientId, Long tenantId, ContextPath contextPath, List<ClientResource> list) {
+    public void listRoleResources(Long clientId, Long tenantId, ContextPath contextPath, Long roleId, List<ClientResource> list) {
+        Assert.notNull(clientId, "Client Id cannot be null");
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(roleId, "Role Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        ContextRoleCacheKey key = ContextRoleCacheKey.getKey(clientId, tenantId, contextPath, roleId);
+        DefaultClientResource[] arr =
+                roleClientResourcesCacheManager.getSource(key);
+        if(arr != null){
+            for(DefaultClientResource ins : arr){
+                list.add(ins);
+            }
+        }
     }
 
     /**
      * List service method authorities of specific role in specific tenant's specific context instance
      *
-     * @param roleId      Role Id, cannot be <code>null</code>
      * @param clientId    Client Id, cannot be <code>null</code>
      * @param tenantId    Tenant Id, cannot be <code>null</code>
      * @param contextPath Context path of context instance, cannot be <code>null</code
+     * @param roleId      Role Id, cannot be <code>null</code>
      * @param list        List to hold public service methods, cannot be <code>null</code>
      */
     @Override
-    public void listRoleMethods(Long roleId, Long clientId, Long tenantId, ContextPath contextPath, List<ServiceMethod> list) {
+    public void listRoleMethods(Long clientId, Long tenantId, ContextPath contextPath, Long roleId, List<ServiceMethod> list) {
+        Assert.notNull(clientId, "Client Id cannot be null");
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextPath, "Context path cannot be null");
+        Assert.notNull(roleId, "Role Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
 
+        ContextRoleCacheKey key = ContextRoleCacheKey.getKey(clientId, tenantId, contextPath, roleId);
+        DefaultServiceMethod[] arr =
+                roleServiceMethodsCacheManager.getSource(key);
+        if(arr != null){
+            for(DefaultServiceMethod ins : arr){
+                list.add(ins);
+            }
+        }
     }
 }

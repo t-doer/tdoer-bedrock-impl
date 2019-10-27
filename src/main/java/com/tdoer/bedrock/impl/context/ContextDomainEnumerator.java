@@ -22,15 +22,15 @@ import org.springframework.util.Assert;
 import java.util.Enumeration;
 
 /**
- * <p>Client context extension domain enumerator.</p>
+ * <p>Context extension domain enumerator.</p>
  * <p>
- * Suppose current cloud environment is [client: tenantId, contextPath] is [1: 1, 1.1-2.1],
+ * Suppose current cloud environment is [tenantId, contextPath] is [1, 1.1-2.1],
  * the enumerator will enumerate the client context extension domains:
  * <ol>
- *     <li>[1: 1, 1.1-2.1]</li>
- *     <li>[1: 1, 1.1-2.0]</li>
- *     <li>[1: 1, 1.0-2.0]</li>
- *     <li>[1: 0, 1.0-2.0]</li>
+ *     <li>[1, 1.1-2.1]</li>
+ *     <li>[1, 1.1-2.0]</li>
+ *     <li>[1, 1.0-2.0]</li>
+ *     <li>[0, 1.0-2.0]</li>
  * </ol>
  * </p>
  * <p>
@@ -40,18 +40,16 @@ import java.util.Enumeration;
  * @author Htinker Hu (htinker@163.com)
  * @create 2019-10-20
  */
-public class ClientContextDomainEnumerator implements Enumeration<ClientContextDomain> {
+public class ContextDomainEnumerator implements Enumeration<ContextDomain> {
 
-    protected final Long clientId;
     protected final Long tenantId;
     protected final ContextPath contextPath;
 
     // Elements
-    private static final int CLIENT = 0;
-    private static final int TENANT = 1;
-    private static final int CONTEXT = 2;
+    private static final int TENANT = 0;
+    private static final int CONTEXT = 1;
     // Status
-    private byte[] markers = new byte[3];
+    private byte[] markers = new byte[2];
 
     // Current values
     protected Long tenId;
@@ -60,24 +58,19 @@ public class ClientContextDomainEnumerator implements Enumeration<ClientContextD
     /**
      * ServiceDomainEnumerator constructor.
      *
-     * @param clientId Client Id must not be <code>null</code>, and larger than zero
      * @param tenantId Tenant Id must not be <code>null</code>, and larger than zero
      * @param contextPath Context Instance Id must not be <code>null</code>, and larger than zero
      */
-    public ClientContextDomainEnumerator(Long clientId, Long tenantId, ContextPath contextPath) {
-        Assert.notNull(clientId, "Client Id cannot be null");
+    public ContextDomainEnumerator(Long tenantId, ContextPath contextPath) {
         Assert.notNull(tenantId, "Tenant Id Id cannot be null");
         Assert.notNull(contextPath, "Context path cannot be null");
-        Assert.isTrue(clientId > 0, "Client Id must larger than zero");
         Assert.isTrue(tenantId > 0, "Tenant Id must larger than zero");
         Assert.isTrue(contextPath.getInstanceId() > 0, "Context Instance Id must larger than zero");
 
-        this.clientId = clientId;
         this.tenantId = tenantId;
         this.contextPath = contextPath;
 
         // Init status
-        markers[CLIENT] = 1;
         markers[TENANT] = 1;
         markers[CONTEXT] = 2;
         // Init values
@@ -87,7 +80,7 @@ public class ClientContextDomainEnumerator implements Enumeration<ClientContextD
 
     @Override
     public boolean hasMoreElements() {
-        if(markers[CLIENT] == 0){
+        if(markers[TENANT] == -1){
             return false;
         }
 
@@ -107,10 +100,10 @@ public class ClientContextDomainEnumerator implements Enumeration<ClientContextD
     }
 
     @Override
-    public ClientContextDomain nextElement() {
-        ClientContextDomain ret = null;
-        if(markers[CLIENT] != 0) {
-            ret = new ClientContextDomain(clientId, tenId, path);
+    public ContextDomain nextElement() {
+        ContextDomain ret = null;
+        if(markers[TENANT] != -1) {
+            ret = new ContextDomain(tenId, path);
 
             // move status forward
             if (markers[CONTEXT] == 2) {
@@ -123,11 +116,8 @@ public class ClientContextDomainEnumerator implements Enumeration<ClientContextD
                     markers[TENANT] = 0;
                 } else {
                     // reach end
-                    markers[CLIENT] = 0;
+                    markers[TENANT] = -1;
                 }
-            } else {
-                // reach end
-                markers[CLIENT] = 0;
             }
         }
         return ret;

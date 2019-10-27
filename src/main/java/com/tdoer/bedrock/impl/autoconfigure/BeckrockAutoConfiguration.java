@@ -105,8 +105,9 @@ public class BeckrockAutoConfiguration {
     @Bean
     protected ContextLoader contextLoader(ContextProvider contextProvider,
                                           DefaultContextPathParser defaultContextPathParser,
-                                          DefaultApplicationRepository defaultApplicationRepository){
-        return new ContextLoader(contextProvider, defaultContextPathParser, defaultApplicationRepository);
+                                          DefaultApplicationRepository defaultApplicationRepository,
+                                          DefaultServiceRepository defaultServiceRepository){
+        return new ContextLoader(contextProvider, defaultContextPathParser, defaultApplicationRepository, defaultServiceRepository);
     }
 
     @Bean

@@ -15,6 +15,7 @@
  */
 package com.tdoer.bedrock.impl.provider;
 
+import com.tdoer.bedrock.context.ContextInstance;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.impl.definition.context.*;
 
@@ -39,10 +40,10 @@ public interface ContextProvider {
     /**
      * Get context instance of specific context path
      * @param tenantId Tenant Id, cannot be <code>null</code>, but can be zero
-     * @param contextPath Context path, cannot be <code>null</code>
+     * @param instanceId Context instance Id, cannot be <code>null</code>
      * @return Context instance or <code>null</code>
      */
-    ContextInstanceDefinition getContextInstance(Long tenantId, ContextPath contextPath);
+    ContextInstance getContextInstance(Long tenantId, Long instanceId);
 
     /**
      * Get context instance by GUID
@@ -50,7 +51,24 @@ public interface ContextProvider {
      * @param guid Context instance's GUID, cannot be blank
      * @return Context instance or <code>null</code>
      */
-    ContextInstanceDefinition getContextInstance(Long tenantId, String guid);
+    ContextInstance getContextInstance(Long tenantId, String guid);
+
+    /**
+     * Get context role definitions of specific tenant's context
+     * @param tenantId Tenant Id, cannot be <code>null</code>, but can be zero
+     * @param contextPath Context path, cannot be <code>null</code>
+     * @return List of context role definitions, may be empty
+     */
+    List<ContextRoleDefinition> getContextRoles(Long tenantId, ContextPath contextPath);
+
+    /**
+     * Get role Ids authorized to a user in a context
+     * @param tenantId Tenant Id, cannot be <code>null</code>, but cannot be zero
+     * @param contextPath Context path, cannot be <code>null</code>
+     * @param userId User Id, cannot be <code>null</code>
+     * @return List of role Ids or <code>null</code>
+     */
+    List<Long> getRoleIdsOfUserInContext(Long tenantId, ContextPath contextPath, Long userId);
 
     /**
      * Get context application definitions of specific context in specific tenant client
@@ -60,14 +78,6 @@ public interface ContextProvider {
      * @return List of context application definitions, must not be empty
      */
     List<ContextApplicationDefinition> getContextApplications(Long clientId, Long tenantId, ContextPath contextPath);
-
-    /**
-     * Get context role definitions of specific tenant's context
-     * @param tenantId Tenant Id, cannot be <code>null</code>, but can be zero
-     * @param contextPath Context path, cannot be <code>null</code>
-     * @return List of context role definitions, may be empty
-     */
-    List<ContextRoleDefinition> getContextRoles(Long tenantId, ContextPath contextPath);
 
     /**
      * Get public resources of specific context in specific tenant's client
@@ -80,38 +90,33 @@ public interface ContextProvider {
 
     /**
      * Get authorized resources to a context role.
+     * @param clientId Client Id, cannot be <code>null</code>
      * @param tenantId Tenant Id, cannot be <code>null</code>, but can be zero
      * @param contextPath Context path, cannot be <code>null</code>
      * @param roleId Role Id, cannot be <code>null</code>
      * @return List of context role resource definitions or <code>null</code>
      */
-    List<ContextRoleResourceDefinition> getContextRoleResources(Long tenantId, ContextPath contextPath, Long roleId);
+    List<ContextRoleResourceDefinition> getContextRoleResources(Long clientId, Long tenantId, ContextPath contextPath, Long roleId);
 
     /**
      * Get context public methods which associated with public resources, for example, public page.
+     * @param clientId Client Id, cannot be <code>null</code>
      * @param tenantId Tenant Id, cannot be <code>null</code>, but can be zero
      * @param contextPath Context path, cannot be <code>null</code>
      * @return List of context public method definitions or <code>null</code>
      */
-    List<ContextPublicMethodDefinition> getContextPublicMethods(Long tenantId, ContextPath contextPath);
+    List<ContextPublicMethodDefinition> getContextPublicMethods(Long clientId, Long tenantId, ContextPath contextPath);
 
     /**
      * Get context role method definitions of specific role in a tenant's context.
      *
+     * @param clientId Client Id, cannot be <code>null</code>
      * @param tenantId Tenant Id, cannot be <code>null</code>, but can be zero
      * @param contextPath Context path, cannot be <code>null</code>
      * @param roleId Role Id, cannot be <code>null</code>
      * @return List of context role method definitions or <code>null</code>
      */
-    List<ContextRoleMethodDefinition> getContextRoleMethods(Long tenantId, ContextPath contextPath, Long roleId);
+    List<ContextRoleMethodDefinition> getContextRoleMethods(Long clientId, Long tenantId, ContextPath contextPath, Long roleId);
 
-    /**
-     * Get role Ids authorized to a user in a context
-     * @param tenantId Tenant Id, cannot be <code>null</code>, but cannot be zero
-     * @param contextPath Context path, cannot be <code>null</code>
-     * @param userId User Id, cannot be <code>null</code>
-     * @return List of role Ids or <code>null</code>
-     */
-    List<Long> getRoleIdsOfUserInContext(Long tenantId, ContextPath contextPath, Long userId);
 
 }

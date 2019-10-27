@@ -184,7 +184,7 @@ public class DefaultTenant implements Tenant {
     @Override
     public ContextType getContextType(Long contextType) {
         Assert.notNull(contextType, "Context type cannot be null");
-        return contextCenter.getContextType(getId(), contextType);
+        return rootContextType.search(contextType);
     }
 
     /**
@@ -196,7 +196,7 @@ public class DefaultTenant implements Tenant {
     @Override
     public ContextType getContextType(String contextCode) {
         Assert.hasText(contextCode, "Context code cannot be null");
-        return contextCenter.getContextType(getId(), contextCode);
+        return rootContextType.search(contextCode);
     }
 
     /**
@@ -221,7 +221,16 @@ public class DefaultTenant implements Tenant {
     public void listContextTypes(List<ContextType> list) {
         Assert.notNull(list, "List cannot be null");
 
-        contextCenter.listContextTypes(getId(), list);
+        for(ContextType child : rootContextType.getChildren()){
+            listContextTypes(child, list);
+        }
+    }
+
+    private void listContextTypes(ContextType contextType, List<ContextType> list){
+        list.add(contextType);
+        for(ContextType child : contextType.getChildren()){
+            listContextTypes(child, list);
+        }
     }
 
     /**

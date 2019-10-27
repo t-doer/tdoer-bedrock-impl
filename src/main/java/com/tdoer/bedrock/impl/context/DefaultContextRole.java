@@ -17,9 +17,10 @@ package com.tdoer.bedrock.impl.context;
 
 import com.tdoer.bedrock.CloudEnvironment;
 import com.tdoer.bedrock.Platform;
-import com.tdoer.bedrock.context.ClientResource;
 import com.tdoer.bedrock.context.ContextPath;
+import com.tdoer.bedrock.context.ContextRole;
 import com.tdoer.bedrock.impl.definition.context.ContextRoleDefinition;
+import com.tdoer.bedrock.product.ClientResource;
 import com.tdoer.bedrock.service.ServiceMethod;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.Assert;
@@ -30,7 +31,7 @@ import java.util.List;
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class DefaultContextRole implements com.tdoer.bedrock.context.ContextRole {
+public class DefaultContextRole implements ContextRole {
 
     private ContextRoleDefinition definition;
 
@@ -109,7 +110,7 @@ public class DefaultContextRole implements com.tdoer.bedrock.context.ContextRole
     public void listClientResources(List<ClientResource> list) {
         Assert.notNull(list, "List cannot be null");
         CloudEnvironment env = Platform.getCurrentEnvironment();
-        configCenter.listRoleResources(getId(), env.getClientId(), getTenantId(), getContextPath(), list);
+        configCenter.listRoleResources(env.getClientId(), getTenantId(), getContextPath(), getId(), list);
     }
 
     /**
@@ -121,9 +122,8 @@ public class DefaultContextRole implements com.tdoer.bedrock.context.ContextRole
     public void listServiceMethods(List<ServiceMethod> list) {
         Assert.notNull(list, "List cannot be null");
         CloudEnvironment env = Platform.getCurrentEnvironment();
-        configCenter.listRoleMethods(getId(), env.getClientId(), getTenantId(), getContextPath(), list);
+        configCenter.listRoleMethods(env.getClientId(), getTenantId(), getContextPath(), getId(), list);
     }
-
     /**
      * Check if the role permits the request
      *
