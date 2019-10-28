@@ -46,6 +46,16 @@ public class DefaultTenantClient implements TenantClient {
     }
 
     /**
+     * Tenant client's GUID
+     *
+     * @return Tenant client's GUID, cannot be <code>null</code>
+     */
+    @Override
+    public String getGuid() {
+        return definition.getGuid();
+    }
+
+    /**
      * Tenant who accesses a product's client
      *
      * @return Tenant, cannot be <code>null</code>
