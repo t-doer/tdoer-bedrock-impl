@@ -33,6 +33,22 @@ public class ContextPublicResourceDefinition implements Serializable {
 
     private String resourceType;
 
+    public Long getTenantId() {
+        return this.tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getContextPath() {
+        return this.contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
+
     public Long getClientId() {
         return clientId;
     }
