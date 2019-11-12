@@ -283,16 +283,18 @@ public class DefaultTenant implements Tenant {
     }
 
     /**
-     * Get context instance by Id
+     * Get context instance by context type and instance Id
      *
+     * @param contextType Context type, cannot be  <code>null</code>
      * @param instanceId Context instance Id, cannot be <code>null</code>
      * @return Context instance or <code>null</code>
      */
     @Override
-    public ContextInstance getContextInstance(Long instanceId) {
+    public ContextInstance getContextInstance(Long contextType, Long instanceId) {
+        Assert.notNull(contextType, "Context type cannot be null");
         Assert.notNull(instanceId, "Instance Id cannot be null");
 
-        return contextCenter.getContextInstance(getId(), instanceId);
+        return contextCenter.getContextInstance(getId(), contextType, instanceId);
     }
 
     @Override

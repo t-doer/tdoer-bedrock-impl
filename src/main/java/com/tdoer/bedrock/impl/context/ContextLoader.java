@@ -141,9 +141,9 @@ public class ContextLoader {
         }
     }
 
-    public ContextInstance loadContextInstance(Long tenantId, Long instanceId){
+    public ContextInstance loadContextInstance(Long tenantId, Long contextType, Long instanceId){
         try{
-            ContextInstance instance = contextProvider.getContextInstance(tenantId, instanceId);
+            ContextInstance instance = contextProvider.getContextInstance(tenantId, contextType, instanceId);
             if(instance != null){
                 if(instance.getTenantId().equals(tenantId)){
                     return instance;

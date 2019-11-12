@@ -141,7 +141,7 @@ public class DefaultContextCenter implements ContextCenter {
         Assert.notNull(tenantId, "Tenant Id cannot be null");
         Assert.notNull(contextPath, "Context path cannot be null");
 
-        return getContextInstance(tenantId, contextPath.getInstanceId());
+        return getContextInstance(tenantId, contextPath.getType(), contextPath.getInstanceId());
     }
 
     /**
@@ -170,16 +170,18 @@ public class DefaultContextCenter implements ContextCenter {
      * Get context instance of specific context path in specific tenant
      *
      * @param tenantId   Tenant Id, cannot be <code>null</code>
+     * @param contextType Context type, cannot be <code>null</code>
      * @param instanceId Context instance Id, cannot be <code>null</code>
      * @return Context instance if it exists and is enabled
      * @throws ContextInstanceNotFoundException if it is not found
      */
     @Override
-    public ContextInstance getContextInstance(Long tenantId, Long instanceId) throws ContextInstanceNotFoundException {
+    public ContextInstance getContextInstance(Long tenantId, Long contextType, Long instanceId) throws ContextInstanceNotFoundException {
         Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(contextType, "Context type cannot be null");
         Assert.notNull(instanceId, "Context instance's Id cannot be null");
 
-        ContextInstanceIdCacheKey key = ContextInstanceIdCacheKey.getKey(tenantId, instanceId);
+        ContextInstanceIdCacheKey key = ContextInstanceIdCacheKey.getKey(tenantId, contextType, instanceId);
         ContextInstance ret = contextInstanceByIdCacheManager.getSource(key);
         if(ret != null){
             return ret;

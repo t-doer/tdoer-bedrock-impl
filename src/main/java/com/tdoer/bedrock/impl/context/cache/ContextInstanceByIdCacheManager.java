@@ -48,7 +48,8 @@ public class ContextInstanceByIdCacheManager extends AbstractCacheManager<Contex
     protected ContextInstance loadSource(ContextInstanceIdCacheKey key) throws ErrorCodeException {
         try{
             logger.info("Loading context instance of Id: {} ...", key);
-            ContextInstance ret = loader.loadContextInstance(key.getTenantId(), key.getInstanceId());
+            ContextInstance ret = loader.loadContextInstance(key.getTenantId(), key.getContextType(),
+                    key.getInstanceId());
             logger.info("Loaded context instance of Id: {} - {}", key, ret);
             return ret;
         } catch (ErrorCodeException ece) {
@@ -68,7 +69,8 @@ public class ContextInstanceByIdCacheManager extends AbstractCacheManager<Contex
     protected ContextInstance reloadSource(ContextInstanceIdCacheKey key, ContextInstance oldSource) throws ErrorCodeException {
         try{
             logger.info("Reloading context instance of Id: {} ...", key);
-            ContextInstance ret = loader.loadContextInstance(key.getTenantId(), key.getInstanceId());
+            ContextInstance ret = loader.loadContextInstance(key.getTenantId(), key.getContextType(),
+                    key.getInstanceId());
             logger.info("Reloaded context instance of Id: {} - {}", key, ret);
             return ret;
         } catch (ErrorCodeException ece) {

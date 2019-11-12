@@ -23,6 +23,8 @@ package com.tdoer.bedrock.impl.context;
 public class ContextInstanceIdCacheKey {
     private Long tenantId;
 
+    private Long contextType;
+
     private Long instanceId;
 
     public Long getTenantId() {
@@ -31,6 +33,14 @@ public class ContextInstanceIdCacheKey {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
+    }
+
+    public Long getContextType() {
+        return contextType;
+    }
+
+    public void setContextType(Long contextType) {
+        this.contextType = contextType;
     }
 
     public Long getInstanceId() {
@@ -49,13 +59,16 @@ public class ContextInstanceIdCacheKey {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("[").append(tenantId).append(", ").append(instanceId).append("]");
+        sb.append("[").append(tenantId).append(", ")
+                .append(contextType).append(", ")
+                .append(instanceId).append("]");
         return sb.toString();
     }
 
-    public static ContextInstanceIdCacheKey getKey(Long tenantId, Long instanceId){
+    public static ContextInstanceIdCacheKey getKey(Long tenantId, Long contextType, Long instanceId){
         ContextInstanceIdCacheKey key = new ContextInstanceIdCacheKey();
         key.setTenantId(tenantId);
+        key.setContextType(contextType);
         key.setInstanceId(instanceId);
         return key;
     }

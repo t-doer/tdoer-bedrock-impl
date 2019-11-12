@@ -38,16 +38,17 @@ public interface ContextProvider {
     List<ContextTypeDefinition> getContextTypes(Long tenantId);
 
     /**
-     * Get context instance of specific context path
-     * @param tenantId Tenant Id, cannot be <code>null</code>, but can be zero
+     * Get context instance of specific context type and instance Id
+     * @param tenantId Tenant Id, cannot be <code>null</code>
+     * @param contextType Context type, cannot be <code>null</code>
      * @param instanceId Context instance Id, cannot be <code>null</code>
      * @return Context instance or <code>null</code>
      */
-    ContextInstance getContextInstance(Long tenantId, Long instanceId);
+    ContextInstance getContextInstance(Long tenantId, Long contextType, Long instanceId);
 
     /**
      * Get context instance by GUID
-     * @param tenantId Tenant Id, cannot be <code>null</code>, but can be zero
+     * @param tenantId Tenant Id, cannot be <code>null</code>
      * @param guid Context instance's GUID, cannot be blank
      * @return Context instance or <code>null</code>
      */
