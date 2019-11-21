@@ -200,6 +200,30 @@ public class DefaultRentalCenter implements RentalCenter {
     }
 
     /**
+     * Get tenant client of specific tenant and client
+     *
+     * @param tenantId Tenant Id, cannot be <code>null</code>
+     * @param clientGUID Client GUID, cannot be blank
+     * @return Tenant client or <code>null</code> if not found
+     */
+    @Override
+    public TenantClient getTenantClient(Long tenantId, String clientGUID) {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(clientGUID, "Client Id cannot be blank");
+
+        DefaultTenantClient[] clients =  tenantClientsCacheManager.getSource(tenantId);
+        if (clients != null) {
+            for(DefaultTenantClient client : clients){
+                if(client.getClientId().equals(clientGUID)){
+                    return client;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Get all tenant clients of a tenant
      *
      * @param tenantId Tenant Id, cannot be <code>null</code>
