@@ -15,11 +15,11 @@
  */
 package com.tdoer.bedrock.impl.context.cache;
 
+import com.tdoer.bedrock.context.ContextType;
 import com.tdoer.bedrock.impl.cache.AbstractCacheManager;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
 import com.tdoer.bedrock.impl.cache.DormantCacheCleaner;
 import com.tdoer.bedrock.impl.context.ContextLoader;
-import com.tdoer.bedrock.impl.context.DefaultContextType;
 import com.tdoer.springboot.error.ErrorCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +31,11 @@ import static com.tdoer.bedrock.impl.BedrockImplErrorCodes.FAILED_TO_LOAD_APPLIC
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class RootContextTypeCacheManager extends AbstractCacheManager<Long, DefaultContextType> {
+public class ContextTypesCacheManager extends AbstractCacheManager<Long, ContextType[]> {
     protected ContextLoader loader;
-    protected Logger logger = LoggerFactory.getLogger(RootContextTypeCacheManager.class);
+    protected Logger logger = LoggerFactory.getLogger(ContextTypesCacheManager.class);
 
-    public RootContextTypeCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ContextLoader loader){
+    public ContextTypesCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner, ContextLoader loader){
         super(cachePolicy, cleaner);
 
         Assert.notNull(loader, "Context loader cannot be null");
@@ -44,36 +44,36 @@ public class RootContextTypeCacheManager extends AbstractCacheManager<Long, Defa
     }
 
     @Override
-    protected DefaultContextType loadSource(Long tenantId) throws ErrorCodeException {
+    protected ContextType[] loadSource(Long tenantId) throws ErrorCodeException {
         try{
-            logger.info("Loading root context type of Id ({}) ...", tenantId);
-            DefaultContextType ret = loader.loadRootContextType(tenantId);
-            logger.info("Loaded root context type of Id ({}): {}", tenantId, ret);
+            logger.info("Loading context types of tenant ({}) ...", tenantId);
+            ContextType[] ret = loader.loadContextTypes(tenantId);
+            logger.info("Loaded {} context types of tenant ({})", ret.length, tenantId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch(Throwable t){
-            logger.error("Failed to load root context type of Id ({})", tenantId, t);
+            logger.error("Failed to load context types of tenant ({})", tenantId);
             throw new ErrorCodeException(FAILED_TO_LOAD_APPLICATION, t, tenantId);
         }
     }
 
     @Override
-    protected void destroySource(DefaultContextType defaultApplication) {
+    protected void destroySource(ContextType[] defaultApplication) {
         // do nothing here
     }
 
     @Override
-    protected DefaultContextType reloadSource(Long tenantId, DefaultContextType oldSource) throws ErrorCodeException {
+    protected ContextType[] reloadSource(Long tenantId, ContextType[] oldSource) throws ErrorCodeException {
         try{
-            logger.info("Reloading root context type of Id ({}) ...", tenantId);
-            DefaultContextType ret = loader.loadRootContextType(tenantId);
-            logger.info("Reloaded root context type of Id ({}): {}", tenantId, ret);
+            logger.info("Reloading context types of tenant ({}) ...", tenantId);
+            ContextType[] ret = loader.loadContextTypes(tenantId);
+            logger.info("Reloaded {} context types of tenant ({})", ret.length, tenantId);
             return ret;
         } catch (ErrorCodeException ece) {
             throw ece;
         } catch(Throwable t){
-            logger.error("Failed to reload root context type of Id ({})", tenantId, t);
+            logger.error("Failed to context types of tenant ({}) ...", tenantId);
             throw new ErrorCodeException(FAILED_TO_LOAD_APPLICATION, t, tenantId);
         }
     }

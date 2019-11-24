@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class DefaultContextCenter implements ContextCenter {
 
-    private RootContextTypeCacheManager rootContextTypeCacheManager;
+    private ContextTypesCacheManager contextTypesCacheManager;
 
     private ContextInstanceByIdCacheManager contextInstanceByIdCacheManager;
 
@@ -60,7 +60,7 @@ public class DefaultContextCenter implements ContextCenter {
 
         contextLoader.setContextCenter(this);
 
-        this.rootContextTypeCacheManager = new RootContextTypeCacheManager(cachePolicy, cleaner, contextLoader);
+        this.contextTypesCacheManager = new ContextTypesCacheManager(cachePolicy, cleaner, contextLoader);
         this.contextInstanceByGuidCacheManager = new ContextInstanceByGuidCacheManager(cachePolicy, cleaner, contextLoader);
         this.contextInstanceByIdCacheManager = new ContextInstanceByIdCacheManager(cachePolicy, cleaner, contextLoader);
         this.contextRolesCacheManager = new ContextRolesCacheManager(cachePolicy, cleaner, contextLoader);
@@ -73,7 +73,7 @@ public class DefaultContextCenter implements ContextCenter {
         this.publicClientResourceCacheManager = new PublicClientResourcesCacheManager(cachePolicy, cleaner, contextLoader);
         this.roleClientResourcesCacheManager = new RoleClientResourcesCacheManager(cachePolicy, cleaner, contextLoader);
         // Initialize cache managers
-        this.rootContextTypeCacheManager.initialize();
+        this.contextTypesCacheManager.initialize();
         this.contextInstanceByGuidCacheManager.initialize();
         this.contextInstanceByIdCacheManager.initialize();
         this.contextRolesCacheManager.initialize();
@@ -83,19 +83,6 @@ public class DefaultContextCenter implements ContextCenter {
         this.publicServiceMethodsCacheManager.initialize();
         this.roleServiceMethodsCacheManager.initialize();
         this.roleClientResourcesCacheManager.initialize();
-    }
-
-    /**
-     * Get the root context type for specific tenant
-     *
-     * @param tenantId Tenant Id, cannot be <code>null</code>
-     * @return Context type, must not be <code>null</code>
-     */
-    @Override
-    public DefaultContextType getRootContextType(Long tenantId) {
-        Assert.notNull(tenantId, "Tenant Id cannot be null");
-
-        return rootContextTypeCacheManager.getSource(tenantId);
     }
 
     /**
@@ -110,7 +97,13 @@ public class DefaultContextCenter implements ContextCenter {
         Assert.notNull(tenantId, "Tenant Id cannot be null");
         Assert.notNull(contextType, "Context type cannot be null");
 
-        return getRootContextType(tenantId).search(contextType);
+        ContextType[] types = contextTypesCacheManager.getSource(tenantId);
+        for(ContextType type : types){
+            if(type.getType().equals(contextType)){
+                return type;
+            }
+        }
+        return null;
     }
 
     /**
@@ -125,7 +118,64 @@ public class DefaultContextCenter implements ContextCenter {
         Assert.notNull(tenantId, "Tenant Id cannot be null");
         Assert.notNull(contextCode, "Context code cannot be blank");
 
-        return getRootContextType(tenantId).search(contextCode);
+        ContextType[] types = contextTypesCacheManager.getSource(tenantId);
+        for(ContextType type : types){
+            if(type.getCode().equals(contextCode)){
+                return type;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * List all content types available for the tenant
+     *
+     * @param tenantId Tenant Id, cannot be <code>null</code>
+     * @param list     List to holds context types, cannot be <code>null</code>
+     */
+    @Override
+    public void listContextTypes(Long tenantId, List<ContextType> list) {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.notNull(list, "List cannot be null");
+
+        ContextType[] types = contextTypesCacheManager.getSource(tenantId);
+        for(ContextType type : types){
+            list.add(type);
+        }
+    }
+
+    /**
+     * List context types of specific category available for the tenant
+     *
+     * @param tenantId Tenant Id, cannot be <code>null</code>
+     * @param category Context category, cannot be blank
+     * @param list     List to holds context types, cannot be <code>null</code>
+     */
+    @Override
+    public void listContextTypes(Long tenantId, String category, List<ContextType> list) {
+        Assert.notNull(tenantId, "Tenant Id cannot be null");
+        Assert.hasText(category, "Context category cannot be blank");
+        Assert.notNull(list, "List cannot be null");
+
+        ContextType[] types = contextTypesCacheManager.getSource(tenantId);
+        for(ContextType type : types){
+            if(type.getCategory().equals(category)){
+                list.add(type);
+            }
+        }
+    }
+
+    /**
+     * The configuration of specific context instance.
+     *
+     * @param contextInstance Context instance, cannot be <code>null</code>
+     * @return Context configuration, must not be <code>null</code>
+     */
+    @Override
+    public ContextConfig getContextConfig(ContextInstance contextInstance) {
+        Assert.notNull(contextInstance, "Context instance cannot be null");
+
+        return new DefaultContextConfig(contextInstance, this);
     }
 
     /**

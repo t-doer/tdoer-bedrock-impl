@@ -22,7 +22,7 @@ import java.io.Serializable;
  */
 public class ContextTypeDefinition implements Serializable {
 
-    private Long id;
+    private Long id; // type
 
     private String name;
 

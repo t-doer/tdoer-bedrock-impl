@@ -18,6 +18,7 @@ package com.tdoer.bedrock.impl.context;
 import com.tdoer.bedrock.context.ContextInstance;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.context.ContextPathParser;
+import com.tdoer.bedrock.context.ContextType;
 import com.tdoer.bedrock.impl.application.DefaultApplicationRepository;
 import com.tdoer.bedrock.impl.definition.context.*;
 import com.tdoer.bedrock.impl.product.DefaultClientResource;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -42,8 +44,6 @@ public class ContextLoader {
 
     private ContextBuilder contextBuilder;
 
-    private ContextTypeDefinition rootContextTypeDefinition;
-
     private static final DefaultContextRole[] EMPTY_CONTEXT_ROLES = new DefaultContextRole[0];
 
     private static final DefaultContextApplicationInstallation[] EMPTY_CONTEXT_APPLICATIONS = new DefaultContextApplicationInstallation[0];
@@ -56,7 +56,6 @@ public class ContextLoader {
         Assert.notNull(applicatinRespository, "Application repository cannot be null");
         Assert.notNull(serviceRepository, "Service repository cannot be null");
 
-        generateRootContextDefiniton();
         this.contextProvider = contextProvider;
         this.contextBuilder = new ContextBuilder(contextPathParser, applicatinRespository, serviceRepository);
     }
@@ -67,18 +66,7 @@ public class ContextLoader {
         this.contextBuilder.setContextCenter(contextCenter);
     }
 
-    void generateRootContextDefiniton(){
-        rootContextTypeDefinition = new ContextTypeDefinition();
-        rootContextTypeDefinition.setCategory("TENANT");
-        rootContextTypeDefinition.setCode("TENANT");
-        rootContextTypeDefinition.setId(1L);
-        rootContextTypeDefinition.setContextPath("1.0");
-        rootContextTypeDefinition.setName("Tenant");
-        rootContextTypeDefinition.setParentType(null);
-        rootContextTypeDefinition.setTenantId(0L);
-    }
-
-    public DefaultContextType loadRootContextType(Long tenantId){
+    public ContextType[] loadContextTypes(Long tenantId){
         List<ContextTypeDefinition> all = null;
         try{
             all = contextProvider.getContextTypes(tenantId);
@@ -86,12 +74,15 @@ public class ContextLoader {
             logger.error("Failed to load context types of tenant Id: " + tenantId, t);
         }
 
-        DefaultContextType root = contextBuilder.buildContextType(rootContextTypeDefinition);
+        ContextType root = ContextType.TENANT;
+        HashSet<ContextType> set = new HashSet<>();
+        set.add(root);
         if(all != null){
-            buildChild(root, all);
+            buildChild(set, root, all);
         }
 
-        return root;
+        ContextType[] ret = new ContextType[set.size()];
+        return set.toArray(ret);
     }
 
     protected List<ContextTypeDefinition> findChildren(List<ContextTypeDefinition> list, Long parentType){
@@ -104,18 +95,18 @@ public class ContextLoader {
         return arr;
     }
 
-    protected void buildChild(DefaultContextType parent, List<ContextTypeDefinition> all){
+    protected void buildChild(HashSet<ContextType> set, ContextType parent, List<ContextTypeDefinition> all){
         List<ContextTypeDefinition> children = findChildren(all, parent.getType());
         if(children.size() ==0){
             return;
         }
 
-        DefaultContextType child = null;
+        ContextType child = null;
         for(ContextTypeDefinition definition : children){
             try{
-                child = contextBuilder.buildContextType(definition);
-                parent.addChild(child);
-                buildChild(child, all);
+                child = contextBuilder.buildContextType(parent, definition);
+                set.add(child);
+                buildChild(set, child, all);
             }catch (Exception ex){
                 logger.error("Invalid context type definition: " + definition, ex);
             }

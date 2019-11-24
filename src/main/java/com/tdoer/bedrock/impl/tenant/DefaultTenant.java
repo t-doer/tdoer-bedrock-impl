@@ -15,50 +15,31 @@
  */
 package com.tdoer.bedrock.impl.tenant;
 
-import com.tdoer.bedrock.context.ContextConfig;
+import com.tdoer.bedrock.Platform;
+import com.tdoer.bedrock.context.AbstractContextInstance;
 import com.tdoer.bedrock.context.ContextInstance;
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.context.ContextType;
-import com.tdoer.bedrock.impl.context.DefaultContextCenter;
-import com.tdoer.bedrock.impl.context.DefaultContextConfig;
-import com.tdoer.bedrock.impl.context.DefaultContextType;
 import com.tdoer.bedrock.impl.definition.tenant.TenantDefinition;
 import com.tdoer.bedrock.tenant.ProductRental;
 import com.tdoer.bedrock.tenant.Tenant;
 import com.tdoer.bedrock.tenant.TenantClient;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 /**
  * @author Htinker Hu (htinker@163.com)
  * @create 2017-09-19
  */
-public class DefaultTenant implements Tenant {
+public class DefaultTenant extends AbstractContextInstance implements Tenant {
 
     protected TenantDefinition definition;
 
-    private DefaultRentalCenter rentalCenter;
-
-    private DefaultContextCenter contextCenter;
-
-    private DefaultContextType rootContextType;
-
-    private ContextPath contextPath;
-
-    private DefaultContextConfig contextConfig;
-
-    public DefaultTenant(TenantDefinition definition, DefaultRentalCenter rentalCenter, DefaultContextCenter contextCenter) {
+    public DefaultTenant(TenantDefinition definition) {
+        super(ContextType.TENANT, new ContextPath(ContextType.TENANT.getType(), definition.getId()));
         Assert.notNull(definition, "Tenant definition cannot be null");
-        Assert.notNull(rentalCenter, "Rental center cannot be null");
-        Assert.notNull(contextCenter, "Context center cannot be null");
 
         this.definition = definition;
-        this.rentalCenter = rentalCenter;
-        this.contextCenter = contextCenter;
-        this.rootContextType = contextCenter.getRootContextType(getId());
-        this.contextPath = new ContextPath(rootContextType.getType(), definition.getId());;
-        this.contextConfig = new DefaultContextConfig(this, contextCenter);
     }
 
     /**
@@ -69,7 +50,7 @@ public class DefaultTenant implements Tenant {
     @Override
     public void listProductRentals(List<ProductRental> list) {
         Assert.notNull(list, "List cannot be null");
-        rentalCenter.listProductRentals(getId(), list);
+        Platform.getRentalCenter().listProductRentals(getId(), list);
     }
 
     /**
@@ -80,7 +61,7 @@ public class DefaultTenant implements Tenant {
     @Override
     public void listTenantClients(List<TenantClient> list) {
         Assert.notNull(list, "List cannot be null");
-        rentalCenter.listTenantClients(getId(), list);
+        Platform.getRentalCenter().listTenantClients(getId(), list);
     }
 
     /**
@@ -134,48 +115,6 @@ public class DefaultTenant implements Tenant {
     }
 
     /**
-     * Get instance's detail information object's ID, say, class's Id, user's Id etc.
-     *
-     * @return associated detail object Id, may be <code>null</code>
-     */
-    @Override
-    public Long getDetailObjectId() {
-        return null;
-    }
-
-    /**
-     * The top parent of the instance, that's the tenant.
-     *
-     * @return
-     */
-    @Override
-    public ContextInstance getTopParent() {
-        return this;
-    }
-
-    /**
-     * Context path to the context instance, say, '1.1-20.2-30.3', it's always
-     * globally unique.
-     *
-     * @return Context path, must not be <code>null</code>
-     */
-    @Override
-    public ContextPath getContextPath() {
-        return contextPath;
-    }
-
-    /**
-     * Context type of the context instance. An instance must below to only one
-     * context type.
-     *
-     * @return Context type, must not be <code>null</code>
-     */
-    @Override
-    public ContextType getContextType() {
-        return rootContextType;
-    }
-
-    /**
      * Get specific context type available for the tenant
      *
      * @param contextType Context type, cannot be <code>null</code>
@@ -184,7 +123,7 @@ public class DefaultTenant implements Tenant {
     @Override
     public ContextType getContextType(Long contextType) {
         Assert.notNull(contextType, "Context type cannot be null");
-        return rootContextType.search(contextType);
+        return Platform.getContextCenter().getContextType(getId(), contextType);
     }
 
     /**
@@ -196,17 +135,7 @@ public class DefaultTenant implements Tenant {
     @Override
     public ContextType getContextType(String contextCode) {
         Assert.hasText(contextCode, "Context code cannot be null");
-        return rootContextType.search(contextCode);
-    }
-
-    /**
-     * The instance's configurations, for example, available applications, context roles etc.
-     *
-     * @return Context configuration, must not be <code>null</code>
-     */
-    @Override
-    public ContextConfig getContextConfig() {
-        return contextConfig;
+        return Platform.getContextCenter().getContextType(getId(), contextCode);
     }
 
     /**
@@ -221,16 +150,7 @@ public class DefaultTenant implements Tenant {
     public void listContextTypes(List<ContextType> list) {
         Assert.notNull(list, "List cannot be null");
 
-        for(ContextType child : rootContextType.getChildren()){
-            listContextTypes(child, list);
-        }
-    }
-
-    private void listContextTypes(ContextType contextType, List<ContextType> list){
-        list.add(contextType);
-        for(ContextType child : contextType.getChildren()){
-            listContextTypes(child, list);
-        }
+        Platform.getContextCenter().listContextTypes(getId(), list);
     }
 
     /**
@@ -243,17 +163,8 @@ public class DefaultTenant implements Tenant {
     public void listContextTypes(String category, List<ContextType> list) {
         Assert.hasText(category, "Category cannot be blank");
         Assert.notNull(list, "List cannot be null");
-        if(rootContextType.getCategory().equals(category)){
-            list.add(rootContextType);
-        }else{
-            ArrayList<ContextType> all = new ArrayList<>();
-            listContextTypes(all);
-            for(ContextType type : all){
-                if(type.getCategory().equals(category)){
-                    list.add(type);
-                }
-            }
-        }
+
+        Platform.getContextCenter().listContextTypes(getId(), category, list);
     }
 
     /**
@@ -266,7 +177,11 @@ public class DefaultTenant implements Tenant {
     public ContextInstance getContextInstance(String guid) {
         Assert.hasText(guid, "GUID cannot be blank");
 
-        return contextCenter.getContextInstance(getId(), guid);
+        if(getGuid().equals(guid)){
+            return this;
+        }
+
+        return Platform.getContextCenter().getContextInstance(getId(), guid);
     }
 
     /**
@@ -278,8 +193,10 @@ public class DefaultTenant implements Tenant {
     @Override
     public ContextInstance getContextInstance(ContextPath contextPath) {
         Assert.notNull(contextPath, "Context path cannot be null");
-
-        return contextCenter.getContextInstance(getId(), contextPath);
+        if(getContextPath().equals(contextPath)){
+            return this;
+        }
+        return Platform.getContextCenter().getContextInstance(getId(), contextPath);
     }
 
     /**
@@ -294,7 +211,10 @@ public class DefaultTenant implements Tenant {
         Assert.notNull(contextType, "Context type cannot be null");
         Assert.notNull(instanceId, "Instance Id cannot be null");
 
-        return contextCenter.getContextInstance(getId(), contextType, instanceId);
+        if(ContextType.TENANT.getType().equals(contextType) && getId().equals(instanceId)){
+            return this;
+        }
+        return Platform.getContextCenter().getContextInstance(getId(), contextType, instanceId);
     }
 
     @Override

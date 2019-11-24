@@ -51,7 +51,7 @@ public class TenantBuilder {
     public DefaultTenant buildTenant(TenantDefinition definition){
         // todo check defnition
 
-        return new DefaultTenant(definition, rentalCenter, contextCenter);
+        return new DefaultTenant(definition);
     }
 
     public DefaultProductRental buildProductRental(TenantProductDefinition definition){

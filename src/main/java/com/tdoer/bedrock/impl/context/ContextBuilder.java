@@ -17,6 +17,7 @@ package com.tdoer.bedrock.impl.context;
 
 import com.tdoer.bedrock.context.ContextPath;
 import com.tdoer.bedrock.context.ContextPathParser;
+import com.tdoer.bedrock.context.ContextType;
 import com.tdoer.bedrock.impl.application.DefaultApplicationRepository;
 import com.tdoer.bedrock.impl.definition.context.*;
 import com.tdoer.bedrock.impl.product.DefaultClientResource;
@@ -56,13 +57,12 @@ public class ContextBuilder {
         this.contextCenter = contextCenter;
     }
 
-    public DefaultContextType buildContextType(ContextTypeDefinition definition){
-        return buildContextType(definition, null);
-    }
-
-    public DefaultContextType buildContextType(ContextTypeDefinition definition, DefaultContextType parent){
-        // todo, check definition
-        return new DefaultContextType(definition, parent);
+    public ContextType buildContextType(ContextType parent, ContextTypeDefinition definition){
+        // todo check definition
+        if(ContextType.USER.getType().equals(definition.getId())){
+            return ContextType.USER;
+        }
+        return new ContextType(definition.getId(), definition.getCode(), definition.getCategory(), parent);
     }
 
 
