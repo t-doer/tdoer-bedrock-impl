@@ -15,6 +15,7 @@
  */
 package com.tdoer.bedrock.impl.autoconfigure;
 
+import com.tdoer.bedrock.impl.BedrockImplErrorCodes;
 import com.tdoer.bedrock.impl.application.ApplicationLoader;
 import com.tdoer.bedrock.impl.application.DefaultApplicationRepository;
 import com.tdoer.bedrock.impl.cache.CachePolicy;
@@ -29,6 +30,8 @@ import com.tdoer.bedrock.impl.service.DefaultServiceRepository;
 import com.tdoer.bedrock.impl.service.ServiceLoader;
 import com.tdoer.bedrock.impl.tenant.DefaultRentalCenter;
 import com.tdoer.bedrock.impl.tenant.TenantLoader;
+import com.tdoer.springboot.util.StatusCodeUtil;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -48,7 +51,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan("com.tdoer.bedrock.impl.cache.admin.controller")
-public class BeckrockAutoConfiguration {
+public class BeckrockAutoConfiguration implements InitializingBean {
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // Register status codes
+        StatusCodeUtil.registerStatusCodes(BedrockImplErrorCodes.class);
+    }
 
     // -----------------------------------------------------------------------------------
     // Cache and Loaders

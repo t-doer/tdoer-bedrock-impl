@@ -20,5 +20,7 @@ The applications, which run on T-Doer framework, need to implements the service 
 ## Todo
 
 - XXX Builder's definition verification
+- Error codes review
+- Read Cache Policy from local configuration
 - CacheManager messages
 - ExtensionDomains, set status according to init values
