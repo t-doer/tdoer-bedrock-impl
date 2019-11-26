@@ -51,7 +51,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan("com.tdoer.bedrock.impl.cache.admin.controller")
-public class BeckrockAutoConfiguration implements InitializingBean {
+public class BeckrockImplAutoConfiguration implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         // Register status codes
