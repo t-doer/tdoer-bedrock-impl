@@ -49,19 +49,19 @@ public abstract class AbstractCacheManager<Key, Source> implements CacheManager<
 	protected int status;
 	protected DormantCacheCleaner cleaner;
 	protected Logger logger = LoggerFactory.getLogger(AbstractCacheManager.class);
-	
+
 	public AbstractCacheManager(CachePolicy cachePolicy, DormantCacheCleaner cleaner){
 		Assert.notNull(cachePolicy, "CachePolicy cannot be null");
 		Assert.notNull(cleaner, "DormantObjectCleaner cannot be null");
 		this.cachePolicy = cachePolicy;
 		this.cleaner = cleaner;
 	}
-	
+
 	@Override
     public void initialize() throws ErrorCodeException {
 		this.cache = new HashMap<>();
 		status = Manageable.STATUS_INITIALIZED;
-		
+
 		if(logger.isDebugEnabled()){
 			logger.debug("CacheManager ({}) is initialized", this);
 		}
@@ -69,7 +69,7 @@ public abstract class AbstractCacheManager<Key, Source> implements CacheManager<
 		// register the cache manager to DormantObjectCleaner;
 		register();
     }
-	
+
 	@Override
     public synchronized int getStatus() {
 		return status;
@@ -79,7 +79,7 @@ public abstract class AbstractCacheManager<Key, Source> implements CacheManager<
     public synchronized boolean isValid() {
 		return (status == Manageable.STATUS_INITIALIZED);
   }
-	
+
 	@Override
     public synchronized void destroy() {
 
@@ -87,58 +87,64 @@ public abstract class AbstractCacheManager<Key, Source> implements CacheManager<
 		unregister();
   		cleanCache();
 		status = Manageable.STATUS_DESTROYED;
-		
+
 		if(logger.isDebugEnabled()){
 			logger.debug("CacheManager ({}) is destroyed", this);
 		}
     }
 
-    @Override
-    public synchronized Source getSource(Key key) throws ErrorCodeException {
+	@Override
+	public synchronized Source getSource(Key key) throws ErrorCodeException {
 
-        checkStatus();
+		checkStatus();
 
-        if(logger.isDebugEnabled()){
-            logger.debug("{}: Getting source for the request '{}'", this, key);
-        }
+		if(logger.isDebugEnabled()){
+			logger.debug("{}: Getting source for the request '{}'", this, key);
+		}
 
-        boolean loaded = false;
-        Source ret = null;
-        CacheEntity<Source> cacheEnt = getCacheEntity(key);
-        if(cacheEnt != null && !cacheEnt.isExpired()){
-            if(logger.isDebugEnabled()){
-                logger.debug("{}: Cache entity was not expired, of request '{}': {}", this, key, cacheEnt);
-            }
+		if(!cachePolicy.isEnabled()){
+			logger.debug("{}: Cache is not enabled, load source for the request '{}' directly", this, key);
+			return loadSource(key);
+		}
 
-            if(cacheEnt.getError() != null){
-                throw cacheEnt.getError();
-            }else{
-                ret = cacheEnt.getSource();
+		boolean loaded = false;
+		Source ret = null;
+		CacheEntity<Source> cacheEnt = getCacheEntity(key);
+		if(cacheEnt != null && !cacheEnt.isExpired()){
+			if(logger.isDebugEnabled()){
+				logger.debug("{}: Cache entity was not expired, of request '{}': {}", this, key, cacheEnt);
+			}
 
-                if(logger.isDebugEnabled()){
-                    logger.debug("{}: Returned cached source for the request '{}': {}", this, key, ret);
-                }
+			if(cachePolicy.isCacheError() && cacheEnt.getError() != null){
+				logger.debug("{}: Error is cached, throw the error from cache, of request '{}'", this, key);
+				throw cacheEnt.getError();
+			}else{
+				ret = cacheEnt.getSource();
 
-                return ret;
-            }
-        }else{
-            try{
-                if(cacheEnt == null){
-                    // load it
-                    ret = loadSource(key);
-                    loaded = true;
+				if(logger.isDebugEnabled()){
+					logger.debug("{}: Returned cached source for the request '{}': {}", this, key, ret);
+				}
 
-                    if(logger.isDebugEnabled()){
-                        logger.debug("{}: Loaded source for the request '{}': {}", this, key, ret);
-                    }
+				return ret;
+			}
+		}else{
+			try{
+				if(cacheEnt == null){
+					// load it
+					ret = loadSource(key);
+					loaded = true;
 
-                }else{ // cache expired
-                    if(logger.isDebugEnabled()){
-                        logger.debug("{}: Cache entity was expired, of request '{}': {}", this, key, cacheEnt);
-                    }
+					if(logger.isDebugEnabled()){
+						logger.debug("{}: No cache entry found, loaded source for the request '{}': {}", this, key, ret);
+					}
 
-                    ret = cacheEnt.getSource();
-                    if(ret != null){
+				}else{ // cache expired
+					if(logger.isDebugEnabled()){
+						logger.debug("{}: Cache entity was expired, of request '{}': {}", this, key, cacheEnt);
+					}
+
+					ret = cacheEnt.getSource();
+					if(ret != null){
 						if(ret instanceof  Modifiable){
 							if(((Modifiable)ret).isModified()){
 								// modified, reload it
@@ -171,42 +177,49 @@ public abstract class AbstractCacheManager<Key, Source> implements CacheManager<
 								logger.debug("{}: Reloaded source for request '{}': {}", this, key, ret);
 							}
 						}
-                    }else{
-                        // load it
-                        ret = loadSource(key);
-                        loaded = true;
 
-                        if(logger.isDebugEnabled()){
-                            logger.debug("{}: Reloaded source, since last failed, for request '{}': {}", this, key, ret);
-                        }
-                    }
-                }
+					}else{
+						// load it
+						ret = loadSource(key);
+						loaded = true;
 
-                if(loaded){
-                    // ret may be null here
-                    cacheEnt = new CacheEntity<Source>(ret, null, cachePolicy);
-                    putCacheEntity(key, cacheEnt);
-                }
-            }catch(ErrorCodeException ex){
-                if(logger.isDebugEnabled()){
-                    // I18n: {0}: Failed to load source for request \"{1}\", because of the error: {2}.
-                    logger.debug("{}: Failed to load source for request '{}', because of the error: {}", this, key, ex);
-                }
+						if(logger.isDebugEnabled()){
+							logger.debug("{}: Reloaded source, since last failed, for request '{}': {}", this, key, ret);
+						}
+					}
+				}
 
-                cacheEnt = new CacheEntity<Source>(null, ex, cachePolicy);
-                putCacheEntity(key, cacheEnt);
-                throw ex;
-            }
-        }
+				if(loaded){
+					if(ret != null){
+						cacheEnt = new CacheEntity<Source>(ret, null, cachePolicy);
+						putCacheEntity(key, cacheEnt);
+					}else if(cachePolicy.isCacheNullEntity()){
+						logger.debug("{}: Null entity is cached for the request '{}'", this, key);
+						cacheEnt = new CacheEntity<Source>(null, null, cachePolicy);
+						putCacheEntity(key, cacheEnt);
+					}
+				}
+			}catch(ErrorCodeException ex){
 
-        return ret;
-    }
+				logger.error("Failed to load source for request: " + key, ex);
+				if(cachePolicy.isCacheError()){
+					logger.debug("{}: Error is cached for the request '{}'", this, key);
+					cacheEnt = new CacheEntity<Source>(null, ex, cachePolicy);
+					putCacheEntity(key, cacheEnt);
+				}
+
+				throw ex;
+			}
+		}
+
+		return ret;
+	}
 
     @Override
 	public synchronized List<Key> getKeys(){
-		
+
 		checkStatus();
-		
+
 		List<Key> list = new ArrayList<Key>();
 		for(Key key : cache.keySet()){
 			list.add(key);
@@ -226,54 +239,54 @@ public abstract class AbstractCacheManager<Key, Source> implements CacheManager<
 
     @Override
 	public synchronized void cleanDormantCache(){
-		
+
 		checkStatus();
-		
+
 		ArrayList<Key> list = new ArrayList<Key>();
 		listDormantEntities(list);
-	  
+
 		if(logger.isDebugEnabled()){
 		  // I18n: Cache cleaner ({0}): total {1} cache entities to clean.
 			logger.debug("Cache Manager ({}): Total {} cache entities to clean",  this, list.size());
 		}
-		
+
 		CacheEntity<Source> ent = null;
 		for(Key k : list){
 			ent = removeCacheEntity(k);
-			
+
 			if(logger.isDebugEnabled()){
 			  // I18n: Cache cleaner ({0}): cache entity (key = value) - \"{1}\" = \"{2}\".
 				logger.debug("Cache Manager ({}): Cache entity (key, value) - ({}, {}", this, k, ent);
 			}
-			
+
 	    if(ent != null && ent.getSource() != null){
 	    	destroySource(ent.getSource());
 	    }
 		}
 	}
-	
+
 	public synchronized void dump(PrintWriter writer){
-		
+
 		checkStatus();
-		
+
 		dumpCache(writer);
 	}
-	
+
 	protected void checkStatus() throws InvalidStatusException{
 		if(status != Manageable.STATUS_INITIALIZED){
 			// I18n: Cache manager is not valid, its current status is \"{0}\".
 			throw new InvalidStatusException("Cache Manager (" + this.getClass() + ") is not initialized yet");
 		}
 	}
-	
+
 	protected void register(){
 		cleaner.registerCacheManager(this);
 	}
-	
+
 	protected void unregister(){
 		cleaner.unregisterCacheManager(this);
 	}
-	
+
     protected CacheEntity<Source> getCacheEntity(Key key) {
 		return cache.get(key);
   }

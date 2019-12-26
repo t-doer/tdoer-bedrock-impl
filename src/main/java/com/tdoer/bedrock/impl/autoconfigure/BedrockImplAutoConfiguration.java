@@ -32,6 +32,7 @@ import com.tdoer.bedrock.impl.tenant.DefaultRentalCenter;
 import com.tdoer.bedrock.impl.tenant.TenantLoader;
 import com.tdoer.springboot.util.StatusCodeUtil;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -62,8 +63,9 @@ public class BedrockImplAutoConfiguration implements InitializingBean {
     // Cache and Loaders
     // -----------------------------------------------------------------------------------
     @Bean
+    @ConfigurationProperties(prefix = "cloud.cache-policy")
     protected CachePolicy cachePolicy(){
-        return new CachePolicy(2*60*1000,5*60*1000,30*60*1000);
+        return new CachePolicy();
     }
 
     @Bean
